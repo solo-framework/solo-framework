@@ -109,30 +109,6 @@ abstract class Configurator
 	 */
 	private static $repository = null;
 	
-	/**
-	 * Реализует автозагрузку файлов с классами
-	 * Читает файл репозитория.
-	 * 
-	 * Можно переопределить в любом месте. Здесь сделан для
-	 * работоспособности "из коробки"
-	 * 
-	 * @param string $class Имя класса
-	 * 
-	 * @return void
-	 */
-	public static function autoload($class)
-	{
-		if (self::$repository == null)
-		{
-			$file = file_get_contents(self::get("framework:file.repository"));
-			self::$repository = unserialize($file);
-		}
-		$file = @self::$repository[strtolower($class)];
-		if ($file === null)
-			throw new Exception("Configurator : Class {$class} does not exists in repository");		
-		require_once $file;
-	}
-	
 
 	/**
 	 * Возвращает значение одного параметра в виде массива.

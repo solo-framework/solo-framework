@@ -1,15 +1,11 @@
 <?php
 /**
- * 
+ * Базовый класс для всех представлений
  * 
  * PHP version 5
  * 
- * @category Core
- * @package  Core
- * @author   Andrey Filippov <afi@i-loto.ru>
- * @license  %license% name
- * @version  SVN: $Id: View.php 9 2007-12-25 11:26:03Z afi $
- * @link     nolink
+ * @package 
+ * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 abstract class View
@@ -22,13 +18,6 @@ abstract class View
 	public $layout = null;
 	
 	/**
-	 * Данные шаблона
-	 * 
-	 * @var mixed
-	 */
-	protected $data = null;	
-	
-	/**
 	 * Путь к файлу с шаблоном для текущего Представления
 	 *
 	 * @var string
@@ -36,39 +25,32 @@ abstract class View
 	public $templateFile = null;
 	
 
+	/**
+	 * Метод вызывается перед render()
+	 * 
+	 * @return void
+	 */
 	public function preRender()
 	{
 		
 	}
 	
+	/**
+	 * Метод вызывается после preRender()
+	 * 
+	 * @return void
+	 */
 	public abstract function render();
 	
+	
+	/**
+	 * Метод вызывается после render()
+	 * 
+	 * @return void
+	 */	
 	public function postRender()
 	{
 		
 	}
-	
-	/**
-	* Добавляет данные в Представление
-	* 
-	* @param string $name Имя объекта, по которому он будет доступен в шаблоне
-	* @param mixed $data Данные
-	* 
-	* @return void
-	*/
-	public function addData($name, $data)
-	{
-		$this->data[$name] = $data;
-	}
-	
-	/**
-	* Возвращает данные контрола
-	* 
-	* @return mixed
-	*/
-	public function getData()
-	{
-		return $this->data;
-	}	
 }
 ?>
