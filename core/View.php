@@ -24,6 +24,13 @@ abstract class View
 	 */
 	public $templateFile = null;
 	
+	/**
+	 * Путь к каталогу, где находится шаблон представления
+	 * 
+	 * @var string
+	 */
+	public $templateFolder = null;
+	
 
 	/**
 	 * Метод вызывается перед render()

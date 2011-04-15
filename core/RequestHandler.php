@@ -50,10 +50,13 @@ class RequestHandler
 		// обрабатываем действие
 		if (null !== $actionName)
 		{
+			$this->handleAction($actionName);
 			
+			// Действие должно заканчиваться редиректом - иначе ошибка
 			die("Action '{$actionName}' has been executed. Redirect?");
 		}
 		
+		// отрисовка представления
 		if ($viewName)
 			$this->handleView($viewName);
 	}

@@ -70,7 +70,7 @@ class DefaultClassLoader
 		}
 		$file = @self::$repository[strtolower($class)];
 		if ($file === null)
-			throw new Exception("DefaultClassLoader : Class '{$class}' does not exists in repository");		
+			throw new Exception("DefaultClassLoader : Class '{$class}' does not exists in repository");
 		require_once $file;
 	}
 }
