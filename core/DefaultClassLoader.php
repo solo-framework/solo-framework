@@ -63,6 +63,9 @@ class DefaultClassLoader
 	 */
 	public static function autoload($class)
 	{
+		if (strpos($class, "Smarty") !== false)
+			return true;
+		
 		if (self::$repository == null)
 		{
 			$file = file_get_contents(self::$repositoryFile);
