@@ -63,7 +63,7 @@ class DefaultClassLoader
 	 */
 	public static function autoload($class)
 	{
-		if (strpos($class, "Smarty") !== false)
+		if (strpos($class, "Smarty_") !== false)
 			return true;
 		
 		if (self::$repository == null)

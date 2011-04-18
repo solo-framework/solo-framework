@@ -97,14 +97,8 @@ class Binder
 		if ($rc->implementsInterface("IAjaxView"))
 			return $this->handleAjaxView($view);
 
-		// макет нужен
-		//$isPage = $rc->implementsInterface("IPage");
-
 		if ($view->layout == null)
 			throw new RuntimeException("Undefined 'layout' property for {$viewName}");
-
-		//if ($view->templateFile == null)
-		//	throw new RuntimeException("Undefined 'templateFile' property for '{$viewName}'");
 
 		// Получение данных в Представлении
 		$view->preRender();
@@ -196,8 +190,11 @@ class Binder
 		$props = $rc->getProperties(ReflectionProperty::IS_PUBLIC);
 
 		foreach ($props as $item)
-			$th->assign($item->getName(), $item->getValue($view));
-
+		{
+			$name = $item->getName();
+			// некрасиво, но быстрее
+			$th->assign($name, $view->$name);
+		}
 		return $th;
 	}
 
