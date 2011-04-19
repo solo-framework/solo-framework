@@ -11,6 +11,12 @@
 
 class Binder
 {
+	/**
+	 * Режим отладки
+	 *
+	 * @var boolean
+	 */
+	public $isDebug = false;
 
 	/**
 	 * Имя класса обработчика шаблонов
@@ -36,22 +42,26 @@ class Binder
 	/**
 	 * Приватный конструктор
 	 *
+	 * @param boolean $isDebug Режим отладки
+	 *
 	 * @return void
 	 */
-	private function __construct()
+	private function __construct($isDebug)
 	{
-
+		$this->isDebug = $isDebug;
 	}
 
 	/**
 	* Возвращает экземпляр класса
 	*
+	* @param boolean $isDebug Режим отладки
+	*
 	* @return Binder
 	*/
-	public static function getInstance()
+	public static function getInstance($isDebug = false)
 	{
 		if (!isset(self::$instance))
-			self::$instance = new self();
+			self::$instance = new self($isDebug);
 		return self::$instance;
 	}
 
@@ -66,13 +76,7 @@ class Binder
 	{
 		// обрабатываем действие
 		if (null !== $actionName)
-		{
 			$this->executeAction($actionName);
-
-			// Действие должно заканчиваться редиректом - иначе ошибка
-			//echo "Action '{$actionName}' has been executed. Redirect?";
-			//exit();
-		}
 
 		// отрисовка представления
 		if ($viewName)
@@ -118,7 +122,17 @@ class Binder
 		$tplHandler = $this->assignToHandler($view, $tplHandler);
 
 		// Вывод HTML
-		return $tplHandler->fetch($this->getViewLayout($view));
+		$html = $tplHandler->fetch($this->getViewLayout($view));
+
+		if ($this->isDebug)
+			$html = $this->addDebugInfo($viewName, $html, $view->templateFile);
+
+		return $html;
+	}
+
+	private function addDebugInfo($viewName, $html, $info = "")
+	{
+		return "<!-- begin of '{$viewName}View' {$info} -->\n{$html}\n<!-- end of '{$viewName}View' {$info} -->\n";
 	}
 
 	/**
@@ -149,12 +163,15 @@ class Binder
 
 		// переменные Представления отправим в шаблон
 		$tplHandler = $this->assignToHandler($view, $tplHandler);
-		//if ($view->templateFile == null)
-		//	throw new RuntimeException("Undefined 'templateFile' property file for '{$className}'");
 		$view->templateFile = $this->getViewTemplate($view);
 
 		// Вывод HTML
-		return $tplHandler->fetch($view->templateFile);
+		$html = $tplHandler->fetch($view->templateFile);
+
+		if ($this->isDebug)
+			$html = $this->addDebugInfo($className, $html, $view->templateFile);
+
+		return $html;
 	}
 
 	/**
