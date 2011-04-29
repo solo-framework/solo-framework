@@ -1,43 +1,43 @@
 <?php
 /**
  * Автоматический загрузчик классов
- * 
+ *
  * PHP version 5
- * 
- * @package 
+ *
+ * @package
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 class DefaultClassLoader
 {
-	
+
 	/**
-	 * Массив, содержащий полные пути к файлам 
+	 * Массив, содержащий полные пути к файлам
 	 * фреймворка и приложения array ('classname' => 'path_to_file')
-	 * 
+	 *
 	 * @var array
 	 */
-	private static $repository = null;	
-	
+	private static $repository = null;
+
 	/**
 	 * Имя файла, в котором содержится информация
 	 * 				о местонахождении файлов с классами
-	 * 
+	 *
 	 * @var string
 	 */
 	private static $repositoryFile = null;
-	
+
 	/**
 	 * Приватный конструктор
-	 * 
+	 *
 	 * @return void
 	 */
 	private function __construct()
 	{
-	
+
 	}
-	
-	
+
+
 	/**
 	 * Регистрация метода для автозагрузки файлов
 	 *
@@ -51,22 +51,28 @@ class DefaultClassLoader
 	{
 		spl_autoload_register($method);
 		self::$repositoryFile = $repositoryFile;
-	}	
-	
+	}
+
+	public static function import($path)
+	{
+
+	}
+
 	/**
 	 * Реализует автозагрузку файлов с классами
-	 * Читает файл репозитория
-	 * 
+	 * Читает файл репозитория: формат файла - сериализованный массив вида
+	 * array ("classname" => "path/to/classname.php" [, ...])
+	 *
 	 * @param string $class Имя класса
-	 * 
+	 *
 	 * @return void
 	 */
-	public static function autoload($class)
+	protected static function autoload($class)
 	{
 		// Игнорируем классы Smarty - у него свой загрузчик
 		if (strpos($class, "Smarty_") !== false)
 			return true;
-		
+
 		if (self::$repository == null)
 		{
 			$file = file_get_contents(self::$repositoryFile);

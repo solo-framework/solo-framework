@@ -71,6 +71,8 @@ class Binder
 	 *
 	 * @param string $actionName
 	 * @param string $viewName
+	 *
+	 * @return string
 	 */
 	public function execute($actionName, $viewName)
 	{
@@ -86,7 +88,9 @@ class Binder
 	/**
 	 * Обработка и отрисовка запрашиваемого представления
 	 *
-	 * @param unknown_type $viewName
+	 * @param string $viewName
+	 *
+	 * @return string
 	 */
 	public function handleView($viewName)
 	{
@@ -130,6 +134,15 @@ class Binder
 		return $html;
 	}
 
+	/**
+	 * Добавляет дополнительную информацию в шаблон представления
+	 *
+	 * @param string $viewName Имя представления
+	 * @param string $html Содержимое представления
+	 * @param string $info Дополнительная информация
+	 *
+	 * @return string
+	 */
 	private function addDebugInfo($viewName, $html, $info = "")
 	{
 		return "<!-- begin of '{$viewName}View' {$info} -->\n{$html}\n<!-- end of '{$viewName}View' {$info} -->\n";
@@ -270,17 +283,6 @@ class Binder
 
 		// Действие должно заканчиваться редиректом - иначе ошибка
 		throw new RuntimeException("Action '{$className}' has been executed. Redirect?");
-	}
-
-	/**
-	 * Отправляет HTTP заголовок 404
-	 *
-	 * @return void
-	 */
-	public static function send404()
-	{
-		header("HTTP/1.1 404 Not Found");
-		exit();
 	}
 
 	/**

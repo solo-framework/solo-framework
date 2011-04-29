@@ -75,7 +75,7 @@ if (SMARTY_SPL_AUTOLOAD && set_include_path(get_include_path() . PATH_SEPARATOR 
     if (!isset($registeredAutoLoadFunctions['spl_autoload'])) {
         spl_autoload_register();
     } 
-} else {
+} else {	
     spl_autoload_register('smartyAutoload');
 } 
 

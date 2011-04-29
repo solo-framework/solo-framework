@@ -75,7 +75,7 @@ class Application
 	public static function createApplication($baseDir, $configFile, $className = null)
 	{
 		$baseDir = realpath($baseDir);
-		
+
 		// хак для возможности наследования от singleton
 		// в разных версиях PHP
 		if (version_compare(phpversion(), "5.3.0", ">="))
@@ -86,7 +86,7 @@ class Application
 		{
 			if ($className == null)
 				throw new RuntimeException("If you have installed PHP version less
-					then 5.3.x you need to set name of inheritable class as getInstance() function parameter.");
+					then 5.3.x you need to set name of inheritable class as createApplication() function parameter.");
 		}
 
 		if (self::$instance == null)
@@ -103,7 +103,7 @@ class Application
 			self::$instance->loadConfiguration($configFile);
 
 			// Установка автозагрузчика классов
-			self::$instance->registerAutoloader();
+			self::$instance->registerClassLoader();
 
 			// Инициализация  всех необходимых объектов: логгера, контекста и пр.
 			self::$instance->init();
@@ -115,7 +115,7 @@ class Application
 	 * Возвращает экземпляр приложения
 	 *
 	 * @static
-	 * 
+	 *
 	 * @return Application
 	 */
 	public static function getInstance()
@@ -123,15 +123,27 @@ class Application
 		return self::$instance;
 	}
 
-	public function onBeforeRun()
+	/**
+	 * Выполняется перед обработкой HTTP-запроса
+	 * В этом методе можно разместить код, который должен выполняться
+	 * при каждом запросе.
+	 *
+	 * @return void
+	 */
+	protected function onBeforehHandleRequest()
 	{
-		
+
 	}
 
-	public function onAfterRun()
+	/**
+	 * Этот метод вызывается самым последним.
+	 * В нем можно разместить код, освобождающий ресурсы
+	 *
+	 * @return void
+	 */
+	protected function onAfterHandleRequest()
 	{
 		self::closeConnections();
-		exit();
 	}
 
 	/**
@@ -143,7 +155,7 @@ class Application
 	 *
 	 * @return void
 	 */
-	public function configurePathConstants()
+	protected function configurePathConstants()
 	{
 		// базовый каталог, где находятся файлы приложения
 		define("BASE_DIR", $this->baseDir);
@@ -163,8 +175,9 @@ class Application
 	 *
 	 * @return void
 	 */
-	public function init()
+	protected function init()
 	{
+		require_once FRAMEWORK_CORE_DIR . "/Request.php";
 		require_once FRAMEWORK_CORE_DIR . "/Session.php";
 		require_once FRAMEWORK_CORE_DIR . "/Logger.php";
 		require_once FRAMEWORK_CORE_DIR . "/Context.php";
@@ -177,6 +190,7 @@ class Application
 		// Старт контекста приложения (сессии)
 		Context::start(Configurator::get("application:name"));
 
+		// режим работы приложения
 		self::$isDebug = Configurator::get("application:debug");
 	}
 
@@ -187,11 +201,22 @@ class Application
 	 *
 	 * @return void
 	 */
-	public function registerAutoloader()
+	protected function registerClassLoader()
 	{
 		// подключаем загрузчик классов
-		require_once FRAMEWORK_CORE_DIR . "/DefaultClassLoader.php";
-		DefaultClassLoader::init(Configurator::get("framework:file.repository"));
+		//require_once FRAMEWORK_CORE_DIR . "/DefaultClassLoader.php";
+		//DefaultClassLoader::init(Configurator::get('framework:file.repository'));
+		require_once FRAMEWORK_CORE_DIR . "/ClassLoader.php";
+		//ClassLoader::init(Configurator::get("application:import"));
+		
+		//ClassLoader::init("var/class.map");
+		//ClassLoader::import("framework/core/*");
+		//ClassLoader::import("app/views/*");
+		ClassLoader::init(Configurator::get("import:classMapFile"));
+		$impotrs = Configurator::getArray("import:import");
+		
+		foreach ($impotrs as $item)
+			ClassLoader::import($item);
 	}
 
 	/**
@@ -203,7 +228,7 @@ class Application
 	 * @param string $configFile Путь к файлу с конфигурацией
 	 * @return void
 	 */
-	public function loadConfiguration($configFile)
+	protected function loadConfiguration($configFile)
 	{
 		// подключение конфигуратора
 		// по умолчанию будем использовать INI конфигурацию
@@ -216,29 +241,50 @@ class Application
 	}
 
 	/**
-	 * Обработка исключений, возникших при выполнении метода run
+	 * Обработка исключений, возникших при выполнении метода handleRequest
 	 *
 	 * @param Exception $e
 	 * @return void
 	 */
-	public function handleException(Exception $e)
+	protected function handleException(Exception $e)
 	{
-		throw $e;
+		if (self::$isDebug)
+		{
+			throw $e;
+		}
+		else 
+		{
+			header("HTTP/1.1 404 Not Found");
+			exit("404 Not Found");			
+		}
+	}
+
+	/**
+	 * Вывод в браузер.
+	 * В наследуемом классе можно переопределить поведение
+	 *
+	 * @param string $result Строка, выводимая в браузер
+	 *
+	 * @return void
+	 */
+	protected function display($result)
+	{
+		echo $result;
 	}
 
 
 	/**
-	 * Запуск приложения
+	 * Обработка HTTP-запроса
 	 *
 	 * @static
-	 * 
+	 *
 	 * @return void
 	 */
-	public static function run()
+	public static function handleRequest()
 	{
 		try
 		{
-			self::$instance->onBeforeRun();
+			self::$instance->onBeforehHandleRequest();
 
 			// создание объекта обработчика запросов
 			$binder = Binder::getInstance(self::$isDebug);
@@ -249,14 +295,19 @@ class Application
 			// или какое представление: если ничего не задано - показываем IndexView
 			$viewName = Request::getVar("view", "index");
 
-			 // вывод в браузер
-			echo $binder->execute($actionName, $viewName);
+			// обработка запроса
+			// если было запрошено представление - получим HTML
+			$html = $binder->execute($actionName, $viewName);
 
-			self::$instance->onAfterRun();
+			// вывод в браузер
+			self::$instance->display($html);
+
+			// Завершение обработки запроса
+			self::$instance->onAfterHandleRequest();
 		}
 		catch (Exception $e)
 		{
-			self::getInstance()->handleException($e);
+			self::$instance->handleException($e);
 		}
 	}
 
@@ -291,7 +342,6 @@ class Application
 			$adapter->close();
 		}
 	}
-
 }
 
 ?>

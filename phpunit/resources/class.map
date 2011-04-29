@@ -1,0 +1,1 @@
+a:2:{s:12:"importedDirs";a:1:{i:0;s:17:"phpunit/resources";}s:8:"classMap";a:5:{s:11:"testmanager";s:33:"phpunit/resources\TestManager.php";s:4:"test";s:26:"phpunit/resources\Test.php";s:17:"testcomponentview";s:39:"phpunit/resources\TestComponentView.php";s:10:"testaction";s:32:"phpunit/resources\TestAction.php";s:8:"testview";s:30:"phpunit/resources\TestView.php";}}
