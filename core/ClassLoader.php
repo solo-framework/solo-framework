@@ -189,10 +189,6 @@ class ClassLoader
 	 */
 	protected static function autoload($class)
 	{
-		// Игнорируем классы Smarty - у него свой загрузчик
-		//if (strpos($class, "Smarty_") !== false)
-		//	return true;
-
 		$file = @self::$classMap[strtolower($class)];
 		if ($file === null)
 			throw new Exception("ClassLoader: Class '{$class}' does not exists in repository");

@@ -30,6 +30,9 @@ class Application
 	 * @var string
 	 */
 	private $baseDir = ".";
+	
+	private static $aliases = null;
+								
 
 	/**
 	 * Коллекция соединений к БД
@@ -168,6 +171,51 @@ class Application
 
 		// указывает на корневой каталог виртуального сервера Apache
 		defined("DOCUMENT_ROOT_DIR") or define("DOCUMENT_ROOT_DIR", BASE_DIR . DIRECTORY_SEPARATOR . "public");
+		
+		// псевдонимы путей
+		
+		// базовый каталог, где находятся файлы приложения
+		self::$aliases["base"] = $this->baseDir;
+
+		// путь к файлам ядра фреймворка 
+		self::$aliases["framework"] = dirname(__FILE__);
+
+		// путь к каталогу, где находятся файлы бизнес-логики (views, actions, etc.)
+		self::$aliases["app"] =  $this->baseDir . DIRECTORY_SEPARATOR . "app";
+
+		// указывает на корневой каталог виртуального сервера Apache
+		self::$aliases["web"] = $this->baseDir . DIRECTORY_SEPARATOR . "public";
+
+	}
+
+	/**
+	 * Возвращает путь по его псевдониму
+	 *
+	 * @static
+	 * @param string $alias Псевдоним пути
+	 *
+	 * @return string
+	 */
+	public static function getPathByAlias($alias)
+	{
+		if (isset(self::$aliases[$alias]))
+			return self::$aliases[$alias];
+		else
+			throw new Exception("Undefined alias {$alias}");
+	}
+
+	/**
+	 * Устанавливает псевдоним для пути к каталогу
+	 *
+	 * @static
+	 * @param string $path Путь к каталогу
+	 * @param string $alias Псевдоним пути
+	 *
+	 * @return void
+	 */
+	public static function setPathByAlias($path, $alias)
+	{
+		self::$aliases[$alias] = $path;
 	}
 
 	/**
@@ -177,11 +225,12 @@ class Application
 	 */
 	protected function init()
 	{
-		require_once FRAMEWORK_CORE_DIR . "/Request.php";
-		require_once FRAMEWORK_CORE_DIR . "/Session.php";
-		require_once FRAMEWORK_CORE_DIR . "/Logger.php";
-		require_once FRAMEWORK_CORE_DIR . "/Context.php";
-		require_once FRAMEWORK_CORE_DIR . "/Binder.php";
+		$frameworkDir = self::getPathByAlias("framework");
+		require_once $frameworkDir . "/Request.php";
+		require_once $frameworkDir . "/Session.php";
+		require_once $frameworkDir . "/Logger.php";
+		require_once $frameworkDir . "/Context.php";
+		require_once $frameworkDir . "/Binder.php";
 
 
 		// Инициализация логгера
