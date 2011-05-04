@@ -100,7 +100,7 @@ class Application
 				self::$instance = new self($baseDir);
 
 			// настроим пути
-			self::$instance->configurePathConstants();
+			self::$instance->configurePaths();
 
 			// загрузка конфигурации
 			self::$instance->loadConfiguration($configFile);
@@ -150,42 +150,33 @@ class Application
 	}
 
 	/**
-	 * В этом методе устанавливаются значения констант, которые
-	 * содержат пути к различным каталогам.
+	 * В этом методе устанавливаются значения псевдонимов для
+	 * различных каталогов
 	 *
 	 * Если структура каталогов, определенная по-умолчанию, не
 	 * соответствует вашим требованиям, этот метод можно переопределить.
 	 *
 	 * @return void
 	 */
-	protected function configurePathConstants()
+	protected function configurePaths()
 	{
+		// псевдонимы путей
+
+		// Здесь определи самую главную константу -
+		// путь, где находятся все файлы
+		define("BASE_DIRECTORY", $this->baseDir);
+
 		// базовый каталог, где находятся файлы приложения
-		define("BASE_DIR", $this->baseDir);
+		self::setPathByAlias("base", $this->baseDir);
 
 		// путь к файлам ядра фреймворка
-		defined("FRAMEWORK_CORE_DIR") or define("FRAMEWORK_CORE_DIR", dirname(__FILE__));
+		self::setPathByAlias("framework", dirname(__FILE__));
 
 		// путь к каталогу, где находятся файлы бизнес-логики (views, actions, etc.)
-		defined("APPLICATION_DIR") or define("APPLICATION_DIR", BASE_DIR . DIRECTORY_SEPARATOR . "app" );
+		self::setPathByAlias("app", $this->baseDir . DIRECTORY_SEPARATOR . "app");
 
 		// указывает на корневой каталог виртуального сервера Apache
-		defined("DOCUMENT_ROOT_DIR") or define("DOCUMENT_ROOT_DIR", BASE_DIR . DIRECTORY_SEPARATOR . "public");
-		
-		// псевдонимы путей
-		
-		// базовый каталог, где находятся файлы приложения
-		self::$aliases["base"] = $this->baseDir;
-
-		// путь к файлам ядра фреймворка 
-		self::$aliases["framework"] = dirname(__FILE__);
-
-		// путь к каталогу, где находятся файлы бизнес-логики (views, actions, etc.)
-		self::$aliases["app"] =  $this->baseDir . DIRECTORY_SEPARATOR . "app";
-
-		// указывает на корневой каталог виртуального сервера Apache
-		self::$aliases["web"] = $this->baseDir . DIRECTORY_SEPARATOR . "public";
-
+		self::setPathByAlias("public", $this->baseDir . DIRECTORY_SEPARATOR . "public");
 	}
 
 	/**
@@ -201,19 +192,19 @@ class Application
 		if (isset(self::$aliases[$alias]))
 			return self::$aliases[$alias];
 		else
-			throw new Exception("Undefined alias {$alias}");
+			throw new Exception("Undefined alias '{$alias}'");
 	}
 
 	/**
 	 * Устанавливает псевдоним для пути к каталогу
 	 *
 	 * @static
-	 * @param string $path Путь к каталогу
 	 * @param string $alias Псевдоним пути
+	 * @param string $path Путь к каталогу
 	 *
 	 * @return void
 	 */
-	public static function setPathByAlias($path, $alias)
+	public static function setPathByAlias($alias, $path)
 	{
 		self::$aliases[$alias] = $path;
 	}
@@ -225,14 +216,6 @@ class Application
 	 */
 	protected function init()
 	{
-		$frameworkDir = self::getPathByAlias("framework");
-		require_once $frameworkDir . "/Request.php";
-		require_once $frameworkDir . "/Session.php";
-		require_once $frameworkDir . "/Logger.php";
-		require_once $frameworkDir . "/Context.php";
-		require_once $frameworkDir . "/Binder.php";
-
-
 		// Инициализация логгера
 		Logger::init(Configurator::getSection("logger"));
 
@@ -253,18 +236,12 @@ class Application
 	protected function registerClassLoader()
 	{
 		// подключаем загрузчик классов
-		//require_once FRAMEWORK_CORE_DIR . "/DefaultClassLoader.php";
-		//DefaultClassLoader::init(Configurator::get('framework:file.repository'));
-		require_once FRAMEWORK_CORE_DIR . "/ClassLoader.php";
-		//ClassLoader::init(Configurator::get("application:import"));
-		
-		//ClassLoader::init("var/class.map");
-		//ClassLoader::import("framework/core/*");
-		//ClassLoader::import("app/views/*");
-		ClassLoader::init(Configurator::get("import:classMapFile"));
-		$impotrs = Configurator::getArray("import:import");
-		
-		foreach ($impotrs as $item)
+		require_once self::getPathByAlias("framework") . "/ClassLoader.php";
+		ClassLoader::init(self::getPathByAlias("base"), Configurator::get("import:classMapFile"));
+		$imports = Configurator::getArray("import:import");
+
+		// импортируем все каталоги, которые были указаны в настройках
+		foreach ($imports as $item)
 			ClassLoader::import($item);
 	}
 
@@ -282,17 +259,20 @@ class Application
 		// подключение конфигуратора
 		// по умолчанию будем использовать INI конфигурацию
 		// по желанию, можно реализовать свой класс
-		require_once FRAMEWORK_CORE_DIR . "/IConfiguratorParser.php";
-		require_once FRAMEWORK_CORE_DIR . "/Configurator.php";
-		require_once FRAMEWORK_CORE_DIR . "/IniConfiguratorParser.php";
+		$frameworkDir = self::getPathByAlias("framework");
+		require_once $frameworkDir . "/IConfiguratorParser.php";
+		require_once $frameworkDir . "/Configurator.php";
+		require_once $frameworkDir . "/IniConfiguratorParser.php";
 
 		Configurator::init(new IniConfiguratorParser($configFile));
 	}
 
 	/**
 	 * Обработка исключений, возникших при выполнении метода handleRequest
+	 * В наследуемом классе можно переопределить обработку ошибок
 	 *
-	 * @param Exception $e
+	 * @param Exception $e Экземпляр исключения
+	 * 
 	 * @return void
 	 */
 	protected function handleException(Exception $e)
@@ -318,6 +298,7 @@ class Application
 	 */
 	protected function display($result)
 	{
+		Request::sendNoCacheHeaders();
 		echo $result;
 	}
 
@@ -333,10 +314,12 @@ class Application
 	{
 		try
 		{
+			// В этом методе можно разместить код, который должен выполняться
+			// при каждом запросе.
 			self::$instance->onBeforehHandleRequest();
 
 			// создание объекта обработчика запросов
-			$binder = Binder::getInstance(self::$isDebug);
+			$controller = Controller::getInstance(self::$isDebug);
 
 			// узнаем, какое действие запрашивается
 			$actionName = Request::getVar("action");
@@ -346,7 +329,7 @@ class Application
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML
-			$html = $binder->execute($actionName, $viewName);
+			$html = $controller->execute($actionName, $viewName);
 
 			// вывод в браузер
 			self::$instance->display($html);
@@ -361,7 +344,7 @@ class Application
 	}
 
 	/**
-	 * Возвращает соединение по его имени
+	 * Возвращает соединение к БД по его имени
 	 *
 	 * @param string $name Имя соединения (см. секцию database в конфигурации)
 	 *
@@ -380,7 +363,7 @@ class Application
 	}
 
 	/**
-	 * Disconnect from MySQL adapters
+	 * Закрывает все соединения с БД
 	 *
 	 * @return void
 	 */

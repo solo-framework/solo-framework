@@ -1,4 +1,13 @@
 <?php
+/**
+ * Класс предоставляющий методы для автоматического подключения
+ * файлов с PHP классами
+ *
+ * PHP version 5
+ *
+ * @package  Core
+ * @author   Andrey Filippov <afi@i-loto.ru>
+ */
 
 class ClassLoader
 {
@@ -18,22 +27,34 @@ class ClassLoader
 	private static $isLoaded = false;
 
 	/**
-	 * Репозиторий ипортированных каталогов
-	 * и файлов
+	 * Список импортированных каталогов
 	 *
-	 * @var mixed
+	 * @var array
 	 */
-	private static $repository = array(
-							"importedDirs" => array(),
-							"classMap" => array()
-						);
-
 	private static $importedDirs = array();
 
+	/**
+	 * Список импортированных классов
+	 *
+	 * @var array
+	 */
 	private static $classMap = array();
-	
-	private static $mathod = null;
-	
+
+	/**
+	 * Имя метода выполняющего загрузку классов
+	 *
+	 * @var string
+	 */
+	private static $method = null;
+
+	/**
+	 * Базовый каталог, относительно которого
+	 * указываются все остальные пути
+	 *
+	 * @var string
+	 */
+	private static $baseDirectory = null;
+
 
 	/**
 	 * Приватный конструктор
@@ -48,19 +69,29 @@ class ClassLoader
 	/**
 	 * Регистрация метода для автозагрузки файлов
 	 *
+	 * @param string $baseDirectory Базовый каталог для файлов
 	 * @param string $classMapFile Имя файла, в котором содержится информация
 	 * 				о местонахождении файлов с классами
 	 * @param string $method Имя метода, выполняющего загрузку классов
 	 *
 	 * @return void
 	 */
-	public static function init($classMapFile, $method = "ClassLoader::autoload")
+	public static function init($baseDirectory, $classMapFile, $method = "ClassLoader::autoload")
 	{
-		self::$mathod = $method;
+		self::$method = $method;
+		self::$baseDirectory = $baseDirectory;
 		spl_autoload_register($method);
-		self::$classMapFile = BASE_DIR . DIRECTORY_SEPARATOR . $classMapFile;
+		self::$classMapFile = $classMapFile;
 	}
 
+	/**
+	 * Считывает информацию из репозитория классов,
+	 * если этот файл существует и еще не был загружен
+	 *
+	 * @static
+	 *
+	 * @return void
+	 */
 	private static function readClassMap()
 	{
 		if (file_exists(self::$classMapFile) && !self::$isLoaded)
@@ -73,6 +104,14 @@ class ClassLoader
 		}
 	}
 
+	/**
+	 * Записывает в файл репозиторий классов
+	 *
+	 * @static
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
 	private static function writeClassMap()
 	{
 		$out["importedDirs"] = self::$importedDirs;
@@ -96,7 +135,7 @@ class ClassLoader
 		$needWrite = false;
 
 		// считаем инф-ю из репозитория
-		$repo = self::readClassMap();
+		self::readClassMap();
 
 		// проверим, это каталог или файл
 		// если каталог, то в конце строки должен стоять знак "*"
@@ -108,7 +147,7 @@ class ClassLoader
 			// убираем * и слэши
 			$path = str_replace("*", "", $path);
 			$path = trim($path, '/\\');
-			$path = BASE_DIR . DIRECTORY_SEPARATOR .$path;
+			$path = self::$baseDirectory . DIRECTORY_SEPARATOR .$path;
 
 			// не импортирован
 			if (!in_array($path, self::$importedDirs))
@@ -127,7 +166,7 @@ class ClassLoader
 		}
 		else
 		{
-			$needWrite = self::addToClassMap(BASE_DIR . DIRECTORY_SEPARATOR . $path, $className);
+			$needWrite = self::addToClassMap(self::$baseDirectory . DIRECTORY_SEPARATOR . $path, $className);
 		}
 
 		// запишем изменения в файл
@@ -135,6 +174,18 @@ class ClassLoader
 			self::writeClassMap();
 	}
 
+	/**
+	 * Добавляет в репозиторий классов путь к файлу, где он определен и имя класса.
+	 * Имя класса по-умолчанию идентично имени файла, если это условие не соблюдено, то
+	 * можно указать имя класса, содержащегося в этом файле вторым параметром
+	 *
+	 * @static
+	 * @throws Exception
+	 * @param string $path путь к файлу, где он определен класс
+	 * @param null|string $className Имя класса, содержащегося в файле
+	 *
+	 * @return bool
+	 */
 	private static function addToClassMap($path, $className = null)
 	{
 		if (!file_exists($path))
@@ -194,12 +245,21 @@ class ClassLoader
 			throw new Exception("ClassLoader: Class '{$class}' does not exists in repository");
 		require_once $file;
 	}
-	
+
+	/**
+	 * Регистрирует метода в качестве автоматического загрузчика классов
+	 *
+	 * @static
+	 * @param string $callback Имя метода, регистрируемого
+	 *                         в качестве автоматического загрузчика классов
+	 *
+	 * @return void
+	 */
 	public static function registerAutoloader($callback)
 	{
-		spl_autoload_unregister(self::$mathod);
+		spl_autoload_unregister(self::$method);
 		spl_autoload_register($callback);
-		spl_autoload_register(self::$mathod);
+		spl_autoload_register(self::$method);
 	}	
 }
 

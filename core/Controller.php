@@ -9,7 +9,7 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-class Binder
+class Controller
 {
 	/**
 	 * Режим отладки
@@ -192,7 +192,7 @@ class Binder
 	 *
 	 * @return
 	 */
-	public function handleAjaxView(IAjaxView $view)
+	public function handleAjaxView(View $view)
 	{
 		// экземпляр обработчика шаблонов
 		$rcTh = new ReflectionClass($this->getTemplateHandlerClass());
@@ -241,7 +241,7 @@ class Binder
 		else
 			$file = $folder . get_class($view) . $this->templateExtension;
 
-		return Configurator::get("framework:directory.templates") . DIRECTORY_SEPARATOR . $file;
+		return Configurator::get("application:directory.templates") . DIRECTORY_SEPARATOR . $file;
 	}
 
 	/**
@@ -251,7 +251,7 @@ class Binder
 	*/
 	private function getViewLayout(View $view)
 	{
-		$layoutDir = Configurator::get("framework:directory.layouts");
+		$layoutDir = Configurator::get("application:directory.layouts");
 		$file = $layoutDir . DIRECTORY_SEPARATOR . $view->layout;
 		return $file;
 	}
