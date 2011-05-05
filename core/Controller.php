@@ -188,12 +188,19 @@ class Controller
 	}
 
 	/**
+	 * Отрисовка представления, имплементирующего IAjaxView
 	 *
+	 * @param View $view Экземпляр представления
 	 *
-	 * @return
+	 * @return string
 	 */
 	public function handleAjaxView(View $view)
 	{
+		// Получение данных в Представлении
+		$view->preRender();
+		$view->render();
+		$view->postRender();
+
 		// экземпляр обработчика шаблонов
 		$rcTh = new ReflectionClass($this->getTemplateHandlerClass());
 		$tplHandler = $rcTh->newInstance();

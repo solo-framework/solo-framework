@@ -8,10 +8,8 @@
  * @author   Andrey Filippov <afi@i-loto.ru>
  */
 
-ClassLoader::import("framework/lib/Smarty/Smarty.class.php", "Smarty");
-ClassLoader::import("framework/lib/Smarty/sysplugins/smarty_internal_data.php", "Smarty_Internal_Data");
-
-//require_once FRAMEWORK_CORE_DIR . "/../lib/Smarty/Smarty.class.php";
+ClassLoader::import("@framework/../lib/Smarty/Smarty.class.php", "Smarty");
+ClassLoader::import("@framework/../lib/Smarty/sysplugins/smarty_internal_data.php", "Smarty_Internal_Data");
 
 class SmartyTemplateHandler extends Smarty implements ITemplateHandler
 {

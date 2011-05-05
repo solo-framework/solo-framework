@@ -31,15 +31,14 @@ class Application
 	 */
 	private $baseDir = ".";
 	
-	private static $aliases = null;
-								
-
 	/**
 	 * Коллекция соединений к БД
 	 *
 	 * @var array
 	 */
 	private static $connections = array();
+
+	private static $start = 0;
 
 	/**
 	 * Приватный коструктор для реализации Singleton
@@ -49,6 +48,11 @@ class Application
 	protected function __construct($baseDir)
 	{
 		$this->baseDir = $baseDir;
+	}
+
+	public static function getExecutionTime()
+	{
+		return microtime(true) - self::$start;
 	}
 
 	/**
@@ -77,6 +81,7 @@ class Application
 	 */
 	public static function createApplication($baseDir, $configFile, $className = null)
 	{
+		self::$start = microtime(true);
 		$baseDir = realpath($baseDir);
 
 		// хак для возможности наследования от singleton
@@ -105,8 +110,8 @@ class Application
 			// загрузка конфигурации
 			self::$instance->loadConfiguration($configFile);
 
-			// Установка автозагрузчика классов
-			self::$instance->registerClassLoader();
+			// Импортирование классов
+			self::$instance->importClasses();
 
 			// Инициализация  всех необходимых объектов: логгера, контекста и пр.
 			self::$instance->init();
@@ -160,54 +165,49 @@ class Application
 	 */
 	protected function configurePaths()
 	{
-		// псевдонимы путей
+		//
+		// Структура каталогов по-умолчанию
+		//  .. <- BASE_DIRECTORY
+		//   +app
+		//   +public
+		//   +config
+		//   +var
+		//
+		// если нужна другая - переопределите метод configurePaths()
 
 		// Здесь определи самую главную константу -
 		// путь, где находятся все файлы
 		define("BASE_DIRECTORY", $this->baseDir);
 
+		// путь к файлам ядра фреймворка
+		$frameworkDirectory = dirname(__FILE__);
+
+		// подключаем загрузчик классов
+		require_once $frameworkDirectory . "/ClassLoader.php";
+
+		// файл с репозиторием классов будет записываться в каталог /var
+		ClassLoader::init($this->baseDir, $this->baseDir . DIRECTORY_SEPARATOR . "var/class.map");
+
+		//
+		// Установка псевдонимов путей. Псевдонимы используются для упрощения
+		// указания путей. Использование: ClassLoader::import("@framework/SomeClass.php");
+		// В этом случае директива @framework заменяется на полный путь к соответствующему каталогу
+		//
+
 		// базовый каталог, где находятся файлы приложения
-		self::setPathByAlias("base", $this->baseDir);
+		ClassLoader::setPathByAlias("base", $this->baseDir);
 
 		// путь к файлам ядра фреймворка
-		self::setPathByAlias("framework", dirname(__FILE__));
+		ClassLoader::setPathByAlias("framework", $frameworkDirectory);
 
 		// путь к каталогу, где находятся файлы бизнес-логики (views, actions, etc.)
-		self::setPathByAlias("app", $this->baseDir . DIRECTORY_SEPARATOR . "app");
+		ClassLoader::setPathByAlias("app", $this->baseDir . DIRECTORY_SEPARATOR . "app");
 
 		// указывает на корневой каталог виртуального сервера Apache
-		self::setPathByAlias("public", $this->baseDir . DIRECTORY_SEPARATOR . "public");
+		ClassLoader::setPathByAlias("public", $this->baseDir . DIRECTORY_SEPARATOR . "public");
 	}
 
-	/**
-	 * Возвращает путь по его псевдониму
-	 *
-	 * @static
-	 * @param string $alias Псевдоним пути
-	 *
-	 * @return string
-	 */
-	public static function getPathByAlias($alias)
-	{
-		if (isset(self::$aliases[$alias]))
-			return self::$aliases[$alias];
-		else
-			throw new Exception("Undefined alias '{$alias}'");
-	}
 
-	/**
-	 * Устанавливает псевдоним для пути к каталогу
-	 *
-	 * @static
-	 * @param string $alias Псевдоним пути
-	 * @param string $path Путь к каталогу
-	 *
-	 * @return void
-	 */
-	public static function setPathByAlias($alias, $path)
-	{
-		self::$aliases[$alias] = $path;
-	}
 
 	/**
 	 * Инициализация  всех необходимых объектов: логгера, контекста и пр.
@@ -233,14 +233,10 @@ class Application
 	 *
 	 * @return void
 	 */
-	protected function registerClassLoader()
+	protected function importClasses()
 	{
-		// подключаем загрузчик классов
-		require_once self::getPathByAlias("framework") . "/ClassLoader.php";
-		ClassLoader::init(self::getPathByAlias("base"), Configurator::get("import:classMapFile"));
-		$imports = Configurator::getArray("import:import");
-
 		// импортируем все каталоги, которые были указаны в настройках
+		$imports = Configurator::getArray("import:import");
 		foreach ($imports as $item)
 			ClassLoader::import($item);
 	}
@@ -259,7 +255,7 @@ class Application
 		// подключение конфигуратора
 		// по умолчанию будем использовать INI конфигурацию
 		// по желанию, можно реализовать свой класс
-		$frameworkDir = self::getPathByAlias("framework");
+		$frameworkDir = ClassLoader::getPathByAlias("framework");
 		require_once $frameworkDir . "/IConfiguratorParser.php";
 		require_once $frameworkDir . "/Configurator.php";
 		require_once $frameworkDir . "/IniConfiguratorParser.php";
@@ -298,7 +294,10 @@ class Application
 	 */
 	protected function display($result)
 	{
-		Request::sendNoCacheHeaders();
+		// отправляем заголовки, запрещающие кэширование
+		if (Configurator::get("application:nocache"))
+			Request::sendNoCacheHeaders();
+		
 		echo $result;
 	}
 

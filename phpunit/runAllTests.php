@@ -4,14 +4,15 @@ require_once 'PHPUnit/Framework/TestSuite.php';
 
 require_once 'phpunit/ConfiguratorTest.php';
 require_once 'phpunit/DefaultClassLoaderTest.php';
+require_once 'phpunit/RequestTest.php';
 
 //require_once 'phpunit/EntityManagerTest.php';
 //require_once 'phpunit/PHPSettingsTest.php';
-//require_once 'phpunit/RequestTest.php';
+//
 //require_once 'phpunit/XDateTimeTest.php';
 //require_once 'phpunit/ControlTest.php';
 //
-//require_once 'phpunit/SessionTest.php';
+require_once 'phpunit/SessionTest.php';
 //require_once 'phpunit/SQLConditionTest.php';
 //require_once 'phpunit/IniConfiguratorTest.php';
 
@@ -44,11 +45,11 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		
 //		$this->addTestSuite('EntityManagerTest');
 //		$this->addTestSuite("PHPSettingsTest");
-//		$this->addTestSuite("RequestTest");
+		$this->addTestSuite("RequestTest");
 //		$this->addTestSuite("XDateTimeTest");
 //		$this->addTestSuite("ControlTest");
 //		
-//		$this->addTestSuite("SessionTest");
+		$this->addTestSuite("SessionTest");
 //		$this->addTestSuite("SQLConditionTest");
 //		$this->addTestSuite("IniConfiguratorTest");
 	}
