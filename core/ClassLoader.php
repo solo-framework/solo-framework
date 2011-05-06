@@ -167,11 +167,11 @@ class ClassLoader
 	private static function detectAlias($path)
 	{
 		$matches = null;
-		if (preg_match('%@([\w]+)[/]%', $path, $matches))
+		if (preg_match('%@([\w]+)[/]?%', $path, $matches))
 		{
 			$path = str_replace("@" . $matches[1], "", $path);
 			$pathByAlias = self::getPathByAlias($matches[1]);
-			
+
 			if (!file_exists($pathByAlias . $path))
 				throw new Exception("ClassLoader: path '{$pathByAlias}{$path}' does not exists.");
 
@@ -207,8 +207,6 @@ class ClassLoader
 			$path = str_replace("*", "", $path);
 			$path = trim($path, '/\\');
 
-
-
 			// не импортирован
 			if (!in_array($path, self::$importedDirs))
 			{
@@ -219,7 +217,8 @@ class ClassLoader
 				else
 					$path = self::$baseDirectory . DIRECTORY_SEPARATOR .$path;
 
-				$needWrite = true;				
+				if (!file_exists($path))
+					throw new Exception("ClassLoader: can't find directory '{$path}'");
 
 				// сканируем каталог и добавляем все файлы в репозиторий
 				$di = new DirectoryIterator($path);
@@ -228,6 +227,7 @@ class ClassLoader
 					self::addToClassMap($di->getPathName());
 					$di->next();
 				}
+				$needWrite = true;
 			}
 		}
 		else
@@ -261,8 +261,8 @@ class ClassLoader
 		if (!file_exists($path))
 			throw new Exception("ClassLoader: can't import file {$path}. File does not exists.");
 
-		//if (!is_file($path))
-		//	return false;
+		if (!is_file($path))
+			return false;
 
 		$pathinfo = pathinfo($path);
 		if ($pathinfo["extension"] !== "php")

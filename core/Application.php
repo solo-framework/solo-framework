@@ -18,6 +18,13 @@ class Application
 	public static $isDebug = false;
 
 	/**
+	 * Имя представления по умолчанию
+	 *
+	 * @var string
+	 */
+	public static $defaultView = "index";
+
+	/**
 	 * Экземпляр приложения
 	 *
 	 * @var Application
@@ -235,6 +242,10 @@ class Application
 	 */
 	protected function importClasses()
 	{
+		// импортируем каталоги с файлами фреймворка
+		ClassLoader::import("@framework/*");
+		ClassLoader::import("@framework/db/*");
+
 		// импортируем все каталоги, которые были указаны в настройках
 		$imports = Configurator::getArray("import:import");
 		foreach ($imports as $item)
@@ -303,7 +314,10 @@ class Application
 
 
 	/**
-	 * Обработка HTTP-запроса
+	 * Обработка HTTP-запроса.
+	 *
+	 * Запрос имеет вид index.php?view=viewname для отображения Представления
+	 * и index.php?action=actionName для выполнения Действия
 	 *
 	 * @static
 	 *
@@ -324,7 +338,7 @@ class Application
 			$actionName = Request::getVar("action");
 
 			// или какое представление: если ничего не задано - показываем IndexView
-			$viewName = Request::getVar("view", "index");
+			$viewName = Request::getVar("view", self::$defaultView);
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML
@@ -347,13 +361,14 @@ class Application
 	 *
 	 * @param string $name Имя соединения (см. секцию database в конфигурации)
 	 *
-	 * @return resource Соединение к БД
+	 * @return IDBAdapter Соединение к БД
 	 * */
 	public static function getConnection($name)
 	{
 		if (!@key_exists($name, self::$connections))
 		{
-			$adapter = DBFactory::factory(Configurator::get($name . ":driver"));
+			$adapterName = Configurator::get($name . ":driver") . "Adapter";
+			$adapter = new $adapterName();
 			$adapter->setConfig(Configurator::getSection($name));
 			self::$connections[$name] = $adapter;
 		}
