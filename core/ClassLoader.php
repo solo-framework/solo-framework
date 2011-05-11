@@ -161,7 +161,7 @@ class ClassLoader
 	 *
 	 * @static
 	 * @param string $path Путь к файлу или каталогу
-	 * 
+	 *
 	 * @return null|string
 	 */
 	private static function detectAlias($path)
@@ -280,17 +280,35 @@ class ClassLoader
 		}
 		else
 		{
-			return false;
+			if ($path !== self::$classMap[$fileName])
+				throw new Exception("ClassLoader: class '{$fileName}' (from {$path}) already imported in " . self::$classMap[$fileName]);
+			else
+				return false;
 		}
 	}
 
+
+	/**
+	 * Очищает репозиторий классов и удаляет файл,
+	 * в который записывается репозиторий
+	 *
+	 * @return void
+	 */
+	public static function reset()
+	{
+		self::$classMap = array();
+		self::$importedDirs = array();
+
+		if (file_exists(self::$classMapFile))
+			unlink(self::$classMapFile);
+	}
 
 	/**
 	 *
 	 *
 	 * @return
 	 */
-	public static function getImported()
+	public static function getImportedDirs()
 	{
 		return self::$importedDirs;
 	}
@@ -332,7 +350,7 @@ class ClassLoader
 		spl_autoload_unregister(self::$method);
 		spl_autoload_register($callback);
 		spl_autoload_register(self::$method);
-	}	
+	}
 }
 
 ?>

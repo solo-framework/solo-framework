@@ -235,6 +235,13 @@ class Controller
 		return $th;
 	}
 
+	/**
+	 * Возвращает путь к файлу шаблона предаставления
+	 *
+	 * @param View $view Экземпляр представления
+	 *
+	 * @return string
+	 */
 	public function getViewTemplate(View $view)
 	{
 		// если указан каталог с шаблоном для этого представления

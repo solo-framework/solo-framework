@@ -3,24 +3,24 @@
 require_once 'PHPUnit/Framework/TestSuite.php';
 
 require_once 'phpunit/ConfiguratorTest.php';
-require_once 'phpunit/DefaultClassLoaderTest.php';
+require_once 'phpunit/ClassLoaderTest.php';
 require_once 'phpunit/RequestTest.php';
 
 //require_once 'phpunit/EntityManagerTest.php';
 //require_once 'phpunit/PHPSettingsTest.php';
 //
-//require_once 'phpunit/XDateTimeTest.php';
+require_once 'phpunit/XDateTimeTest.php';
 //require_once 'phpunit/ControlTest.php';
 //
 require_once 'phpunit/SessionTest.php';
-//require_once 'phpunit/SQLConditionTest.php';
+require_once 'phpunit/SQLConditionTest.php';
 //require_once 'phpunit/IniConfiguratorTest.php';
 
 /**
  * Запуск всех юнит-тестов
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category Framework
  * @package  Test
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -38,19 +38,19 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 	public function __construct ()
 	{
 		date_default_timezone_set("Europe/Moscow");
-		
+
 		$this->setName('Framework tests');
 		$this->addTestSuite("ConfiguratorTest");
-		$this->addTestSuite("DefaultClassLoaderTest");
-		
+		$this->addTestSuite("ClassLoaderTest");
+
 //		$this->addTestSuite('EntityManagerTest');
 //		$this->addTestSuite("PHPSettingsTest");
 		$this->addTestSuite("RequestTest");
-//		$this->addTestSuite("XDateTimeTest");
+		$this->addTestSuite("XDateTimeTest");
 //		$this->addTestSuite("ControlTest");
-//		
+//
 		$this->addTestSuite("SessionTest");
-//		$this->addTestSuite("SQLConditionTest");
+		$this->addTestSuite("SQLConditionTest");
 //		$this->addTestSuite("IniConfiguratorTest");
 	}
 

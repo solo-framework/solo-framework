@@ -145,7 +145,7 @@ class Application
 	 *
 	 * @return void
 	 */
-	protected function onBeforehHandleRequest()
+	protected function onBeginHandleRequest()
 	{
 
 	}
@@ -156,7 +156,7 @@ class Application
 	 *
 	 * @return void
 	 */
-	protected function onAfterHandleRequest()
+	protected function onEndHandleRequest()
 	{
 		self::closeConnections();
 	}
@@ -187,10 +187,10 @@ class Application
 		define("BASE_DIRECTORY", $this->baseDir);
 
 		// путь к файлам ядра фреймворка
-		$frameworkDirectory = dirname(__FILE__);
+		$frameworkDirectory = realpath(dirname(__FILE__) . "/..");
 
 		// подключаем загрузчик классов
-		require_once $frameworkDirectory . "/ClassLoader.php";
+		require_once $frameworkDirectory . "/core/ClassLoader.php";
 
 		// файл с репозиторием классов будет записываться в каталог /var
 		ClassLoader::init($this->baseDir, $this->baseDir . DIRECTORY_SEPARATOR . "var/class.map");
@@ -227,7 +227,7 @@ class Application
 		Logger::init(Configurator::getSection("logger"));
 
 		// Старт контекста приложения (сессии)
-		Context::start(Configurator::get("application:name"));
+		Context::start(Configurator::get("application:sessionname"));
 
 		// режим работы приложения
 		self::$isDebug = Configurator::get("application:debug");
@@ -243,8 +243,8 @@ class Application
 	protected function importClasses()
 	{
 		// импортируем каталоги с файлами фреймворка
-		ClassLoader::import("@framework/*");
-		ClassLoader::import("@framework/db/*");
+		ClassLoader::import("@framework/core/*");
+		ClassLoader::import("@framework/core/db/*");
 
 		// импортируем все каталоги, которые были указаны в настройках
 		$imports = Configurator::getArray("import:import");
@@ -267,9 +267,9 @@ class Application
 		// по умолчанию будем использовать INI конфигурацию
 		// по желанию, можно реализовать свой класс
 		$frameworkDir = ClassLoader::getPathByAlias("framework");
-		require_once $frameworkDir . "/IConfiguratorParser.php";
-		require_once $frameworkDir . "/Configurator.php";
-		require_once $frameworkDir . "/IniConfiguratorParser.php";
+		require_once $frameworkDir . "/core/IConfiguratorParser.php";
+		require_once $frameworkDir . "/core/Configurator.php";
+		require_once $frameworkDir . "/core/IniConfiguratorParser.php";
 
 		Configurator::init(new IniConfiguratorParser($configFile));
 	}
@@ -329,7 +329,7 @@ class Application
 		{
 			// В этом методе можно разместить код, который должен выполняться
 			// при каждом запросе.
-			self::$instance->onBeforehHandleRequest();
+			self::$instance->onBeginHandleRequest();
 
 			// создание объекта обработчика запросов
 			$controller = Controller::getInstance(self::$isDebug);
@@ -348,7 +348,7 @@ class Application
 			self::$instance->display($html);
 
 			// Завершение обработки запроса
-			self::$instance->onAfterHandleRequest();
+			self::$instance->onEndHandleRequest();
 		}
 		catch (Exception $e)
 		{
