@@ -3,9 +3,9 @@
  * Получение данных из HTTP запроса.
  * Их предварительная обработка.
  * Отправка HTTP заголовков
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category Framework
  * @package  Core
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -18,7 +18,7 @@ class Request
 {
 	/**
 	 * Возвращает HTTP_REFERER
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function prevUri()
@@ -26,42 +26,42 @@ class Request
 		if (array_key_exists("HTTP_REFERER", $_SERVER))
 			return $_SERVER["HTTP_REFERER"];
 		else
-			return "/";   
+			return "/";
 	}
 
 	/**
 	 * Возвращает REQUEST_URI
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function requestUri()
 	{
 		return $_SERVER["REQUEST_URI"];
 	}
-	
+
 	/**
 	 * Возвращает true, если HTTP запрос выполнен методом POST
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function isPost()
 	{
 		return "POST" == Request::getMethod();
 	}
-	
+
 	/**
 	 * Возвращает true, если HTTP запрос выполнен методом GET
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function isGet()
 	{
 		return "GET" == Request::getMethod();
 	}
-	
+
 	/**
 	 * Возвращает имя метода, которым был отправлен запрос
-	 * 
+	 *
 	 * @return string
 	 * */
 	public static function getMethod()
@@ -71,7 +71,7 @@ class Request
 
 	/**
 	 * Возвращает клиентский IP адрес
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function getIp()
@@ -81,12 +81,12 @@ class Request
 
 	/**
 	 * Возвращает значение переменной HTTP из запроса
-	 * 
+	 *
 	 * @param string $name Имя переменной
 	 * @param mixed $default Значение переменной, которое будет возвращего по умолчанию
-	 * @param boolean $allowHTML Если true, то не преобразует 
+	 * @param boolean $allowHTML Если true, то не преобразует
 	 * 				специальные символы в HTML сущности и не экранирует кавычки
-	 * 
+	 *
 	 * @return mixed
 	 * 	 */
 	public static function getVar($name, $default = null, $allowHTML = false)
@@ -94,11 +94,11 @@ class Request
 		$res = self::getRawData($name, $default);
 		if (null === $res || "" === $res)
 			return $default;
-	
+
 		// преобразование специальных символов в HTML сущности
 		if (!$allowHTML)
 			$res = htmlspecialchars($res);
-		
+
 		// экранирование кавычек
 		if (!$allowHTML)
 			$res = self::clearInput($res);
@@ -107,10 +107,10 @@ class Request
 
 	/**
 	 * Возвращает нефильтрованный данные из запроса
-	 * 
+	 *
 	 * @param string $name Имя переменной
 	 * @param mixed $default Значение по умолчанию
-	 * 
+	 *
 	 * @return mixed
 	 */
 	private static function getRawData($name, $default = null)
@@ -121,24 +121,24 @@ class Request
 			case isset($_GET[$name]):
 				$res = $_GET[$name];
 				break;
-				
+
 			case isset($_POST[$name]):
 				$res = $_POST[$name];
 				break;
-				
+
 			default:
 				return $default;
 		}
 
 		return $res;
 	}
-	
+
 	/**
-	 * Экранирует спецсимволы. 
+	 * Экранирует спецсимволы.
 	 * Удаляет пробелы в начале и конце строки
-	 * 
+	 *
 	 * @param string $input Входящая строка
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function clearInput($input)
@@ -147,44 +147,29 @@ class Request
 		if (get_magic_quotes_gpc())
 		{
 			$input = stripslashes($input);
-		}		
+		}
 		return addslashes($input);
 	}
-	
+
 	/**
 	 * Возвращает массив с данными о загруженном файле
-	 * 
+	 *
 	 * @param string $name Имя поля
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getFile($name)
 	{
 		return $_FILES[$name];
 	}
-	
-	/**
-	 * Проверяет, был ли загружен файл
-	 * 
-	 * @param string $name Имя поля
-	 * 
-	 * @return boolean
-	 */
-	public function isFile($name)
-	{
-		if (isset($_FILES[$name]) && $_FILES[$name]["error"] != UPLOAD_ERR_NO_FILE )
-			return true;
-		else
-			return false;
-	}
 
-	
+
 	/**
 	 * Возвращает значение переменной, приведенное к целому числу
-	 * 
+	 *
 	 * @param string $name Имя переменной
 	 * @param int $default Значение по умолчанию
-	 * 
+	 *
 	 * @return integer
 	 */
 	public static function getInt($name, $default = 0)
@@ -195,11 +180,11 @@ class Request
 
 	/**
 	 * Возвращает массив из HTTP запроса
-	 * 
-	 * @param string $name Имя переменной 
+	 *
+	 * @param string $name Имя переменной
 	 * @param mixed $default Значение по умолчанию
 	 * @param boolean $allowHTML Очищать данные в массиве или нет
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function getArray($name, $default = null, $allowHTML = false)
@@ -209,19 +194,19 @@ class Request
 		{
 			Request::stripArray($res, $allowHTML);
 			return $res;
-		}		
+		}
 		else
 		{
 			return $default;
 		}
 	}
-	
+
 	/**
 	 * Экранирует спецсимволы. Рекурсивно обходит массив со значениями
-	 * 
+	 *
 	 * @param array &$array Массив с данными
 	 * @param boolean $allowHTML Очищать данные в массиве или нет
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function stripArray(&$array, $allowHTML)
@@ -229,7 +214,7 @@ class Request
 		foreach ($array as $key => $value)
 		{
 			if (is_array($value))
-			{		
+			{
 				self::stripArray($array[$key], $allowHTML);
 			}
 			else
@@ -246,10 +231,10 @@ class Request
 
 	/**
 	 * Возвращает значение переменной, приведенное к float
-	 * 
-	 * @param string $name Имя переменной 
+	 *
+	 * @param string $name Имя переменной
 	 * @param float $default Значение по умолчанию
-	 * 
+	 *
 	 * @return float
 	 */
 	public static function getFloat($name, $default = 0.00)
@@ -261,9 +246,9 @@ class Request
 	/**
 	 * Отправляет заголовки, приводящие к редиректу на
 	 * указанный URL
-	 * 
+	 *
 	 * @param string $uri URL для редиректа
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function redirect($uri)
@@ -273,54 +258,54 @@ class Request
 		header("Location: " . $uri);
 		exit();
 	}
-	
+
 
 	/**
 	 * Проверяет, был ли выполнен запрос с применением AJAX
-	 * 
+	 *
 	 * @return bool
 	 * */
 	public static function isAJAXRequest()
 	{
 		if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
 			return true;
-		else 
+		else
 			return false;
 	}
 
 	/**
 	 * Отправляет заголовки, запрещающие кеширование на клиенте
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function sendNoCacheHeaders()
 	{
-		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");  
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); 
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 		header("Cache-Control: no-store, no-cache, must-revalidate");
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Pragma: no-cache");
 	}
-	
+
 	/**
 	 * Отправляет HTTP заголовок Content-Type
-	 * 
+	 *
 	 * @param string $encoding Кодировка. Напр. windows-1251, utf-8 etc. By default: utf-8
 	 * @param string $type Значение Content-Type. По умолчанию: text/html
-	 * 
+	 *
 	 * @return void
 	 * */
 	public static function sendHeaderContentType($encoding = "utf-8", $type = "text/html")
 	{
 		header("content-type: {$type};charset={$encoding} \r\n");
 	}
-	
+
 	/**
 	 * Отправляет HTTP заголовок 404
 	 * и выводит содержимое страницы 404 в браузер
-	 * 
+	 *
 	 * @param string $info Дополнительная информация
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function send404($info = null)
@@ -328,7 +313,7 @@ class Request
 		header("HTTP/1.1 404 Not Found");
 
 		$message = <<<EOT
-        
+
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html>
 <head>
@@ -342,7 +327,7 @@ class Request
 </html>
 EOT;
 		echo $message;
-		
+
 		exit();
 	}
 }
