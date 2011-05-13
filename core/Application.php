@@ -335,10 +335,10 @@ class Application
 			$controller = Controller::getInstance(self::$isDebug);
 
 			// узнаем, какое действие запрашивается
-			$actionName = Request::getVar("action");
+			$actionName = Request::get("action");
 
 			// или какое представление: если ничего не задано - показываем IndexView
-			$viewName = Request::getVar("view", self::$defaultView);
+			$viewName = Request::get("view", self::$defaultView);
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML

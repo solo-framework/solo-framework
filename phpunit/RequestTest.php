@@ -37,55 +37,55 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		//
 		$this->setGet();
 		$_GET['test'] = "value";
-		$this->assertEquals("value", Request::getVar("test"));		
+		$this->assertEquals("value", Request::get("test"));		
 		// проверка дефолтного значения
-		$this->assertEquals(null, Request::getVar("undef", null), "must be default value");
-		$this->assertEquals("default", Request::getVar("undef", "default"), "must be default value");
+		$this->assertEquals(null, Request::get("undef", null), "must be default value");
+		$this->assertEquals("default", Request::get("undef", "default"), "must be default value");
 		
 		//
 		// set POST
 		//
 		$this->setPost();
 		$_POST['posttest'] = "value";
-		$this->assertEquals("value", Request::getVar("posttest"));		
+		$this->assertEquals("value", Request::get("posttest"));		
 		// проверка дефолтного значения
-		$this->assertEquals(null, Request::getVar("undef", null), "must be default value");
-		$this->assertEquals("default", Request::getVar("undef", "default"), "must be default value");
+		$this->assertEquals(null, Request::get("undef", null), "must be default value");
+		$this->assertEquals("default", Request::get("undef", "default"), "must be default value");
 		
 		//
 		// есть данные в  GET, но данные пробуем брать POST
 		//		
 		$_GET['data'] = "data_value";
 		$this->setPost();
-		$this->assertEquals("data_value", Request::getVar("data"), "must be null");
+		$this->assertEquals("data_value", Request::get("data"), "must be null");
 		
 		//
 		// есть данные в  POST, но данные пробуем брать GET
 		//		
 		$_POST['post_data'] = "post_data_value";
 		$this->setGet();
-		$this->assertEquals("post_data_value", Request::getVar("post_data"), "must be null");	
+		$this->assertEquals("post_data_value", Request::get("post_data"), "must be null");	
 		
 		//
 		// устранение концевых пробелов
 		//
 		$this->setGet();
 		$_GET['test'] = " value ";
-		$this->assertEquals("value", Request::getVar("test"));	
+		$this->assertEquals("value", Request::get("test"));	
 		
 		//
 		// Очистка входных данных
 		// 
 		$this->setGet();
 		$_GET["test"] = "O' Raily";
-		$this->assertEquals("O\' Raily", Request::getVar("test"));
+		$this->assertEquals("O\' Raily", Request::get("test"));
 		
 		//
 		// "граязные" входные данные
 		// 
 		$this->setGet();
 		$_GET["test"] = "O' Raily";
-		$this->assertEquals("O' Raily", Request::getVar("test", null, true));
+		$this->assertEquals("O' Raily", Request::get("test", null, true));
 	}
 	
 	public function testGetInt()

@@ -3,6 +3,30 @@
  * Реализует функционал загрузки файла на сервер
  *
  * PHP version 5
+ * 
+ * @example
+ * 		if (FileUpload::fileIsLoaded("myfile"))
+		{		
+			try
+			{
+				$file = new FileUpload("myfile");
+								
+				// проверяем, соответствует ли файл нашим требования
+				// если нет - генерируется исключение
+				$file->filterExtensionInList("exe,jpg", "Разрешенное расширение exe,jpg")
+					->filterExtensionNotInList("php,gif", "Запрещены расширения!")
+					->filterSizeMustBeLessThen(50 * 1024, "Размер файла д.б. меньше, чем 50кб")
+					->filterFileNameRegex("/bulova[.*]?/i", "Имя файла не соответствует шаблону")
+					->filterFileNameEqual("bulova.jpg", "Неправильное имя файла");
+			
+				// перемещаем файл в каталог 1/ с новым именем и новым расширением
+				$file->moveAs("1/", "test", "png");
+			}
+			catch (Exception $e)
+			{
+				echo $e->getMessage();
+			}
+		}	
  *
  * @package
  * @author  Andrey Filippov <afi@i-loto.ru>

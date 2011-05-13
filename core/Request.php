@@ -89,7 +89,7 @@ class Request
 	 *
 	 * @return mixed
 	 * 	 */
-	public static function getVar($name, $default = null, $allowHTML = false)
+	public static function get($name, $default = null, $allowHTML = false)
 	{
 		$res = self::getRawData($name, $default);
 		if (null === $res || "" === $res)
@@ -163,21 +163,6 @@ class Request
 		return $_FILES[$name];
 	}
 
-
-	/**
-	 * Возвращает значение переменной, приведенное к целому числу
-	 *
-	 * @param string $name Имя переменной
-	 * @param int $default Значение по умолчанию
-	 *
-	 * @return integer
-	 */
-	public static function getInt($name, $default = 0)
-	{
-		$res = self::getVar($name, $default, false);
-		return intval( $res );
-	}
-
 	/**
 	 * Возвращает массив из HTTP запроса
 	 *
@@ -229,19 +214,6 @@ class Request
 		}
 	}
 
-	/**
-	 * Возвращает значение переменной, приведенное к float
-	 *
-	 * @param string $name Имя переменной
-	 * @param float $default Значение по умолчанию
-	 *
-	 * @return float
-	 */
-	public static function getFloat($name, $default = 0.00)
-	{
-		$res = self::getVar($name, $default, false);
-		return floatval( $res );
-	}
 
 	/**
 	 * Отправляет заголовки, приводящие к редиректу на

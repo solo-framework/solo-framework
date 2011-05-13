@@ -170,16 +170,16 @@ class Router
 		$this->parsePathInfo($result);
 
 		// Установим имя Модуля
-		$this->currentModule = ucfirst(Request::getVar("module", $this->defailtModule));
+		$this->currentModule = ucfirst(Request::get("module", $this->defailtModule));
 		
 		// Имя текущего Представления
 		if ($this->requestType == self::TYPE_VIEW)
-			$this->currentView = ucfirst(Request::getVar("view", $this->defailtView));
+			$this->currentView = ucfirst(Request::get("view", $this->defailtView));
 		
 		// Имя текущего Действия
 		if ($this->requestType == self::TYPE_ACTION)
 		{
-			$action = Request::getVar("action", null);
+			$action = Request::get("action", null);
 			if ($action == null)
 				throw new SystemException("Page not found", "Undefined action name", SystemException::HTTP_404);
 			else 
