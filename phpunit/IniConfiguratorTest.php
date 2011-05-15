@@ -14,7 +14,7 @@
 
 require_once 'PHPUnit/Framework/TestCase.php';
 require_once 'core/IConfiguratorParser.php';
-require_once 'lib/configurator/IniConfigurator.php';
+require_once 'core/IniConfiguratorParser.php';
 
 class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 {
@@ -42,7 +42,7 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	
 	public function test_extends()
 	{
-		$ini = new IniConfigurator($this->second);
+		$ini = new IniConfiguratorParser($this->second);
 		$res = $ini->getOptions();
 		
 		$expect = Array
@@ -88,12 +88,12 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_fail_construct()
 	{
-		$ini = new IniConfigurator("undefined");
+		$ini = new IniConfiguratorParser("undefined");
 	}
 	
 	public function test_get()
 	{
-		$ini = new IniConfigurator($this->file);
+		$ini = new IniConfiguratorParser($this->file);
 		
 		$res = $ini->get("section:test");
 		$this->assertEquals("string", $res);
@@ -104,13 +104,13 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	 */	
 	public function test_fail_get()
 	{
-		$ini = new IniConfigurator($this->file);		
+		$ini = new IniConfiguratorParser($this->file);		
 		$res = $ini->get("section:undefined");
 	}
 	
 	public function test_getOptions()
 	{
-		$ini = new IniConfigurator($this->file);		
+		$ini = new IniConfiguratorParser($this->file);		
 		$res = $ini->getOptions();
 		
 		$expect = array(
@@ -129,7 +129,7 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	
 	public function test_getSection()
 	{
-		$ini = new IniConfigurator($this->file);
+		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->getSection("section");
 		
 		$expect = array(
@@ -145,13 +145,13 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	 */		
 	public function test_fail_getSection()
 	{
-		$ini = new IniConfigurator($this->file);
+		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->getSection("undefinedsection");	
 	}
 	
 	public function test_getArray()
 	{
-		$ini = new IniConfigurator($this->file);
+		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->getArray("section:array");
 		$expect = array(10,12,13,14);
 		$this->assertEquals($expect, $res);
@@ -162,7 +162,7 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	 */		
 	public function test_fail_getArray()
 	{
-		$ini = new IniConfigurator($this->file);
+		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->getArray("section:undef");
 	}
 }

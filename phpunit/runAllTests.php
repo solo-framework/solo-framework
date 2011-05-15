@@ -5,6 +5,7 @@ require_once 'PHPUnit/Framework/TestSuite.php';
 require_once 'phpunit/ConfiguratorTest.php';
 require_once 'phpunit/ClassLoaderTest.php';
 require_once 'phpunit/RequestTest.php';
+require_once 'phpunit/ValidatorTest.php';
 
 //require_once 'phpunit/EntityManagerTest.php';
 //require_once 'phpunit/PHPSettingsTest.php';
@@ -42,6 +43,7 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		$this->setName('Framework tests');
 		$this->addTestSuite("ConfiguratorTest");
 		$this->addTestSuite("ClassLoaderTest");
+		$this->addTestSuite("ValidatorTest");
 
 //		$this->addTestSuite('EntityManagerTest');
 //		$this->addTestSuite("PHPSettingsTest");

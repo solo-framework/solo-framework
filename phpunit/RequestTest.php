@@ -92,22 +92,22 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setPost();
 		$_POST['int'] = 10;		
-		$this->assertEquals(10, Request::getInt('int'));
+		$this->assertEquals(10, Request::get('int'));
 		
 		$this->setGet();
 		// в GET значения нет, так что должны получить дефолтное значение
-		$this->assertEquals(10, Request::getInt('int', 10), "must be default : 10");
+		$this->assertEquals(10, Request::get('int', 10), "must be default : 10");
 	}
 	
 	public function testGetFloat()
 	{
 		$this->setPost();
 		$_POST['float'] = 10.11;		
-		$this->assertEquals(10.11, Request::getFloat('float'));
+		$this->assertEquals(10.11, Request::get('float'));
 		
 		$this->setGet();
 		// в GET значения нет, так что должны получить дефолтное значение
-		$this->assertEquals(10.11, Request::getFloat('float', 10.11), "must be default : 10.11");
+		$this->assertEquals(10.11, Request::get('float', 10.11), "must be default : 10.11");
 	}
 	
 	public function testGetArray()

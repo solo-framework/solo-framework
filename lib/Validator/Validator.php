@@ -167,7 +167,7 @@ class Validator
 	 * @return Validator
 	 */
 	public function lessThen($value, $comment = "")
-	{
+	{	
 		if (self::$isValid)
 		{
 			if (self::$val > $value)
@@ -335,6 +335,18 @@ class Validator
 	public static function getMessages()
 	{
 		return self::$messages;
+	}
+	
+	/**
+	 * Сбрасывает текущее состояние валидатора в начальное
+	 * Обнуляет сообщения.
+	 * 
+	 * @return void
+	 */
+	public static function reset()
+	{
+		self::$messages = null;
+		self::$isValid = true;
 	}
 }
 ?>
