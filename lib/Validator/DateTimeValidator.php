@@ -31,6 +31,14 @@ class DateTimeValidator implements IValidator
 	 */
 	protected $format = self::FORMAT_ISO_8601;
 
+	/**
+	 * Конструктор
+	 *
+	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 * @param string $format Формат даты. Константы.
+	 *
+	 * @return void
+	 */
 	public function __construct($comment = null, $format = self::FORMAT_ISO_8601)
 	{
 		$this->comment = $comment;

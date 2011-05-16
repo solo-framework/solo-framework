@@ -6,6 +6,8 @@ require_once 'phpunit/ConfiguratorTest.php';
 require_once 'phpunit/ClassLoaderTest.php';
 require_once 'phpunit/RequestTest.php';
 require_once 'phpunit/ValidatorTest.php';
+require_once 'phpunit/IniConfiguratorTest.php';
+require_once 'phpunit/PHPConfiguratorParserTest.php';
 
 //require_once 'phpunit/EntityManagerTest.php';
 //require_once 'phpunit/PHPSettingsTest.php';
@@ -53,7 +55,8 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 //
 		$this->addTestSuite("SessionTest");
 		$this->addTestSuite("SQLConditionTest");
-//		$this->addTestSuite("IniConfiguratorTest");
+		$this->addTestSuite("IniConfiguratorTest");
+		$this->addTestSuite("PHPConfiguratorParserTest");
 	}
 
 	/**

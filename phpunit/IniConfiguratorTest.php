@@ -1,9 +1,9 @@
 <?php
 /**
  * Тестирование конфигуратора
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category Framework
  * @package  Core
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -20,15 +20,16 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 {
 
 	private $file = "phpunit/resources/config.ini";
-	
+
+	// Этот конфиг расширяет phpunit/resources/main.ini
 	private $second = "phpunit/resources/second.ini";
-	
+
 	/**
 	 * Prepares the environment before running a test.
 	 */
 	protected function setUp()
 	{
-		parent::setUp();		
+		parent::setUp();
 	}
 
 	/**
@@ -38,20 +39,20 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	{
 		parent::tearDown();
 	}
-	
-	
+
+
 	public function test_extends()
 	{
 		$ini = new IniConfiguratorParser($this->second);
 		$res = $ini->getOptions();
-		
+
 		$expect = Array
 			(
 			    "only_in_main_defined" => Array
 			        (
 			            "main" => "main"
 			        ),
-			
+
 			    "section" => Array
 			        (
 			            "test" => "string",
@@ -59,12 +60,12 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 			            "array" => "10,12,13,14",
 			            "again" => "dddd"
 			        ),
-			
+
 			    "another" => Array
 			        (
 			            "test" => "redeclader in second"
 			        ),
-			
+
 			    "main" => Array
 			        (
 			            "val" => "string",
@@ -74,14 +75,14 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 			                    "0" => 3,
 			                    "1" => 4
 			                ),
-			
+
 			            "lalala" => "sdsd"
 			        )
-			
+
 			);
-		
+
 		$this->assertEquals($expect, $res);
-	}	
+	}
 
 	/**
 	 * @expectedException Exception
@@ -90,29 +91,29 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 	{
 		$ini = new IniConfiguratorParser("undefined");
 	}
-	
+
 	public function test_get()
 	{
 		$ini = new IniConfiguratorParser($this->file);
-		
+
 		$res = $ini->get("section:test");
 		$this->assertEquals("string", $res);
 	}
-	
+
 	/**
 	 * @expectedException Exception
-	 */	
+	 */
 	public function test_fail_get()
 	{
-		$ini = new IniConfiguratorParser($this->file);		
+		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->get("section:undefined");
 	}
-	
+
 	public function test_getOptions()
 	{
-		$ini = new IniConfiguratorParser($this->file);		
+		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->getOptions();
-		
+
 		$expect = array(
 			"section" => array(
 				"test" => "string",
@@ -123,32 +124,32 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 				"test" => "test"
 			)
 		);
-		
+
 		$this->assertEquals($expect, $res);
 	}
-	
+
 	public function test_getSection()
 	{
 		$ini = new IniConfiguratorParser($this->file);
 		$res = $ini->getSection("section");
-		
+
 		$expect = array(
 				"test" => "string",
 				"int" => "10",
 				"array" => "10,12,13,14");
-		
+
 		$this->assertEquals($expect, $res);
 	}
-	
+
 	/**
 	 * @expectedException Exception
-	 */		
+	 */
 	public function test_fail_getSection()
 	{
 		$ini = new IniConfiguratorParser($this->file);
-		$res = $ini->getSection("undefinedsection");	
+		$res = $ini->getSection("undefinedsection");
 	}
-	
+
 	public function test_getArray()
 	{
 		$ini = new IniConfiguratorParser($this->file);
@@ -159,7 +160,7 @@ class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 
 	/**
 	 * @expectedException Exception
-	 */		
+	 */
 	public function test_fail_getArray()
 	{
 		$ini = new IniConfiguratorParser($this->file);
