@@ -37,7 +37,7 @@ class Application
 	 * @var string
 	 */
 	private $baseDir = ".";
-	
+
 	/**
 	 * Коллекция соединений к БД
 	 *
@@ -179,6 +179,7 @@ class Application
 		//   +public
 		//   +config
 		//   +var
+		//   +framework
 		//
 		// если нужна другая - переопределите метод configurePaths()
 
@@ -279,7 +280,7 @@ class Application
 	 * В наследуемом классе можно переопределить обработку ошибок
 	 *
 	 * @param Exception $e Экземпляр исключения
-	 * 
+	 *
 	 * @return void
 	 */
 	protected function handleException(Exception $e)
@@ -288,10 +289,10 @@ class Application
 		{
 			throw $e;
 		}
-		else 
+		else
 		{
 			header("HTTP/1.1 404 Not Found");
-			exit("404 Not Found");			
+			exit("404 Not Found");
 		}
 	}
 
@@ -308,7 +309,7 @@ class Application
 		// отправляем заголовки, запрещающие кэширование
 		if (Configurator::get("application:nocache"))
 			Request::sendNoCacheHeaders();
-		
+
 		echo $result;
 	}
 
@@ -387,6 +388,42 @@ class Application
 		{
 			$adapter->close();
 		}
+	}
+
+	/**
+	 * Редирект на указанный URL
+	 * Если указан текст сообщения, то он помещается в Context
+	 * для дальнейшего использования, например, при отображении ошибок.
+	 *
+	 * @param string $url URL
+	 * @param string $message Текст сообщения
+	 *
+	 * @return void
+	 */
+	public static function redirect($url, $message = null)
+	{
+		if($message != null)
+			Context::setError($message);
+
+		Request::redirect($url);
+	}
+
+
+	/**
+	 * Редирект на предыдущую страницу (HTTP_REFERER)
+	 * Если указан текст сообщения, то он помещается в Context
+	 * для дальнейшего использования, например, при отображении ошибок.
+	 *
+	 * @param string $message Текст сообщения
+	 *
+	 * @return void
+	 */
+	public static function redirectBack($message = null)
+	{
+		if($message)
+			Context::setError($message);
+
+		Request::redirect(Request::prevUri());
 	}
 }
 
