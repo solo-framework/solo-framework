@@ -130,13 +130,13 @@ class MySQLAdapter implements IDBAdapter
 			$host = $host .":". $port;
 
 		if (isset($persist) && $persist == true)
-			$this->db = @mysql_pconnect($host, $user, $password);
+			$this->db = mysql_pconnect($host, $user, $password);
 		else
-			$this->db = @mysql_connect($host, $user, $password);
+			$this->db = mysql_connect($host, $user, $password);
 
 		$this->checkConnect();
 
-		@mysql_select_db($database, $this->db);
+		mysql_select_db($database, $this->db);
 		$this->checkError($this->db);
 
 		// set encoding
@@ -151,7 +151,7 @@ class MySQLAdapter implements IDBAdapter
 	 */
 	public function close()
 	{
-		@mysql_close($this->db);
+		mysql_close($this->db);
 	}
 
 	/**
@@ -162,10 +162,10 @@ class MySQLAdapter implements IDBAdapter
 	*/
 	private function checkConnect()
 	{
-		$errNum = @mysql_errno();
-		$errorDesc = @mysql_error();
+		$errNum = mysql_errno();
+		$errorDesc = mysql_error();
 		if (0 != $errNum)
-			throw new Exception("DataBase error: [". $errNum ."] " . $errorDesc, $errNum);
+			throw new RuntimeException("DataBase error: [". $errNum ."] " . $errorDesc, $errNum);
 	}
 
 	/**
@@ -178,10 +178,10 @@ class MySQLAdapter implements IDBAdapter
 	*/
 	private function checkError($res)
 	{
-		$errNum = @mysql_errno($res);
-		$errorDesc = @mysql_error($res);
+		$errNum = mysql_errno($res);
+		$errorDesc = mysql_error($res);
 		if (0 != $errNum)
-			throw new Exception("DataBase error: [". $errNum ."] " . $errorDesc . print_r($this->getQueryHistory(), true), $errNum);
+			throw new RuntimeException("DataBase error: [". $errNum ."] " . $errorDesc . print_r($this->getQueryHistory(), true), $errNum);
 	}
 
 	/**

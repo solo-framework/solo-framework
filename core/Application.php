@@ -29,14 +29,14 @@ class Application
 	 *
 	 * @var Application
 	 */
-	private static $instance = null;
+	protected static $instance = null;
 
 	/**
 	 * Базовый каталог, в котором находятся все файлы приложения
 	 *
 	 * @var string
 	 */
-	private $baseDir = ".";
+	protected $baseDir = ".";
 
 	/**
 	 * Коллекция соединений к БД
@@ -45,7 +45,34 @@ class Application
 	 */
 	private static $connections = array();
 
-	private static $start = 0;
+	/**
+	 * Нулевая точка отсчета времени выполнения кода
+	 *
+	 * @var float
+	 */
+	protected static $start = 0;
+
+	/**
+	 * Уровень отлавливаемых ошибок PHP
+	 *
+	 * @var int
+	 */
+	public $errorMask = E_ALL;
+
+	/**
+	 * Игнорировать ли другие подобные обработчики
+	 * ошибок, которые могут быть определены в других библиотеках
+	 *
+	 * @var boolean
+	 */
+	protected $ignoreOther = false;
+
+	/**
+	 *
+	 * Enter description here ...
+	 * @var unknown_type
+	 */
+	protected $prevErrorHandler = null;
 
 	/**
 	 * Приватный коструктор для реализации Singleton
@@ -57,6 +84,58 @@ class Application
 		$this->baseDir = $baseDir;
 	}
 
+	/**
+	 * Метод-обработчик ошибок, генерируемых интерпретатором PHP
+	 * все ошибки преобразуются в исключение ErrorException
+	 *
+	 * @param int $errno Номер ошибки
+	 * @param string $errstr Сообщение об ошибке
+	 * @param string $errfile Файл, в котором обнаружена ошибка
+	 * @param string $errline Номер строки файла, в котором обнаружена ошибка
+	 *
+	 * @throws ErrorException
+	 * @return boolean
+	 */
+	public function throwErrorException($errno, $errstr, $errfile, $errline)
+	{
+		if (!($errno & error_reporting()))
+			return false;
+		if (!($errno & $this->errorMask))
+		{
+			if (!$this->ignoreOther)
+			{
+				if ($this->prevErrorHandler)
+				{
+					$args = func_get_args();
+					call_user_func_array($this->prevErrorHandler, $args);
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+	}
+
+
+	/**
+	 * Выполняет код при уничтожении объекта приложения
+	 *
+	 * @return void
+	 */
+	public function __destruct()
+	{
+		restore_error_handler();
+	}
+
+	/**
+	 * Возвращает разницу во времени с момента старта приложения
+	 *
+	 * string float
+	 */
 	public static function getExecutionTime()
 	{
 		return microtime(true) - self::$start;
@@ -111,6 +190,10 @@ class Application
 			else
 				self::$instance = new self($baseDir);
 
+			// установим обработчик ошибок, генерируемых интерпретатором PHP
+			// все ошибки преобразуются в исключения
+			self::$instance->prevErrorHandler = self::$instance->setErrorExceptionHandler();
+
 			// настроим пути
 			self::$instance->configurePaths();
 
@@ -159,6 +242,20 @@ class Application
 	protected function onEndHandleRequest()
 	{
 		self::closeConnections();
+	}
+
+	/**
+	 * Устанавливает метод для перехвата ошибок,
+	 * генерируемых интерпретатором PHP
+	 *
+	 * Если поведение метода не соответствует вашим требованиям, метод
+	 * может быть переопределен в наследуемом классе
+	 *
+	 * return mixed
+	 */
+	protected function setErrorExceptionHandler()
+	{
+		return set_error_handler(array(self::$instance, "throwErrorException"));
 	}
 
 	/**
