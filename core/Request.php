@@ -239,7 +239,7 @@ class Request
 	 * */
 	public static function isAJAXRequest()
 	{
-		if ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
 			return true;
 		else
 			return false;

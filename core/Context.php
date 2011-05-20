@@ -76,6 +76,48 @@ final class Context
 		return Session::get("__user");
 	}
 	
+	/**
+	 * Установка flash-сообщения в контекст
+	 * 
+	 * @param mixed|Exception $message Сообщение (текст, массив или исключение)
+	 * @param string $flashMessageId Идентификатор сообщения. 
+	 * 			Например: error, если нужно отобразить как ошибку.
+	 * 			Отображение настраивается в представлении.
+	 * 
+	 * @return void
+	 */
+	public static function setFlashMessage($message, $flashMessageId)
+	{
+		$flash["message"] = $message;
+		$flash["id"] = $flashMessageId;
+		self::setObject("__solo_flash_message", $flash);
+	}
+	
+	/**
+	 * Получение flash-сообщения из контекста.
+	 * Само сообщение очищается
+	 * 
+	 * @return mixed
+	 */
+	public static function getFlashMessage()
+	{
+		return self::push("__solo_flash_message");
+	}
+	
+	/**
+	 * Метод возвращает удаляет объект из сессии, возвращая его
+	 * 
+	 * @param string $objectName Имя объекта
+	 * 
+	 * @return mixed
+	 * */
+	public static function push($objectName)
+	{
+		$res = self::getObject($objectName);
+		self::clearObject($objectName);
+		return $res;
+	}	
+	
 	
 	/**
 	 * Установка объекта в сессию
@@ -113,44 +155,6 @@ final class Context
 	{
 		Session::clear($objName);
 	}
-
-	/**
-	 * Установка в сессию объекта, описывающего ошибку
-	 * 
-	 * @param mixed $errors объект, описывающий ошибку
-	 * 
-	 * @deprecated Обдумать удаление этотго метода
-	 * @return void
-	 */
-	public static function setError($errors)
-	{
-		Session::set("__error", $errors);
-	}	
-
-	/**
-	 * возвращает из сессии объект, описывающий ошибку
-	 * и удаляет его из сессии
-	 * 
-	 * @return mixed	
-	 */
-	public static function getError()
-	{
-		return Session::push("__error");
-	}
-
-	
-	/**
-	 * Реализует механизм выхода пользователя из системы.
-	 * Удаляет из контекста данные пользователя
-	 * 
-	 * @deprecated
-	 * 
-	 * @return void
-	 */
-	public static function logOff()
-	{
-		Context::setActor( null );
-	}	
 	
 	/**
 	* Нельзя клонировать 

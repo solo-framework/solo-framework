@@ -13,7 +13,8 @@ class TestManager extends EntityManager
 	{
 		$adapter = new MySQLAdapter();
 		$conf = array(
-			"host" => "10.0.2.2",
+			//"host" => "10.0.2.2",
+			"host" => "localhost",
 			"database" => "frameworktest",
 			"user" => "root",
 			"password" => "password"

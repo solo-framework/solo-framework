@@ -126,7 +126,7 @@ class Controller
 		$tplHandler = $this->assignToHandler($view, $tplHandler);
 
 		// Вывод HTML
-		$html = $tplHandler->fetch($this->getViewLayout($view));
+		$html = $tplHandler->fetch($this->getViewLayout($view), $view->cacheId, $view->compileId);
 
 		if ($this->isDebug)
 			$html = $this->addDebugInfo($viewName, $html, $view->templateFile);

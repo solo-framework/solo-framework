@@ -25,6 +25,13 @@ class Application
 	public static $defaultView = "index";
 
 	/**
+	 * Скрипт-обработчик запросов
+	 *
+	 * @var string
+	 */
+	public static $entryScript = "index.php";
+
+	/**
 	 * Экземпляр приложения
 	 *
 	 * @var Application
@@ -69,7 +76,7 @@ class Application
 
 	/**
 	 *
-	 * Enter description here ...
+	 *
 	 * @var unknown_type
 	 */
 	protected $prevErrorHandler = null;
@@ -497,10 +504,10 @@ class Application
 	 *
 	 * @return void
 	 */
-	public static function redirect($url, $message = null)
+	public static function redirect($url, $message = null, $flashMessageId = null)
 	{
 		if($message != null)
-			Context::setError($message);
+			Context::setFlashMessage($message, $flashMessageId);
 
 		Request::redirect($url);
 	}
@@ -511,14 +518,14 @@ class Application
 	 * Если указан текст сообщения, то он помещается в Context
 	 * для дальнейшего использования, например, при отображении ошибок.
 	 *
-	 * @param string $message Текст сообщения
+	 * @param string|Exception $message Текст сообщения
 	 *
 	 * @return void
 	 */
-	public static function redirectBack($message = null)
+	public static function redirectBack($message = null, $flashMessageId = "error")
 	{
 		if($message)
-			Context::setError($message);
+			Context::setFlashMessage($message, $flashMessageId);
 
 		Request::redirect(Request::prevUri());
 	}
