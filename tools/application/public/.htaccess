@@ -1,0 +1,27 @@
+# Уровень обтаботки ошибок: E_ALL | E_STRICT
+php_value error_reporting 32767
+
+# Отображение ошибок (выключить на production server)
+php_value display_errors on
+
+# Эти настройки лучше не менять
+php_value register_globals off
+php_value magic_quotes_gpc off
+
+# Сколько памяти выделять для скрипта
+php_value memory_limit 32M
+
+# Установка максимального размера файла для закачки
+php_value post_max_size 40M
+php_value upload_max_filesize 40M
+
+# Установка кодировки по умолчанию
+AddDefaultCharset utf-8
+
+# Запрет просмотра каталогов по урлу
+Options -Indexes
+
+# Настройка mod_rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine off
+</IfModule>

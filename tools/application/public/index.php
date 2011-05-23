@@ -7,9 +7,8 @@
  * @package  Application
  * @author   Andrey Filippov <afi@i-loto.ru>
  */
-error_reporting(E_ALL | E_STRICT);
-require_once "../framework/core/Application.php";
 
+require_once "../framework/core/Application.php";
 
 $basePath = "../";
 $config = dirname(__FILE__) . "/../config/local.php";
