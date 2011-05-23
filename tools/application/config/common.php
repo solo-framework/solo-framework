@@ -13,10 +13,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Настройки импорта каталогов и классов
+; Значение константы BASE_DIRECTORY определяется автоматически
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [import]
+
+; в этот файл будет записана информация об импортированных каталогах и файлах
 classMapFile = BASE_DIRECTORY "/var/class.map"
+
+; Эти каталоги и файлы будут импортированы в приложения
 import = "@base/app/views/*,@base/app/views/components/*,@base/app/managers/*,@base/app/entity/*,@base/app/actions/*,@framework/lib/Validator/*"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -25,7 +30,7 @@ import = "@base/app/views/*,@base/app/views/components/*,@base/app/managers/*,@b
 
 [application]
 ; имя сессии
-sessionname = "local-dance"
+sessionname = "application_name"
 
 ; будем ли отправлять заголовки запрещающие кэширование
 nocache = true
@@ -34,7 +39,7 @@ nocache = true
 encoding = "utf-8"
 
 ; режим отладки
-debug = true
+debug = false
 
 ; путь к каталогу для временных файлов
 directory.temp = BASE_DIRECTORY "/var/tmp" ; Каталог для временных файлов
@@ -62,7 +67,7 @@ debug = true
 user = "root"
 password = "password"
 host = "localhost"
-database = "pythagor"
+database = "dbname"
 driver = "MySQL"
 encoding = "utf8"
 
@@ -75,30 +80,6 @@ persist = false
 ; set another value if you need
 port = 3306
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Используется репликация
-;
-; Настройки соединения 
-; к базе данных SLAVE 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-[slave]
-debug = true
-user = "root"
-password = "password"
-host = "localhost"
-database = "pythagor"
-driver = "MySQL"
-encoding = "utf8"
-
-; set persistent connection
-persist = false
-
-; you may use socket
-;socket = "/var/run/mysqld/mysqld.sock"
-
-; set another value if you need
-port = 3306
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; template system options
@@ -170,8 +151,6 @@ rightDelimiter = "}"
 ; This is the list of template directories that are considered secure.
 ; $template_dir is in this list implicitly. Через запятую.
 secureDirs = BASE_DIRECTORY "/app/templates"
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Logger options

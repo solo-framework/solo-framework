@@ -64,7 +64,7 @@ class Application
 	 *
 	 * @var int
 	 */
-	public $errorMask = E_ALL;
+	public $errorLevel = E_ALL;
 
 	/**
 	 * Игнорировать ли другие подобные обработчики
@@ -107,7 +107,7 @@ class Application
 	{
 		if (!($errno & error_reporting()))
 			return false;
-		if (!($errno & $this->errorMask))
+		if (!($errno & $this->errorLevel))
 		{
 			if (!$this->ignoreOther)
 			{
@@ -318,8 +318,6 @@ class Application
 		// указывает на корневой каталог виртуального сервера Apache
 		ClassLoader::setPathByAlias("public", $this->baseDir . DIRECTORY_SEPARATOR . "public");
 	}
-
-
 
 	/**
 	 * Инициализация  всех необходимых объектов: логгера, контекста и пр.

@@ -151,7 +151,8 @@ class MySQLAdapter implements IDBAdapter
 	 */
 	public function close()
 	{
-		mysql_close($this->db);
+		if ($this->db !== null)
+			mysql_close($this->db);
 	}
 
 	/**
