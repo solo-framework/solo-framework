@@ -25,9 +25,9 @@ class TestAction extends Action
 			->required(true, "Не выбран agree");
 				
 		if (!Validator::isValid())
-			Application::redirectBack(Validator::getMessages());
+			Application::getInstance()->redirectBack(Validator::getMessages());
 		else 
-			Application::redirect("index.php?view=index", "Действие успешно выполнено");
+			Application::getInstance()->redirect("index.php?view=index", "Действие успешно выполнено");	
 	}
 }
 ?>

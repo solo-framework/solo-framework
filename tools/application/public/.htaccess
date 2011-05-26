@@ -1,4 +1,4 @@
-# Уровень обтаботки ошибок: E_ALL | E_STRICT
+# Уровень обработки ошибок: E_ALL | E_STRICT
 php_value error_reporting 32767
 
 # Отображение ошибок (выключить на production server)

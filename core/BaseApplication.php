@@ -8,7 +8,7 @@
  * @author   Andrey Filippov <afi@i-loto.ru>
  */
 
-class Application
+abstract class BaseApplication
 {
 	/**
 	 * Режим работы приложения
@@ -61,10 +61,11 @@ class Application
 
 	/**
 	 * Уровень отлавливаемых ошибок PHP
+	 * По-умолчанию 32767 => E_ALL | E_STRICT
 	 *
 	 * @var int
 	 */
-	public $errorLevel = E_ALL;
+	public $errorLevel = 32767;
 
 	/**
 	 * Игнорировать ли другие подобные обработчики
@@ -177,6 +178,10 @@ class Application
 		self::$start = microtime(true);
 		$baseDir = realpath($baseDir);
 
+		// Здесь определи самую главную константу -
+		// путь, где находятся все файлы
+		define("BASE_DIRECTORY", $baseDir);
+
 		// хак для возможности наследования от singleton
 		// в разных версиях PHP
 		if (version_compare(phpversion(), "5.3.0", ">="))
@@ -248,7 +253,7 @@ class Application
 	 */
 	protected function onEndHandleRequest()
 	{
-		self::closeConnections();
+		self::$instance->closeConnections();
 	}
 
 	/**
@@ -286,10 +291,6 @@ class Application
 		//   +framework
 		//
 		// если нужна другая - переопределите метод configurePaths()
-
-		// Здесь определи самую главную константу -
-		// путь, где находятся все файлы
-		define("BASE_DIRECTORY", $this->baseDir);
 
 		// путь к файлам ядра фреймворка
 		$frameworkDirectory = realpath(dirname(__FILE__) . "/..");
@@ -372,10 +373,20 @@ class Application
 		$frameworkDir = ClassLoader::getPathByAlias("framework");
 		require_once $frameworkDir . "/core/IConfiguratorParser.php";
 		require_once $frameworkDir . "/core/Configurator.php";
-		require_once $frameworkDir . "/core/IniConfiguratorParser.php";
+		//require_once $frameworkDir . "/core/IniConfiguratorParser.php";
+		require_once $frameworkDir . "/lib/Configurator/PHPConfiguratorParser.php";
 
-		Configurator::init(new IniConfiguratorParser($configFile));
+		Configurator::init(new PHPConfiguratorParser($configFile));
 	}
+
+//	public function loadApplicationComponent($name)
+//	{
+//		$info = Configurator::get("applicationComponents:{$name}");
+//
+//		$comp = new $info["class"];
+//		return $comp;
+//		//print_r($comp);
+//	}
 
 	/**
 	 * Обработка исключений, возникших при выполнении метода handleRequest
@@ -387,15 +398,23 @@ class Application
 	 */
 	protected function handleException(Exception $e)
 	{
-		if (self::$isDebug)
-		{
-			throw $e;
-		}
-		else
-		{
-			header("HTTP/1.1 404 Not Found");
-			exit("404 Not Found");
-		}
+//		$comp = self::$instance->loadApplicationComponent("errorHandler");
+//		if ($comp != null)
+//		{
+//			$comp->handle($e);
+//		}
+//		else
+//		{
+			if (self::$isDebug)
+			{
+				throw $e;
+			}
+			else
+			{
+				header("HTTP/1.1 404 Not Found");
+				exit("404 Not Found");
+			}
+	//	}
 	}
 
 	/**
@@ -426,7 +445,7 @@ class Application
 	 *
 	 * @return void
 	 */
-	public static function handleRequest()
+	public function handleRequest()
 	{
 		try
 		{
@@ -459,6 +478,7 @@ class Application
 		}
 	}
 
+
 	/**
 	 * Возвращает соединение к БД по его имени
 	 *
@@ -466,7 +486,7 @@ class Application
 	 *
 	 * @return IDBAdapter Соединение к БД
 	 * */
-	public static function getConnection($name)
+	public function getConnection($name)
 	{
 		if (!@key_exists($name, self::$connections))
 		{
@@ -484,7 +504,7 @@ class Application
 	 *
 	 * @return void
 	 */
-	public static function closeConnections()
+	public function closeConnections()
 	{
 		foreach (self::$connections as $name => $adapter)
 		{
@@ -502,7 +522,7 @@ class Application
 	 *
 	 * @return void
 	 */
-	public static function redirect($url, $message = null, $flashMessageId = null)
+	public function redirect($url, $message = null, $flashMessageId = null)
 	{
 		if($message != null)
 			Context::setFlashMessage($message, $flashMessageId);
@@ -520,13 +540,14 @@ class Application
 	 *
 	 * @return void
 	 */
-	public static function redirectBack($message = null, $flashMessageId = "error")
+	public function redirectBack($message = null, $flashMessageId = "error")
 	{
-		if($message)
+		if($message != null)
 			Context::setFlashMessage($message, $flashMessageId);
 
 		Request::redirect(Request::prevUri());
-	}
+	}	
+
 }
 
 ?>

@@ -227,7 +227,7 @@ class Request
 	{
 		if (null == $uri)
 			$uri = "/";
-		header("Location: " . $uri);
+		header("Location: " . $uri, true, 302);
 		exit();
 	}
 
