@@ -206,14 +206,8 @@ abstract class BaseApplication
 			// все ошибки преобразуются в исключения
 			self::$instance->prevErrorHandler = self::$instance->setErrorExceptionHandler();
 
-			// настроим пути
-			self::$instance->configurePaths();
-
 			// загрузка конфигурации
 			self::$instance->loadConfiguration($configFile);
-
-			// Импортирование классов
-			self::$instance->importClasses();
 
 			// Инициализация  всех необходимых объектов: логгера, контекста и пр.
 			self::$instance->init();
@@ -271,56 +265,6 @@ abstract class BaseApplication
 	}
 
 	/**
-	 * В этом методе устанавливаются значения псевдонимов для
-	 * различных каталогов
-	 *
-	 * Если структура каталогов, определенная по-умолчанию, не
-	 * соответствует вашим требованиям, этот метод можно переопределить.
-	 *
-	 * @return void
-	 */
-	protected function configurePaths()
-	{
-		//
-		// Структура каталогов по-умолчанию
-		//  .. <- BASE_DIRECTORY
-		//   +app
-		//   +public
-		//   +config
-		//   +var
-		//   +framework
-		//
-		// если нужна другая - переопределите метод configurePaths()
-
-		// путь к файлам ядра фреймворка
-		$frameworkDirectory = realpath(dirname(__FILE__) . "/..");
-
-		// подключаем загрузчик классов
-		require_once $frameworkDirectory . "/core/ClassLoader.php";
-
-		// файл с репозиторием классов будет записываться в каталог /var
-		ClassLoader::init($this->baseDir, $this->baseDir . DIRECTORY_SEPARATOR . "var/class.map");
-
-		//
-		// Установка псевдонимов путей. Псевдонимы используются для упрощения
-		// указания путей. Использование: ClassLoader::import("@framework/SomeClass.php");
-		// В этом случае директива @framework заменяется на полный путь к соответствующему каталогу
-		//
-
-		// базовый каталог, где находятся файлы приложения
-		ClassLoader::setPathByAlias("base", $this->baseDir);
-
-		// путь к файлам ядра фреймворка
-		ClassLoader::setPathByAlias("framework", $frameworkDirectory);
-
-		// путь к каталогу, где находятся файлы бизнес-логики (views, actions, etc.)
-		ClassLoader::setPathByAlias("app", $this->baseDir . DIRECTORY_SEPARATOR . "app");
-
-		// указывает на корневой каталог виртуального сервера Apache
-		ClassLoader::setPathByAlias("public", $this->baseDir . DIRECTORY_SEPARATOR . "public");
-	}
-
-	/**
 	 * Инициализация  всех необходимых объектов: логгера, контекста и пр.
 	 *
 	 * @return void
@@ -338,25 +282,6 @@ abstract class BaseApplication
 	}
 
 	/**
-	 * Устанавливаем загрузчик классов.
-	 * Если поведение метода не соответствует вашим требованиям, метод
-	 * может быть переопределен в наследуемом классе
-	 *
-	 * @return void
-	 */
-	protected function importClasses()
-	{
-		// импортируем каталоги с файлами фреймворка
-		ClassLoader::import("@framework/core/*");
-		ClassLoader::import("@framework/core/db/*");
-
-		// импортируем все каталоги, которые были указаны в настройках
-		$imports = Configurator::getArray("import:import");
-		foreach ($imports as $item)
-			ClassLoader::import($item);
-	}
-
-	/**
 	 * Загрузка файла с конфигурацией
 	 *
 	 * Если поведение метода не соответствует вашим требованиям, метод
@@ -367,26 +292,33 @@ abstract class BaseApplication
 	 */
 	protected function loadConfiguration($configFile)
 	{
+		// путь к файлам ядра фреймворка
+		$frameworkDirectory = realpath(dirname(__FILE__) . "/..");
+
 		// подключение конфигуратора
-		// по умолчанию будем использовать INI конфигурацию
-		// по желанию, можно реализовать свой класс
-		$frameworkDir = ClassLoader::getPathByAlias("framework");
-		require_once $frameworkDir . "/core/IConfiguratorParser.php";
-		require_once $frameworkDir . "/core/Configurator.php";
-		//require_once $frameworkDir . "/core/IniConfiguratorParser.php";
-		require_once $frameworkDir . "/lib/Configurator/PHPConfiguratorParser.php";
-
+		require_once $frameworkDirectory . "/core/IConfiguratorParser.php";
+		require_once $frameworkDirectory . "/core/Configurator.php";
+		require_once $frameworkDirectory . "/core/PHPConfiguratorParser.php";
 		Configurator::init(new PHPConfiguratorParser($configFile));
-	}
 
-//	public function loadApplicationComponent($name)
-//	{
-//		$info = Configurator::get("applicationComponents:{$name}");
-//
-//		$comp = new $info["class"];
-//		return $comp;
-//		//print_r($comp);
-//	}
+		// подключаем загрузчик классов
+		require_once $frameworkDirectory . "/core/ClassLoader.php";
+		ClassLoader::init($this->baseDir, $this->baseDir . DIRECTORY_SEPARATOR . "var/class.map");
+
+		// Установка псевдонимов из конфигуратора
+		$aliases = Configurator::get("import:alias");
+
+		if ($aliases)
+		{
+			foreach ($aliases as $name => $value)
+				ClassLoader::setPathByAlias($name, $value);
+		}
+
+		// импортируем все каталоги, которые были указаны в настройках
+		$imports = Configurator::getArray("import:import");
+		foreach ($imports as $item)
+			ClassLoader::import($item);
+	}
 
 	/**
 	 * Обработка исключений, возникших при выполнении метода handleRequest
@@ -398,23 +330,15 @@ abstract class BaseApplication
 	 */
 	protected function handleException(Exception $e)
 	{
-//		$comp = self::$instance->loadApplicationComponent("errorHandler");
-//		if ($comp != null)
-//		{
-//			$comp->handle($e);
-//		}
-//		else
-//		{
-			if (self::$isDebug)
-			{
-				throw $e;
-			}
-			else
-			{
-				header("HTTP/1.1 404 Not Found");
-				exit("404 Not Found");
-			}
-	//	}
+		if (self::$isDebug)
+		{
+			throw $e;
+		}
+		else
+		{
+			header("HTTP/1.1 404 Not Found");
+			exit("404 Not Found");
+		}
 	}
 
 	/**
