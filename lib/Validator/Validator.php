@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * @example
- * 		
+ *
  	// можно получить значение после проверки
  	$val = Validator::check(Request::get("id"), "Идентификатор пользователя ")
 			->required(true, "не указан")
@@ -22,11 +22,11 @@
 	{
 		print_r(Validator::getMessages());
 	}
-	
+
 	// вывод
 	array
 	  0 => string 'Идентификатор пользователя не указан' (length=69)
-	  1 => string 'значение value: не равно 'other_value'' (length=53) 
+	  1 => string 'значение value: не равно 'other_value'' (length=53)
 
  *
  * @package
@@ -37,43 +37,43 @@ class Validator
 {
 	/**
 	 * ссылка на экземпляр валидатора
-	 * 
+	 *
 	 * @var Validator
 	 */
 	private static $instance = null;
 
 	/**
 	 * Валидность значения
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private static $isValid = true;
 
 	/**
 	 * Список сообщений об ошибках проверок
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $messages = null;
 
 	/**
 	 * Проверяемое значение
-	 * 
+	 *
 	 * @var mixed
 	 */
 	private static $val = null;
-	
+
 	/**
-	 * Текст общего сообщения об ошибке 
+	 * Текст общего сообщения об ошибке
 	 * для всех проверок
-	 * 
+	 *
 	 * @var string
 	 */
 	private static $commonComment = "";
 
 	/**
 	 * Конструктор
-	 * 
+	 *
 	 * @return void
 	 */
 	private function __construct()
@@ -84,7 +84,7 @@ class Validator
 
 	/**
 	 * Проверяет значение с помощью цепочки валидаторов
-	 * 
+	 *
 	 * @param mixed $val Проверяемое значение
 	 * @param string $comment Общий комментарий к сообщениям об ошибках.
 	 * 				Добавляется перед каждым сообщением
@@ -117,7 +117,7 @@ class Validator
 			// если значение обязательное и задано - проходим все проверки
 			if ($isRequired && (is_null(self::$val)))
 				self::addMessage($comment);
-				
+
 			// если необязательное и не задано, то дальнейшие проверки
 			// проходить не обязательно
 			if (!$isRequired && is_null(self::$val))
@@ -127,11 +127,48 @@ class Validator
 	}
 
 	/**
+	 * Проверяет значение на принадлежность к
+	 * числовым типам int, float
+	 *
+	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 *
+	 * @return Validator
+	 */
+	public function isNumeric($comment = "")
+	{
+		if (self::$isValid)
+		{
+			if (!is_numeric(self::$val))
+				self::addMessage($comment);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Проверяет массив ли это
+	 *
+	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 *
+	 * @return Validator
+	 */
+	public function isArray($comment = "")
+	{
+		if (self::$isValid)
+		{
+			if (!is_array(self::$val))
+				self::addMessage($comment);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Проверяет значение на соответствие регулярному выражению
 	 *
 	 * @param string $pattern Регулярное выражение
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
-	 * 
+	 *
 	 * @return Validator
 	 */
 	public function matchRegex($pattern, $comment = "")
@@ -147,9 +184,9 @@ class Validator
 	/**
 	 * Добавляем сообщение об ошибке.
 	 * При этом валидатор становится невалидным
-	 * 
+	 *
 	 * @param string $text
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function addMessage($text)
@@ -167,7 +204,7 @@ class Validator
 	 * @return Validator
 	 */
 	public function lessThen($value, $comment = "")
-	{	
+	{
 		if (self::$isValid)
 		{
 			if (self::$val > $value)
@@ -175,7 +212,7 @@ class Validator
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Значение должно быть больше указанного
 	 *
@@ -192,8 +229,8 @@ class Validator
 				self::addMessage($comment);
 		}
 		return $this;
-	}	
-	
+	}
+
 	/**
 	 * Значение должно совпадать
 	 *
@@ -201,7 +238,7 @@ class Validator
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
 	 *
 	 * @return Validator
-	 */	
+	 */
 	public function equalTo($value, $comment = "")
 	{
 		if (self::$isValid)
@@ -209,9 +246,9 @@ class Validator
 			if (self::$val !== $value)
 				self::addMessage($comment);
 		}
-		return $this;		
+		return $this;
 	}
-	
+
 
 	/**
 	 * Расширяет способы проверки с помощью расширений - классов,
@@ -233,10 +270,10 @@ class Validator
 
 	/**
 	 * Минимальная длина значения
-	 * 
+	 *
 	 * @param int $len Минимальное количество символов
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
-	 * 
+	 *
 	 * @return Validator
 	 */
 	public function minLength($len, $comment = "")
@@ -251,12 +288,12 @@ class Validator
 
 	/**
 	 * Максимальная длина значения
-	 * 
+	 *
 	 * @param int $len Максимальное количество символов
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
-	 * 
+	 *
 	 * @return Validator
-	 */	
+	 */
 	public function maxLength($len, $comment = "")
 	{
 		if (self::$isValid)
@@ -269,7 +306,7 @@ class Validator
 
 	/**
 	 * Возвращает проверяемое значение
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public function value()
@@ -295,14 +332,14 @@ class Validator
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Длина значения должна быть в указанном диапазоне
-	 * 
+	 *
 	 * @param int $min Минимальное значение
 	 * @param int $max Максимальное значение
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
-	 * 
+	 *
 	 * @return Validator
 	 */
 	public function rangeLenght($min, $max, $comment = "")
@@ -318,7 +355,7 @@ class Validator
 
 	/**
 	 * Результат проверки
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function isValid()
@@ -327,8 +364,8 @@ class Validator
 	}
 
 	/**
-	 * Возвращает список сообщений об ошибках 
-	 * в результате проверки значения 
+	 * Возвращает список сообщений об ошибках
+	 * в результате проверки значения
 	 *
 	 * @return array
 	 */
@@ -336,11 +373,11 @@ class Validator
 	{
 		return self::$messages;
 	}
-	
+
 	/**
 	 * Сбрасывает текущее состояние валидатора в начальное
 	 * Обнуляет сообщения.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function reset()

@@ -167,13 +167,13 @@ abstract class BaseApplication
 	 *
 	 * @param string $baseDir Базовый каталог, в котором находятся все файлы приложения
 	 * @param string $configFile Путь к файлу с конфигурацией
-	 * @param string $className Имя класса, наследуемого от Application (только для PHP < 5.3.x)
+	 * @param string $className Имя класса, наследуемого от BaseApplication (только для PHP < 5.3.x)
 	 *
 	 * @throws RuntimeException
 	 *
-	 * @return Application|null
+	 * @return Application
 	 */
-	public static function createApplication($baseDir, $configFile, $className = null)
+	public static function createApplication($baseDir, $configFile, $className = "Application")
 	{
 		self::$start = microtime(true);
 		$baseDir = realpath($baseDir);
@@ -546,7 +546,7 @@ abstract class BaseApplication
 			Context::setFlashMessage($message, $flashMessageId);
 
 		Request::redirect(Request::prevUri());
-	}	
+	}
 
 }
 
