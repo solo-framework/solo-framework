@@ -11,7 +11,7 @@
 require_once '../app/Application.php';
 
 $basePath = "../";
-$config = dirname(__FILE__) . "/../config/php.local.php";
+$config = dirname(__FILE__) . "/../config/local.php";
 
 Application::createApplication($basePath, $config);
 Application::getInstance()->handleRequest();

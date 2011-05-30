@@ -212,6 +212,7 @@ abstract class BaseApplication
 			// Инициализация  всех необходимых объектов: логгера, контекста и пр.
 			self::$instance->init();
 		}
+
 		return self::$instance;
 	}
 

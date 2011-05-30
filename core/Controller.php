@@ -179,7 +179,7 @@ class Controller
 		$view->templateFile = $this->getViewTemplate($view);
 
 		// Вывод HTML
-		$html = $tplHandler->fetch($view->templateFile);
+		$html = $tplHandler->fetch($view->templateFile, $view->cacheId, $view->compileId);
 
 		if ($this->isDebug)
 			$html = $this->addDebugInfo($className, $html, $view->templateFile);
@@ -209,7 +209,7 @@ class Controller
 		$tplHandler = $this->assignToHandler($view, $tplHandler);
 
 		// Вывод HTML
-		return $tplHandler->fetch($this->getViewTemplate($view));
+		return $tplHandler->fetch($this->getViewTemplate($view), $view->cacheId, $view->compileId);
 	}
 
 	/**
