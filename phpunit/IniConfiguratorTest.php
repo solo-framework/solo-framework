@@ -14,7 +14,7 @@
 
 require_once 'PHPUnit/Framework/TestCase.php';
 require_once 'core/IConfiguratorParser.php';
-require_once 'core/IniConfiguratorParser.php';
+require_once 'lib/Configurator/IniConfiguratorParser.php';
 
 class IniConfiguratorTest extends PHPUnit_Framework_TestCase
 {

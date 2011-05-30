@@ -308,7 +308,7 @@ abstract class BaseApplication
 		// Установка псевдонимов из конфигуратора
 		$aliases = Configurator::get("import:alias");
 
-		if ($aliases)
+		if ($aliases != null)
 		{
 			foreach ($aliases as $name => $value)
 				ClassLoader::setPathByAlias($name, $value);
@@ -316,8 +316,11 @@ abstract class BaseApplication
 
 		// импортируем все каталоги, которые были указаны в настройках
 		$imports = Configurator::getArray("import:import");
-		foreach ($imports as $item)
-			ClassLoader::import($item);
+		if ($imports != null)
+		{
+			foreach ($imports as $item)
+				ClassLoader::import($item);
+		}
 	}
 
 	/**

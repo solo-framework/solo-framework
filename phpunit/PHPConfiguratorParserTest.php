@@ -2,7 +2,7 @@
 
 require_once 'PHPUnit/Framework/TestCase.php';
 require_once 'core/IConfiguratorParser.php';
-require_once 'lib/Configurator/PHPConfiguratorParser.php';
+require_once 'core/PHPConfiguratorParser.php';
 
 class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 {

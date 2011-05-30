@@ -9,7 +9,7 @@ require_once 'phpunit/ValidatorTest.php';
 require_once 'phpunit/IniConfiguratorTest.php';
 require_once 'phpunit/PHPConfiguratorParserTest.php';
 
-//require_once 'phpunit/EntityManagerTest.php';
+require_once 'phpunit/EntityManagerTest.php';
 //require_once 'phpunit/PHPSettingsTest.php';
 //
 require_once 'phpunit/XDateTimeTest.php';
@@ -45,9 +45,9 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		$this->setName('Framework tests');
 		$this->addTestSuite("ConfiguratorTest");
 		$this->addTestSuite("ClassLoaderTest");
-		$this->addTestSuite("ValidatorTest");
+		//$this->addTestSuite("ValidatorTest");
 
-//		$this->addTestSuite('EntityManagerTest');
+		$this->addTestSuite('EntityManagerTest');
 //		$this->addTestSuite("PHPSettingsTest");
 		$this->addTestSuite("RequestTest");
 		$this->addTestSuite("XDateTimeTest");
@@ -62,7 +62,7 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 	/**
 	 * Creates the suite.
 	 */
-	public static function suite ()
+	public static function suite()
 	{
 		return new self();
 	}
