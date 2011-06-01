@@ -30,7 +30,7 @@ return array
 		),
 
 		// Эти каталоги будут импортированы в приложение
-		"import" => array
+		"directory" => array
 		(
 			"@framework/core/*",
 			"@framework/core/db/*",
@@ -41,6 +41,19 @@ return array
 			"@base/app/managers/*",
 			"@base/app/entity/*",
 			"@base/app/actions/*"
+		),
+		
+		// эти файлы будут имортированы в приложение	
+		"file" => array
+		(
+			// Пример:
+			// Импортируем отдельный файл с указанием имени класса
+			//"path/to.file" => "ClassName",
+			//
+			// Импортируем отдельный файл без указания имени класса
+			// Имя класса будет определено по имени файла
+			// "@framework/lib/Web/ClientScript.php"
+			//			
 		)
 	),
 

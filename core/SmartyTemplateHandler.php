@@ -17,9 +17,9 @@ class SmartyTemplateHandler extends Smarty implements ITemplateHandler
 	{
 		// регистрируем метод загрузки классов Smarty
 		ClassLoader::registerAutoloader("smartyAutoload");
-		
-		parent::__construct();	
-		
+
+		parent::__construct();
+
 		// Включение безопасного режима
 		if (Configurator::get("smarty:security"))
 		{

@@ -185,9 +185,10 @@ class ClassLoader
 	 * Импортирует каталог или отдельный класс.
 	 * Импортируются все файлы с расширением .php
 	 *
-	 * @param string|array $path Путь к импортируемому файлу или каталогу (или список путей)
-	 * 							 пример: файл - ClassLoader::import("path/to/file/FileName.php");
-	 * 									 каталог - ClassLoader::import("path/to/file/*");
+	 * @param string|array $path Путь к импортируемому файлу или каталогу
+	 * @param string Имя класса, который находится в файле
+	 *
+	 * @return void
 	 */
 	public static function import($path, $className = null)
 	{

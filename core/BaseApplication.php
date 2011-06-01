@@ -316,11 +316,24 @@ abstract class BaseApplication
 		}
 
 		// импортируем все каталоги, которые были указаны в настройках
-		$imports = Configurator::getArray("import:import");
-		if ($imports != null)
+		$directory = Configurator::getArray("import:directory");
+		if ($directory != null)
 		{
-			foreach ($imports as $item)
+			foreach ($directory as $item)
 				ClassLoader::import($item);
+		}
+
+		// импортируем все Файлы, которые были указаны в настройках
+		$files = Configurator::getArray("import:file");
+		if ($files != null)
+		{
+			foreach ($files as $path => $className)
+			{
+				if (is_int($path))
+					ClassLoader::import($className);
+				else
+					ClassLoader::import($path, $className);
+			}
 		}
 	}
 
@@ -475,7 +488,6 @@ abstract class BaseApplication
 
 		Request::redirect(Request::prevUri());
 	}
-
 }
 
 ?>
