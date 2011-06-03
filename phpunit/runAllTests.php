@@ -1,4 +1,12 @@
 <?php
+/**
+ * Запуск всех юнит-тестов
+ *
+ * PHP version 5
+ *
+ * @package  Test
+ * @author   Andrey Filippov <afi@i-loto.ru>
+ */
 
 require_once 'PHPUnit/Framework/TestSuite.php';
 
@@ -10,27 +18,11 @@ require_once 'phpunit/IniConfiguratorTest.php';
 require_once 'phpunit/PHPConfiguratorParserTest.php';
 
 require_once 'phpunit/EntityManagerTest.php';
-//require_once 'phpunit/PHPSettingsTest.php';
-//
 require_once 'phpunit/XDateTimeTest.php';
-//require_once 'phpunit/ControlTest.php';
-//
 require_once 'phpunit/SessionTest.php';
 require_once 'phpunit/SQLConditionTest.php';
-//require_once 'phpunit/IniConfiguratorTest.php';
-
-/**
- * Запуск всех юнит-тестов
- *
- * PHP version 5
- *
- * @category Framework
- * @package  Test
- * @author   Andrey Filippov <afi@i-loto.ru>
- * @license  %license% name
- * @version  SVN: $Id: Entity.php 9 2007-12-25 11:26:03Z afi $
- * @link     nolink
- */
+require_once 'phpunit/URLManagerTest.php';
+//require_once 'phpunit/PHPSettingsTest.php';
 
 class runAllTests extends PHPUnit_Framework_TestSuite
 {
@@ -45,18 +37,17 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		$this->setName('Framework tests');
 		$this->addTestSuite("ConfiguratorTest");
 		$this->addTestSuite("ClassLoaderTest");
-		//$this->addTestSuite("ValidatorTest");
+		$this->addTestSuite("ValidatorTest");
 
 		$this->addTestSuite('EntityManagerTest');
-//		$this->addTestSuite("PHPSettingsTest");
 		$this->addTestSuite("RequestTest");
 		$this->addTestSuite("XDateTimeTest");
-//		$this->addTestSuite("ControlTest");
-//
+
 		$this->addTestSuite("SessionTest");
 		$this->addTestSuite("SQLConditionTest");
 		$this->addTestSuite("IniConfiguratorTest");
 		$this->addTestSuite("PHPConfiguratorParserTest");
+		$this->addTestSuite("URLManagerTest");
 	}
 
 	/**

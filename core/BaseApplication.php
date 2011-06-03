@@ -50,7 +50,14 @@ abstract class BaseApplication
 	 *
 	 * @var array
 	 */
-	private static $connections = array();
+	protected static $connections = array();
+
+	/**
+	 * Коллекция компонентов, доступны по имени
+	 *
+	 * @var array
+	 */
+	protected $components = array();
 
 	/**
 	 * Нулевая точка отсчета времени выполнения кода
@@ -161,6 +168,52 @@ abstract class BaseApplication
 	}
 
 	/**
+	 * Возвращает экземпляр компонента
+	 *
+	 * @param string $componentName Имя компонента, соотвествующее записи в конфигураторе
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return object
+	 */
+	public function getComponent($componentName)
+	{
+		if (isset($this->components[$componentName]))
+			return $this->components[$componentName];
+
+		$config = Configurator::get("components:{$componentName}");
+		if (!isset($config["class"]))
+			throw new RuntimeException("Component configuration must have a 'class' option");
+
+		$className = $config["class"];
+		unset($config["class"]);
+
+		// Если переданы доп. параметры, то передаем их в конструктор
+		if (func_num_args() > 1)
+		{
+			$args = func_get_args();
+			unset($args[0]);
+			$object = new ReflectionClass($className);
+			$component = $object->newInstanceArgs($args);
+		}
+		else
+		{
+			$component = new $className();
+		}
+
+		// теперь всем публичным свойствам экземпляра назначим значения из конфига
+		foreach($config as $key => $value)
+		{
+			if (!property_exists($component, $key))
+				throw new RuntimeException("Undefined class property {$key} in {$className}");
+			$component->$key = $value;
+		}
+
+		$this->components[$componentName] = $component;
+		return $component;
+	}
+
+	/**
 	 * Создает экземпляр приложения
 	 *
 	 * @static
@@ -178,8 +231,8 @@ abstract class BaseApplication
 		self::$start = microtime(true);
 		$baseDir = realpath($baseDir);
 
-		// Здесь определи самую главную константу -
-		// путь, где находятся все файлы
+		// Здесь определим самую главную константу -
+		// путь к базовому каталогу
 		define("BASE_DIRECTORY", $baseDir);
 
 		// хак для возможности наследования от singleton

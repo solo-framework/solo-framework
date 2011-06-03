@@ -64,7 +64,7 @@ class URLManager
 	public function parse($queryString = null)
 	{
 		if (count($this->rules) == 0)
-			throw new RuntimeException("Please, define URLManager rules");
+			throw new RuntimeException("Please define URLManager rules");
 
 		if ($queryString == null)
 			$queryString = $_SERVER["REQUEST_URI"];

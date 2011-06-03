@@ -57,6 +57,7 @@ class ClassLoader
 
 	private static $aliases = null;
 
+	private static $isFileExist = false;
 
 	/**
 	 * Приватный конструктор
@@ -84,6 +85,7 @@ class ClassLoader
 		self::$baseDirectory = $baseDirectory;
 		spl_autoload_register($method);
 		self::$classMapFile = $classMapFile;
+		self::$isFileExist = file_exists($classMapFile);
 	}
 
 	/**
@@ -126,7 +128,7 @@ class ClassLoader
 	 */
 	private static function readClassMap()
 	{
-		if (file_exists(self::$classMapFile) && !self::$isLoaded)
+		if (self::$isFileExist && !self::$isLoaded)
 		{
 			$file = file_get_contents(self::$classMapFile);
 			$repository = unserialize($file);
@@ -152,6 +154,8 @@ class ClassLoader
 		$res = @file_put_contents(self::$classMapFile, serialize($out), LOCK_EX);
 		if (!$res)
 			throw new Exception("ClassLoader: can't write repository file to " . self::$classMapFile);
+
+		self::$isFileExist = true;
 	}
 
 
@@ -331,10 +335,12 @@ class ClassLoader
 	 */
 	protected static function autoload($class)
 	{
-		$file = @self::$classMap[strtolower($class)];
-		if ($file === null)
+		$class = strtolower($class);
+		if (array_key_exists($class, self::$classMap))
+			require_once self::$classMap[strtolower($class)];
+		else
 			throw new Exception("ClassLoader: Class '{$class}' does not exists in repository");
-		require_once $file;
+		//require_once $file;
 	}
 
 	/**

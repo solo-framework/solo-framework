@@ -56,7 +56,7 @@ class Controller
 	*
 	* @param boolean $isDebug Режим отладки
 	*
-	* @return Binder
+	* @return Controller
 	*/
 	public static function getInstance($isDebug = false)
 	{
@@ -98,7 +98,7 @@ class Controller
 		$view = $rc->newInstance();
 
 		// Нельзя напрямую отображать Компоненты
-		if($rc->implementsInterface("IComponent"))
+		if($rc->implementsInterface("IViewComponent"))
 			throw new RuntimeException("Can't display component {$viewName}");
 
 		// значит, не нужно будет рисовать макет (layout)
@@ -156,7 +156,7 @@ class Controller
 	 *
 	 * @return string
 	 */
-	public function renderComponent($className, $args = null)
+	public function renderViewComponent($className, $args = null)
 	{
 		$rc = new ReflectionClass($className . "View");
 		if (count($args) !== 0)

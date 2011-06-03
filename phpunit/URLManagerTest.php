@@ -62,6 +62,23 @@ class URLManagerTest extends PHPUnit_Framework_TestCase
 		$this->object->parse("viewname/param[]/value/param[]/value2");
 		$arr = array("value", "value2");
 		$this->assertEquals($arr, Request::getArray("param"));
+
+		//Запрос типа http://local.ru/id355 меняется на http://local.ru/view/user/id/355
+		$this->object->parse("/id455");
+		$this->assertEquals("user", Request::get("view"));
+		$this->assertEquals("455", Request::get("id"));
+
+		$this->object->parse("/id455sometext");
+		$this->assertEquals("user", Request::get("view"));
+		$this->assertNotEquals("455", Request::get("id"));
+
+		$this->object->parse("/id455/");
+		$this->assertEquals("user", Request::get("view"));
+		$this->assertEquals("455", Request::get("id"));
+
+		$this->object->parse("/id455sometext/");
+		$this->assertEquals("user", Request::get("view"));
+		$this->assertNotEquals("455", Request::get("id"));
 	}
 
 	public function test_Parse_Action()
