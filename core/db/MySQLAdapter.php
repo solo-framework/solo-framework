@@ -29,21 +29,88 @@ class MySQLAdapter implements IDBAdapter
 	protected $db = null;
 
 	/**
-	 * Массив с параметрами подключения к БД
-	 *
-	 * @var array
-	 * @see Configurator
-	 */
-	protected $config = null;
-
-	/**
 	 * Режим отладки.
 	 * При включенном режиме ведется запись
 	 * SQL запросов в историю
 	 *
 	 * @var boolean
 	 */
-	protected $debug = false;
+	public $debug = false;
+
+	/**
+	 * Имя пользователя
+	 *
+	 * @var string
+	 */
+	public $user = null;
+
+	/**
+	 * Пароль
+	 *
+	 * @var string
+	 */
+	public $password = null;
+
+	/**
+	 * Имя сервера (URL, IP)
+	 *
+	 * @var string
+	 */
+	public $host = null;
+
+	/**
+	 * Имя базы данных
+	 *
+	 * @var string
+	 */
+	public $database = null;
+
+	/**
+	 * Устанавливать постоянное соединение с сервером
+	 *
+	 * @var string
+	 */
+	public $persist = false;
+
+	/**
+	 * Порт
+	 *
+	 * @var int
+	 */
+	public $port = 3306;
+
+	/**
+	 * Путь к сокету
+	 *
+	 * @var string
+	 */
+	public $socket = null;
+
+	/**
+	 * Параметр new_link может заставить функцию mysql_connect() открыть ещё одно соединение,
+	 * даже если соединение с аналогичными параметрами уже открыто
+	 *
+	 * @var bool
+	 */
+	public $newLink = false;
+
+	/**
+	 * Параметр должен быть комбинацией из следующих констант:
+	 * MYSQL_CLIENT_COMPRESS, MYSQL_CLIENT_IGNORE_SPACE, MYSQL_CLIENT_INTERACTIVE
+	 *
+	 * @link http://ru.php.net/manual/en/mysql.constants.php#mysql.client-flags
+	 *
+	 * @var int
+	 */
+	public $clientFlags = 0;
+
+	/**
+	 * Список команд, выполняемых сразу после подключения
+	 * к серверу
+	 *
+	 * @var array
+	 */
+	public $initialCommands = array();
 
 	/**
 	 * Конструктор
@@ -65,21 +132,8 @@ class MySQLAdapter implements IDBAdapter
 	public function escape($string)
 	{
 		if ($this->db === null)
-			$this->connect($this->config);
+			$this->connect();
 		return mysql_real_escape_string($string, $this->db);
-	}
-
-	/**
-	* Устанавливает конфигурацию подключения
-	*
-	* @param array $config Параметры подключения в виде массива ключ=>значение
-	*
-	* @see Configurator
-	* @return void
-	*/
-	public function setConfig($config)
-	{
-		$this->config = $config;
 	}
 
 	/**
@@ -103,45 +157,32 @@ class MySQLAdapter implements IDBAdapter
 	/**
 	* Создает подключение к БД
 	*
-	* @param array $params Параметры подключения в виде массива ключ => значение
 	*
 	* @return void
 	*/
-	public function connect($params)
+	public function connect()
 	{
-		if ($params == null)
-			throw new Exception("DataBase error: invalid configuration");
+		if (isset($this->socket))
+			$this->host = $this->host .":". $this->socket;
 
-		$this->debug = (bool)$this->getConfigParam($params, "debug", false);
-		$user = $this->getConfigParam($params, "user", "");
-		$password = $this->getConfigParam($params, "password", "");
-		$host = $this->getConfigParam($params, "host", "localhost");
-		$database = $this->getConfigParam($params, "database", "");
-		$driver = $this->getConfigParam($params, "driver", "MySQL");
-		$encoding = $this->getConfigParam($params, "encoding", "utf8");
-		$persist = (bool)$this->getConfigParam($params, "persist", false);
-		$port = $this->getConfigParam($params, "port", 3306);
-		$socket = $this->getConfigParam($params, "socket", null);
+		if (isset($this->port) && $this->port != 3306)
+			$this->host = $this->host .":". $this->port;
 
-		if (isset($socket))
-			$host = $host .":". $socket;
-
-		if (isset($port) && $port != 3306)
-			$host = $host .":". $port;
-
-		if (isset($persist) && $persist == true)
-			$this->db = mysql_pconnect($host, $user, $password);
+		if (isset($this->persist) && $this->persist == true)
+			$this->db = mysql_pconnect($this->host, $this->user, $this->password, $this->clientFlags);
 		else
-			$this->db = mysql_connect($host, $user, $password);
+			$this->db = mysql_connect($this->host, $this->user, $this->password, $this->newLink, $this->clientFlags);
 
 		$this->checkConnect();
 
-		mysql_select_db($database, $this->db);
+		mysql_select_db($this->database, $this->db);
 		$this->checkError($this->db);
 
-		// set encoding
-		if (isset($encoding))
-			$this->executeNonQuery("SET NAMES " . $encoding);
+		if (count($this->initialCommands) > 0)
+		{
+			foreach ($this->initialCommands as $command)
+				$this->executeNonQuery($command);
+		}
 	}
 
 	/**
@@ -195,7 +236,7 @@ class MySQLAdapter implements IDBAdapter
 	protected function query($sql)
 	{
 		if ($this->db === null)
-			$this->connect($this->config);
+			$this->connect();
 
 		if ($this->debug)
 			$s = $this->getmicrotime();

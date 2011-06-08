@@ -42,8 +42,8 @@ return array
 			"@base/app/entity/*",
 			"@base/app/actions/*"
 		),
-		
-		// эти файлы будут имортированы в приложение	
+
+		// эти файлы будут имортированы в приложение
 		"file" => array
 		(
 			// Пример:
@@ -53,14 +53,45 @@ return array
 			// Импортируем отдельный файл без указания имени класса
 			// Имя класса будет определено по имени файла
 			// "@framework/lib/Web/ClientScript.php"
-			//			
+			//
+		)
+	),
+
+
+	//
+	// Компоненты приложения
+	//
+	"components" => array
+	(
+		//
+		// Подключение к базе данных
+		//
+		"db" => array
+		(
+			"@class" => "MySQLAdapter",
+
+			"host" => "localhost",
+			"user" => "root",
+			"password" => "password",
+			"database" => "classnet",
+			"port" => 3306,
+			"debug" => true,
+			"persist" => false,
+			"socket" => null,
+			"newLink" => false,
+			"clientFlags" => MYSQL_CLIENT_COMPRESS,
+
+			// Список команд, выполняемых сразу после подключения к серверу
+			"initialCommands" => array
+			(
+				"SET NAMES utf8",
+			)
 		)
 	),
 
 	//
 	// Настройки приложения
 	//
-
 	"application" => array
 	(
 		// имя сессии
@@ -88,30 +119,6 @@ return array
 		// Каталог, где хранятся шаблоны для
 		// контролов (относительно каталога приложения)
 		"directory.templates" => BASE_DIRECTORY ."/app/templates",
-	),
-
-
-	//
-	// Настройки соединения MASTER
-	//
-	"master" => array
-	(
-		"debug" => true,
-		"user" => "root",
-		"password" => "password",
-		"host" => "localhost",
-		"database" => "classnet",
-		"driver" => "MySQL",
-		"encoding" => "utf8",
-
-		// set persistent connection
-		"persist" => false,
-
-		// Можно использовать сокеты
-		"socket" => "/var/run/mysqld/mysqld.sock",
-
-		// порт
-		"port" => 3306,
 	),
 
 

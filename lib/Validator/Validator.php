@@ -7,6 +7,8 @@
  *
  * @example
  *
+ *
+ <pre>
  	// можно получить значение после проверки
  	$val = Validator::check(Request::get("id"), "Идентификатор пользователя ")
 			->required(true, "не указан")
@@ -27,7 +29,7 @@
 	array
 	  0 => string 'Идентификатор пользователя не указан' (length=69)
 	  1 => string 'значение value: не равно 'other_value'' (length=53)
-
+</pre>
  *
  * @package
  * @author  Andrey Filippov <afi@i-loto.ru>
