@@ -46,13 +46,6 @@ abstract class BaseApplication
 	protected $baseDir = ".";
 
 	/**
-	 * Коллекция соединений к БД
-	 *
-	 * @var array
-	 */
-	protected static $connections = array();
-
-	/**
 	 * Коллекция компонентов, доступны по имени
 	 *
 	 * @var array
@@ -182,11 +175,11 @@ abstract class BaseApplication
 			return $this->components[$componentName];
 
 		$config = Configurator::get("components:{$componentName}");
-		if (!isset($config["class"]))
+		if (!isset($config["@class"]))
 			throw new RuntimeException("Component configuration must have a 'class' option");
 
-		$className = $config["class"];
-		unset($config["class"]);
+		$className = $config["@class"];
+		unset($config["@class"]);
 
 		// Если переданы доп. параметры, то передаем их в конструктор
 		if (func_num_args() > 1)
@@ -201,11 +194,11 @@ abstract class BaseApplication
 			$component = new $className();
 		}
 
-		// теперь всем публичным свойствам экземпляра назначим значения из конфига
+		// теперь публичным свойствам экземпляра назначим значения из конфига
 		foreach($config as $key => $value)
 		{
 			if (!property_exists($component, $key))
-				throw new RuntimeException("Undefined class property {$key} in {$className}");
+				throw new RuntimeException("Undefined class property `{$key}` in {$className}");
 			$component->$key = $value;
 		}
 
@@ -301,7 +294,7 @@ abstract class BaseApplication
 	 */
 	protected function onEndHandleRequest()
 	{
-		self::$instance->closeConnections();
+
 	}
 
 	/**
@@ -472,39 +465,6 @@ abstract class BaseApplication
 		}
 	}
 
-
-	/**
-	 * Возвращает соединение к БД по его имени
-	 *
-	 * @param string $name Имя соединения (см. секцию database в конфигурации)
-	 *
-	 * @return IDBAdapter Соединение к БД
-	 * */
-	public function getConnection($name)
-	{
-		if (!@key_exists($name, self::$connections))
-		{
-			$adapterName = Configurator::get($name . ":driver") . "Adapter";
-			$adapter = new $adapterName();
-			$adapter->setConfig(Configurator::getSection($name));
-			self::$connections[$name] = $adapter;
-		}
-
-		return self::$connections[$name];
-	}
-
-	/**
-	 * Закрывает все соединения с БД
-	 *
-	 * @return void
-	 */
-	public function closeConnections()
-	{
-		foreach (self::$connections as $name => $adapter)
-		{
-			$adapter->close();
-		}
-	}
 
 	/**
 	 * Редирект на указанный URL

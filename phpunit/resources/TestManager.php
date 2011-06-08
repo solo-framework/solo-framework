@@ -12,15 +12,13 @@ class TestManager extends EntityManager
 	public function __construct()
 	{
 		$adapter = new MySQLAdapter();
-		$conf = array(
-			//"host" => "10.0.2.2",
-			"host" => "localhost",
-			"database" => "frameworktest",
-			"user" => "root",
-			"password" => "password"
-		);
 
-		$adapter->setConfig($conf);
+		$adapter->host = "localhost";
+		//$adapter->host = "10.0.2.2";
+		$adapter->user = "root";
+		$adapter->password = "password";
+		$adapter->database = "frameworktest";
+
 		$this->setCommonConnection($adapter);
 	}
 
