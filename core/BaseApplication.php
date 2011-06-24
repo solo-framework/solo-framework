@@ -428,8 +428,6 @@ abstract class BaseApplication
 	 * Запрос имеет вид index.php?view=viewname для отображения Представления
 	 * и index.php?action=actionName для выполнения Действия
 	 *
-	 * @static
-	 *
 	 * @return void
 	 */
 	public function handleRequest()
