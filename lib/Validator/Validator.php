@@ -130,7 +130,7 @@ class Validator
 
 	/**
 	 * Проверяет значение на принадлежность к
-	 * числовым типам int, float
+	 * числовым типам
 	 *
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
 	 *
@@ -311,9 +311,12 @@ class Validator
 	 *
 	 * @return mixed
 	 */
-	public function value()
+	public function value($defaultValue = null)
 	{
-		return self::$val;
+		if (self::$val !== null)
+			return self::$val;
+		else
+			return $defaultValue;
 	}
 
 	/**

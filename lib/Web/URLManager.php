@@ -52,6 +52,15 @@ class URLManager
 	public $rules = null;
 
 	/**
+	 * Формат формируемого URL
+	 * path - Типа /view/viewname/par1/val1/par2/val2
+	 * get - типа view=viewname&par1=val1&par2=val2
+	 *
+	 * @var string
+	 */
+	public $format = "path";
+
+	/**
 	 * Конструктор
 	 *
 	 * @return void
@@ -95,9 +104,15 @@ class URLManager
 		$this->parsePathInfo($result);
 	}
 
+
+	public function createRequestUri($params)
+	{
+
+	}
+
 	/**
 	 * Делает разбор строки запроса и
-	 * помещает результаты в $_REQUEST
+	 * помещает результаты в $_GET или $_POST
 	 *
 	 * @param string $pathInfo Строка запроса типа param1/value1/param2/value2/
 	 *

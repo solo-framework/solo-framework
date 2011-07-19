@@ -7,6 +7,7 @@
 require_once 'PHPUnit/Framework/TestCase.php';
 require_once 'lib/Validator/IValidator.php';
 require_once 'lib/Validator/Validator.php';
+require_once 'lib/Validator/DateTimeValidator.php';
 
 class ValidatorTest extends PHPUnit_Framework_TestCase
 {
@@ -237,6 +238,51 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 		Validator::reset();
 		Validator::check("hello")->rangeLenght(10, 20);
 		$this->assertFalse(Validator::isValid());
+	}
+
+	/**
+	 *
+	 *
+	 * @return
+	 */
+	public function test_DateTimeValidator()
+	{
+		Validator::check("2005-08-09")->addValidator(
+			new DateTimeValidator("comment", DateTimeValidator::FORMAT_ISO_8601)
+		);
+
+		$this->assertTrue(Validator::isValid());
+		Validator::reset();
+
+		Validator::check("2005-08-09 12:33:45")->addValidator(
+			new DateTimeValidator("comment", DateTimeValidator::FORMAT_ISO_8601)
+		);
+
+		$this->assertTrue(Validator::isValid());
+		Validator::reset();
+	}
+
+	/**
+	 * Проверка получения значения по умолчанию
+	 *
+	 * @return
+	 */
+	public function test_get_default_value()
+	{
+		$val = Validator::check("val")->value();
+		$this->assertEquals("val", $val);
+		Validator::reset();
+
+		$val = Validator::check(null)->value("default");
+		$this->assertEquals("default", $val);
+		Validator::reset();
+
+		$val = Validator::check("some")->value("default");
+		$this->assertEquals("some", $val);
+		Validator::reset();
+
+		var_dump(is_int(4294967289));
+
 	}
 }
 ?>
