@@ -11,31 +11,17 @@ class TestManager extends EntityManager
 	 */
 	public function __construct()
 	{
-		$adapter = new MySQLAdapter();
+		$adapter = new PDOAdapter();
 
-		$adapter->host = "localhost";
-		//$adapter->host = "10.0.2.2";
-		$adapter->user = "root";
+		$adapter->dsn = "mysql:host=localhost;dbname=frameworktest";
+		//$adapter->dsn = "mysql:host=10.0.2.2;dbname=frameworktest";
+
+		$adapter->username = "root";
 		$adapter->password = "password";
-		$adapter->database = "frameworktest";
 
 		$this->setCommonConnection($adapter);
 	}
 
-	public function getUpdate(Entity $ent)
-	{
-		return $this->buildUpdate($ent);
-	}
-
-	public function getInsert(Entity $ent)
-	{
-		return $this->buildInsert($ent);
-	}
-
-	public function getSelect(Entity $object, SQLCondition $condition = null)
-	{
-		return $this->buildSelect($object, $condition);
-	}
 
 	public function getDefineClass()
 	{
@@ -49,9 +35,9 @@ class TestManager extends EntityManager
 	 *
 	 * @param string $val Строка
 	 */
-	public function escape($val)
-	{
-		return mysql_escape_string($val);
-	}
+//	public function escape($val)
+//	{
+//		return mysql_escape_string($val);
+//	}
 }
 ?>

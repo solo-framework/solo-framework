@@ -360,7 +360,7 @@ class MySQLAdapter implements IDBAdapter
 	 * @param string $sql Текст SQL Запроса
 	 *
 	 * @return array
-	 * */
+	 */
 	public function getOneRow($sql)
 	{
 		$res = $this->getRows($sql);

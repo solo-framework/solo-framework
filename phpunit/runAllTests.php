@@ -20,9 +20,10 @@ require_once 'phpunit/PHPConfiguratorParserTest.php';
 require_once 'phpunit/EntityManagerTest.php';
 require_once 'phpunit/XDateTimeTest.php';
 require_once 'phpunit/SessionTest.php';
-require_once 'phpunit/SQLConditionTest.php';
+//require_once 'phpunit/SQLConditionTest.php';
 require_once 'phpunit/URLManagerTest.php';
-//require_once 'phpunit/PHPSettingsTest.php';
+require_once 'phpunit/MySQLConditionTest.php';
+require_once 'phpunit/ClientScriptTest.php';
 
 class runAllTests extends PHPUnit_Framework_TestSuite
 {
@@ -44,10 +45,11 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		$this->addTestSuite("XDateTimeTest");
 
 		$this->addTestSuite("SessionTest");
-		$this->addTestSuite("SQLConditionTest");
+		$this->addTestSuite("MySQLConditionTest");
 		$this->addTestSuite("IniConfiguratorTest");
 		$this->addTestSuite("PHPConfiguratorParserTest");
 		$this->addTestSuite("URLManagerTest");
+		$this->addTestSuite("ClientScriptTest");
 	}
 
 	/**

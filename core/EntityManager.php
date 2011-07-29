@@ -1,61 +1,57 @@
-<?php 
+<?php
 /**
- * Базовый класс для менеджеров сущностей
- * 
+ *
+ *
  * PHP version 5
- * 
- * @category Framework
- * @package  Core
- * @author   Andrey Filippov <afi@i-loto.ru>
- * @license  %license% name
- * @version  SVN: $Id: Entity.php 9 2007-12-25 11:26:03Z afi $
- * @link     nolink
+ *
+ * @package
+ * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 abstract class EntityManager
 {
 	/**
 	 * имя класса сущности, которой управляет менеджер
-	 * 
+	 *
 	 * @var string
 	 */
 	public $class = null;
-	
+
 	/**
 	 * Соединение к Slave серверу
-	 * 
-	 * @var resource
+	 *
+	 * @var IDBAdapter
 	 */
 	private $readConnection = null;
-	
+
 	/**
 	 * Соединение к Master серверу
-	 * 
-	 * @var resource
+	 *
+	 * @var IDBAdapter
 	 */
 	private $writeConnection = null;
-	
+
 	/**
 	 * Формат даты и времени, принятый в базе данных
-	 * сответствующий параметрам, принимаемым функцией date()
-	 * 
+	 * Синтаксис соответствует PHP функции date()
+	 *
 	 * @var string
 	 */
-	public $dateTimeInFormat = "Y-m-d H:i:s";
-	
+	public $dateTimeFormat = "Y-m-d H:i:s";
+
 	/**
-	 * Формат даты и времени, принятый в приложении
-	 * сответствующий параметрам, принимаемым функцией date()
-	 * 
+	 * Формат времени, принятый в базе данных
+	 * Синтаксис соответствует PHP функции date()
+	 *
 	 * @var string
 	 */
-	public $dateTimeOutFormat = "c";
-	
+	public $timeFormat = "H:i:s";
+
 	/**
 	 * Создает новый экземпляр сущности
-	 * 
+	 *
 	 * @param string $className Имя класса сущности
-	 * 
+	 *
 	 * @return Entity object
 	 **/
 	public static function newEntity($className)
@@ -65,10 +61,10 @@ abstract class EntityManager
 		$entity = new $name();
 		return $entity;
 	}
-	
+
 	/**
 	 * Возвращает имя класса сущности, с которой работает менеджер
-	 * 
+	 *
 	 * @return string
 	 */
 	protected function defineClass()
@@ -77,535 +73,383 @@ abstract class EntityManager
 			$this->class = str_replace("Manager", "", get_class($this));
 		return $this->class;
 	}
-	
+
 	/**
 	* Сохраняет сущность в БД
-	* 
+	*
 	* @param Entity &$object Экземпляр сущности
-	* 
+	*
 	* @return Entity
 	**/
-	public function save(Entity &$object)
+	public function save(Entity $object)
 	{
 		if ($object->getId() == null)
-			$sql = $this->buildInsert($object);
-		else 
-			$sql = $this->buildUpdate($object);
-		
-		$genId = $this->getWriteConnection()->executeNonQuery($sql);
-		if ($genId != 0)
-			$object->setId($genId);
+		{
+			$this->insert($object);
+			$object->setId($this->getWriteConnection()->getLastInsertId());
+		}
+		else
+		{
+			$this->update($object);
+		}
 
 		return $object;
 	}
-	
-	/**
-	 * Удаляет сущность из базы по заданному идентификатору
-	 * 
-	 * @param int $id Идентификатор сущности
-	 * 
-	 * @return void
-	 */
-	public function remove($id)
-	{
-		$ent = self::newEntity($this->defineClass());
-		$sql = "DELETE FROM `{$ent->entityTable}` WHERE {$ent->primaryKey} = {$id}";
-		$res = $this->getWriteConnection()->executeNonQuery($sql);
 
-		return $res;
-	}
-	
-	/**
-	 * Удаляет записи, определенные в SqlCondition
-	 * 
-	 * @param SQLCondition $condition object of SQLCondition class
-	 * 
-	 * @return void
-	 */
-	public function removeByCondition(SQLCondition $condition)
-	{
-		$table = strtolower($this->defineClass());
-		$sql = "DELETE FROM `{$table}` " . $condition->buildSQL();
-		$res = $this->getWriteConnection()->executeNonQuery($sql);
-		return $res;
-	}
-	
-	/**
-	* Возвращает сущность по идентификатору
-	* 
-	* @param int $id идентификатор сущности
-	* 
-	* @return Entity
-	*/
-	public function getById($id)
-	{		
-		$ent = self::newEntity($this->defineClass());
-		$sql = "SELECT * FROM `{$ent->entityTable}` WHERE {$ent->primaryKey} = {$id}";
-		$result = $this->getReadConnection()->getOneRow($sql);
-		if (null == $result)
-			return null;
-		$ent = $this->fillEntity($ent, $result);
-		return $ent;
-	}
-	
-	/**
-	 * Заполняет поля сущности значениями
-	 * 
-	 * @param object $object Сущность
-	 * @param array  $values Ассоциативный массив имен полей и их значений
-	 * 
-	 * @return object
-	 * */
-	protected function fillEntity($object, $values)
-	{
-		foreach ($values as $fld => $value)
-		{
-			$type = $object->getFieldType($fld);
-			if ($type === null)
-				continue;
-			if ($type === Entity::ENTITY_FIELD_DATETIME || $type === Entity::ENTITY_FIELD_TIMESTAMP)
-			{
-				$object->$fld = $this->formatDateTimeOut($value);
-			}
-			else 
-			{
-				$object->$fld = stripslashes($value);
-			}
-		}
-		return $object;
-	}
-	
-	/**
-	* Возвращает список сущностей по условию
-	* 
-	* @param SQLCondition $condition Объект класса SQLCondition
-	* 
-	* @return null or array
-	*/
-	public function get(SQLCondition $condition = null)
-	{		
-		$object = self::newEntity($this->defineClass());
-		$sql = $this->buildSelect($object, $condition);
-		$result = $this->getReadConnection()->getRows($sql);
-		if (null == $result)
-			return null;
-		$objects = null;
-		foreach ($result as $row) 
-		{
-			$object = self::newEntity($this->defineClass());
-			$objects[] = $this->fillEntity($object, $row);			
-		}
-		return $objects;
-	}
-	
-	/**
-	* Возвращает список сущностей текущего типа по сложному
-	* SQL запросу. Важно, чтобы запрос возвращал данные только(!) из соответствующей
-	* таблицы. Если запрос возвращает поля не определенные в сущности, они игнорируются. 
-	* 
-	* @param string $sql текст SQL запроса
-	* 
-	* @return mixed
-	*/
-	public function getBySQL($sql)
-	{
-		$result = $this->getReadConnection()->getRows($sql);
-		if (null == $result)
-			return null;
-			
-		$objects = array();
-		foreach ($result as $row) 
-		{
-			$object = self::newEntity($this->defineClass());
-			$objects[] = $this->fillEntity($object, $row);			
-		}
-		return $objects;
-	}
-	
-	/**
-	 * Удаляет все записи данной сущности в БД
-	 * 
-	 * @return void
-	 * */
-	public function removeAll()
-	{
-		$object = self::newEntity($this->defineClass());
-		$sql = "DELETE FROM `{$object->entityTable}`";
-		return $this->getWriteConnection()->executeNonQuery($sql);
-	}
-	
-	/**
-	* Возвращает только одну запись из результирующего набора
-	* 
-	* @param SQLCondition $condition Объект класса SQLCondition 
-	* 
-	* @return entity or null
-	*/
-	public function getOne(SQLCondition $condition)
-	{
-		$res = $this->get($condition);
-		if ($res != null)
-		{
-			if (count($res) > 1)
-				throw new Exception("More then one record returned");
-			return $res[0];
-		}
-		else 
-		{
-			return null;
-		}
-	}
-	
-	/**
-	 * Выполняет произвольный запрос и возвращает список массивов
-	 * 
-	 * @param string $sql SQL запрос
-	 * 
-	 * @return array
-	 * */
-	public function getByAnySQL($sql)
-	{
-		return $this->getReadConnection()->getRows($sql);
-	}
-	
-	/**
-	 * Выполняет произвольный запрос и возвращает 
-	 * только одну запись из результирующего набора
-	 * 
-	 * @param string $sql Текст SQL запроса
-	 * 
-	 * @return mixed
-	 */
-	public function getOneByAnySQL($sql)
-	{
-		$res = $this->getByAnySQL($sql);
-		if ($res != null)
-		{
-			if (count($res) > 1)
-				throw new Exception("More then one record returned");
-			return $res[0];
-		}
-		else 
-		{
-			return null;
-		}	
-	}
-	
-	/**
-	 * Генерирует SQL запрос по заданному SQLCondition
-	 * 
-	 * @param Entity       $object    Экземпляр сущности
-	 * @param SQLCondition $condition Объект условия
-	 * 
-	 * @return string текст SQL запроса
-	 */
-	protected function buildSelect(Entity $object, SQLCondition $condition = null)
-	{
-		$sql = "SELECT * FROM `{$object->entityTable}`";
-		if ($condition != null)
-			$sql = $sql . $condition->buildSQL();
-		return $sql;
-	}
-	
 	/**
 	 * Генерирует SQL запрос на вставку данных в БД
-	 * 
+	 * и выполняет его
+	 *
 	 * @param Entity $object Экземпляр сущности
-	 * 
-	 * @return string текст SQL запроса
+	 *
+	 * @return void
 	 */
-	protected function buildInsert(Entity $object)
+	protected function insert(Entity $object)
 	{
 		$object->selfTest();
 		$types = $object->getFields();
-		$result = array();
+		$values = array();
+		$fields = array();
 		foreach ($types as $name => $type)
 		{
 			// если поле заполняется в базе автоматически, то его исключаем из
 			// генерации SQL
 			if ($type == Entity::ENTITY_FIELD_CURRENT_TIMESTAMP)
-			{
 				continue;
-			}	
-					
+
 			$val = $object->$name;
 			if (null === $val)
 				continue;
-			if ($type == Entity::ENTITY_FIELD_STRING)
-			{
-				$val = $this->escape($val);
-				$val = "'{$val}'";
-			}
+
 			if ($type == Entity::ENTITY_FIELD_DATETIME || $type == Entity::ENTITY_FIELD_TIMESTAMP)
-			{
 				$val = $this->formatDateTimeIn($val);
-				$val = "'{$val}'";
-			}
+
 			if ($type == Entity::ENTITY_FIELD_TIME)
-			{
-				$val = XDateTime::formatTime($val);
-				$val = "'{$val}'";
-			}
-			$result['`' . $name . '`'] = $val;
+				$val = $this->formatTime($val);
+
+			$values[] = $val;
+			$fields[] = "`{$name}`";
 		}
-		
-		$fields = implode(", ", array_keys($result));
-		$values = implode(", ", array_values($result));
+
+		$fields = implode(", ", $fields);
+		$holders = implode(", ", array_fill(0, count($values), "?"));
 		$table = $object->entityTable;
 
-		return "INSERT INTO `{$table}` ({$fields}) VALUES({$values})";
+		$sql = "INSERT INTO `{$table}` ({$fields}) VALUES({$holders})";
+		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
-	
+
 	/**
-	 * Строит SQL запрос для UPDATE сущности
-	 * 
-	 * @param Entity $object Сущность
-	 * 
-	 * @return string SQL текст SQL запроса
+	 * Генерирует SQL запрос на обновление сущности в БД
+	 * и выполняет его
+	 *
+	 * @param Entity $object Экземпляр сущности
+	 *
+	 * @return void
 	 */
-	protected function buildUpdate(Entity $object)
+	protected function update(Entity $object)
 	{
 		$object->selfTest();
 		$types = $object->getFields();
-		$result = array();
+		$values = array();
+		$fields = array();
 		$existsFields = get_object_vars($object);
-		
+
 		foreach ($types as $name => $type)
 		{
-			// нет такого поля - если убрали вручную, чтобы не обновлять
-			//if (!property_exists($object, $name))
+			// нет такого поля - видимо убрали вручную, чтобы не обновлять
+			// значение в базе
 			if (!array_key_exists($name, $existsFields))
 				continue;
-			
+
 			$val = $object->$name;
 			// если поле заполняется в базе автоматически, то его исключаем из
 			// генерации SQL
 			if ($type == Entity::ENTITY_FIELD_CURRENT_TIMESTAMP)
-			{
 				continue;
-			}
-			if (null == $val)			
-			{
-				if ($val === 0)
-					$val = 0;
-				else 
-					$val = 'null';
-			}
-			else 
-			{
-				if ($type == Entity::ENTITY_FIELD_STRING)
-				{
-					$val = $this->escape($val);
-					$val = "'{$val}'";
-					
-				}
-				if ($type == Entity::ENTITY_FIELD_DATETIME || $type == Entity::ENTITY_FIELD_TIMESTAMP)
-				{
-					$val = $this->formatDateTimeIn($val);				
-					$val = "'{$val}'";
-				}
-				if ($type == Entity::ENTITY_FIELD_TIME)
-				{
-					$val = XDateTime::formatTime($val);
-					$val = "'{$val}'";
-				}				
-			}
-			$result[] = '`' .$name . '`'." = ".$val;
+
+			if ($type == Entity::ENTITY_FIELD_DATETIME || $type == Entity::ENTITY_FIELD_TIMESTAMP)
+				$val = $this->formatDateTimeIn($val);
+
+			if ($type == Entity::ENTITY_FIELD_TIME)
+				$val = $this->formatTime($val);
+
+			$values[] = $val;
+			$fields[] = "`{$name}` = ?";
 		}
-		
-		$values = implode(", ", $result);
+
+		$values[] = $object->getId();
+		$fields = implode(", ", $fields);
 		$table = $object->entityTable;
 
-		return "UPDATE `{$table}` SET {$values} WHERE {$object->primaryKey} = {$object->getId()}";	
+		$sql = "UPDATE `{$table}` SET {$fields} WHERE {$object->primaryKey} = ?";
+		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
-	
+
 	/**
-	* Стартуем транзакцию
-	* 
-	* @return void
-	*/
-	public function startTransaction()
-	{
-		$this->getWriteConnection()->startTransaction();
-	}
-	
-	/**
-	* Завершение транзакции
-	* 
-	* @return void
-	*/
-	public function commitTransaction()
-	{
-		$this->getWriteConnection()->commitTransaction();
-	}
-	
-	/**
-	* откат транзакции
-	* 
-	* @return void
-	*/
-	public function rollbackTransaction()
-	{
-		$this->getWriteConnection()->rollbackTransaction();
-	}
-	
-	/**
-	* Иногда репликация не используется, поэтому Read и Write 
+	* Иногда репликация не используется, поэтому Read и Write
 	* соединения можно объединить в одно
-	* 
+	*
 	* @param IDBAdapter $object Объект IDBAdapter
-	* 
+	*
 	* @return void
 	*/
 	public function setCommonConnection(IDBAdapter $object)
-	{	
+	{
 		$this->readConnection = $this->writeConnection = $object;
 	}
-	
+
 	/**
 	* Назначает соединение к Master серверу
-	* 
+	*
 	* @param IDBAdapter $object Объект IDBAdapter
-	* 
+	*
 	* @return void
 	*/
 	public function setWriteConnection(IDBAdapter $object)
-	{	
+	{
 		$this->writeConnection = $object;
 	}
-	
+
 	/**
 	* Назначает соединение к Slave серверу
-	* 
+	*
 	* @param IDBAdapter $object Объект IDBAdapter
-	* 
+	*
 	* @return void
 	*/
 	public function setReadConnection(IDBAdapter $object)
-	{	
+	{
 		$this->readConnection = $object;
 	}
-	
+
 	/**
 	* Возвращает соединение к Master серверу
-	* 
+	*
 	* @return IDBAdapter object
-	* @throws Exception
+	* @throws RuntimeException
 	*/
 	public function getWriteConnection()
-	{	
+	{
 		if ($this->writeConnection != null)
 			return $this->writeConnection;
-		else 
-			throw new Exception("Write connection is NULL");
+		else
+			throw new RuntimeException("Write connection is NULL");
 	}
-	
+
 	/**
 	* Возвращает соединение к Slave серверу
-	* 
+	*
 	* @return IDBAdapter object
-	* @throws Exception
+	* @throws RuntimeException
 	*/
 	public function getReadConnection()
-	{	
+	{
 		if ($this->readConnection != null)
 			return $this->readConnection;
-		else 
-			throw new Exception("Read connection is NULL");
+		else
+			throw new RuntimeException("Read connection is NULL");
 	}
-	
-	/**
-	* Выполняет SQL запрос не требующий возврата
-	* каких-либо данных
-	* 
-	* @param string $sql SQL запрос
-	* 
-	* @return void
-	*/
-	public function executeNonQuery($sql)
-	{
-		$this->getWriteConnection()->executeNonQuery($sql);
-	}
-	
-	/**
-	* Форматирует список сущностей в хэш так, чтобы
-	* ключом был ID сущности,а значением - сама сущность
-	* 
-	* @param array $list Массив сущностей
-	* 
-	* @return array
-	*/
-	public static function formatEntityList($list)
-	{
-		if ($list == null)
-			return null;
-		$res = null;
-		foreach ($list as $object)
-		{
-			$res[$object->getId()] = $object;			
-		}
-		return $res;
-	}
-	
+
 	/**
 	 * Форматирование даты и времени в Формат базы данных
 	 *
-	 * @param string $date Дата в формате strtotime() 
-	 * 
+	 * @param string $date Дата в формате strtotime()
+	 *
 	 * @return string
 	 */
 	public function formatDateTimeIn($date)
 	{
 		if ($date === null)
 			return null;
-
-		$dt = new XDateTime($date);
-	
-		return $dt->format($this->dateTimeInFormat);
+		$dt = new DateTime($date);
+		return $dt->format($this->dateTimeFormat);
 	}
-	
+
 	/**
-	 * Форматирование даты и времени в Формат представления
-	 * 
-	 * @param string $date Дата в формате базы данных
-	 * 
+	 * Форматирование времени в Формат базы данных
+	 *
+	 * @param string $time Время в формате strtotime()
+	 *
 	 * @return string
 	 */
-	public function formatDateTimeOut($date)
+	public function formatTime($time)
 	{
-		if ($date === null)
+		if ($time == null)
 			return null;
-
-		$dt = new XDateTime($date);
-		return $dt->format($this->dateTimeOutFormat);
+		$dt = new DateTime($time);
+		return $dt->format($this->timeFormat);
 	}
-	
-	
+
 	/**
-	 * Возвращает столбец значений 
-	 * 
-	 * @param string $sqlQuery Любой SQL запрос
+	* Возвращает сущность по идентификатору
+	*
+	* @param int $id идентификатор сущности
+	*
+	* @return Entity
+	*/
+	public function getById($id)
+	{
+		$ent = self::newEntity($this->defineClass());
+		$sql = "SELECT * FROM `{$ent->entityTable}` WHERE {$ent->primaryKey} = ?";
+		return $this->getReadConnection()->getOneObject($sql, $ent->entityTable, array($id));
+	}
+
+	/**
+	 * Удаляет все записи данной сущности в БД
+	 *
+	 * @return void
+	 * */
+	public function removeAll()
+	{
+		$object = self::newEntity($this->defineClass());
+		$sql = "DELETE FROM `{$object->entityTable}`";
+		return $this->getWriteConnection()->executeNonQuery($sql, array());
+	}
+
+	/**
+	 * Удаляет сущность из базы по заданному идентификатору
+	 *
+	 * @param int $id Идентификатор сущности
+	 *
+	 * @return void
+	 */
+	public function remove($id)
+	{
+		$ent = self::newEntity($this->defineClass());
+		$sql = "DELETE FROM `{$ent->entityTable}` WHERE {$ent->primaryKey} = ?";
+		$res = $this->getWriteConnection()->executeNonQuery($sql, array($id));
+	}
+
+	/**
+	 * Выполняет произвольный запрос и возвращает список массивов
+	 *
+	 * @param string $sql Параметризованный SQL запрос
+	 * @param array Значения параметризованного запроса
+	 * @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
+	 *
+	 * @return array
+	 * */
+	public function getByAnySQL($sql, array $params, $driverOptions = array())
+	{
+		return $this->getReadConnection()->getRows($sql, $params, $driverOptions);
+	}
+
+	/**
+	 * Выполняет произвольный запрос и возвращает
+	 * только одну запись из результирующего набора
+	 *
+	 * @param string $sql Текст SQL запроса
+	 *
+	 * @return mixed
+	 */
+	public function getOneByAnySQL($sql, array $params, $driverOptions = array())
+	{
+		return $this->getReadConnection()->getOneRow($sql, $params, $driverOptions);
+	}
+
+	/**
+	* Возвращает список сущностей по условию
+	*
+	* @param SQLCondition $condition Объект класса SQLCondition
+	*
+	* @return null or array
+	*/
+	public function get(ISQLCondition $condition = null)
+	{
+		$object = self::newEntity($this->defineClass());
+		$sql = "SELECT * FROM `{$object->entityTable}`";
+		$params = array();
+		if ($condition != null)
+		{
+			$sql .= $condition->buildSQL();
+			$params = $condition->getParams();
+		}
+
+		return $this->getReadConnection()->getObjects($sql, $object->entityTable, $params);
+	}
+
+	/**
+	* Возвращает список сущностей текущего типа по сложному
+	* SQL запросу. Важно, чтобы запрос возвращал данные только(!) из соответствующей
+	* таблицы. Если запрос возвращает поля не определенные в сущности, они игнорируются.
+	*
+	* @param string $sql Параметризованный SQL запрос
+	* @param array Значения параметризованного запроса
+	* @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
+	*
+	* @return mixed
+	*/
+	public function getBySQL($sql, array $params, $driverOptions = array())
+	{
+		return $this->getReadConnection()->getObjects($sql, $this->defineClass(), $params, $driverOptions);
+	}
+
+	/**
+	 * Удаляет записи, определенные в SqlCondition
+	 *
+	 * @param SQLCondition $condition object of SQLCondition class
+	 *
+	 * @return int Количество удаленных строк
+	 */
+	public function removeByCondition(ISQLCondition $condition)
+	{
+		$table = strtolower($this->defineClass());
+		$sql = "DELETE FROM `{$table}` " . $condition->buildSQL();
+		$res = $this->getWriteConnection()->executeNonQuery($sql, $condition->getParams());
+		return $res;
+	}
+
+	/**
+	* Возвращает только одну запись из результирующего набора
+	*
+	* @param SQLCondition $condition Объект класса SQLCondition
+	*
+	* @return entity or null
+	*/
+	public function getOne(ISQLCondition $condition)
+	{
+		$res = $this->get($condition);
+		if ($res != null)
+		{
+			if (count($res) > 1)
+				throw new RuntimeException("More then one record returned");
+			return $res[0];
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	/**
+	* Выполняет SQL запрос не требующий возврата
+	* каких-либо данных
+	*
+	* @param string $sql Параметризованный SQL запрос
+	* @param array Значения параметризованного запроса
+	* @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
+	*
+	* @return void
+	*/
+	public function executeNonQuery($sql, array $params, $driverOptions = array())
+	{
+		return $this->getWriteConnection()->executeNonQuery($sql, $params, $driverOptions);
+	}
+
+	/**
+	 * Возвращает столбец значений
+	 *
+	 * @param string $sqlQuery Параметризованный SQL запрос
 	 * @param int    $colNum   Номер столбца в результирующем наборе данных, который будет возвращен
-	 * 
+	 * @param array Значения параметризованного запроса
+	 * @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
+	 *
 	 * @return array
 	 */
-	public function getColumn($sqlQuery, $colNum = 0)
+	public function getColumn($sql, array $params, $colNum = 0, $driverOptions = array())
 	{
-		return $this->readConnection->getColumn($sqlQuery, $colNum);
+		return $this->getReadConnection()->getColumn($sql, $colNum, $params, $driverOptions);
 	}
-	
-	/**
-	 * Экранирует специальные символы в строках 
-	 * для использования в выражениях SQL, 
-	 * принимая во внимание кодировку соединения
-	 * 
-	 * @param string $string Входная строка
-	 * 
-	 * @return string
-	 */
-	public function escape($string)
-	{
-		return $this->writeConnection->escape($string);
-	}	
 }
 ?>

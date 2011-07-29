@@ -1,32 +1,63 @@
 <?php
 /**
- * Тестируем некоторые методы EntityManager
+ *
  *
  * PHP version 5
  *
- * @category Framework
- * @package  Core
- * @author   Andrey Filippov <afi@i-loto.ru>
- * @license  %license% name
- * @version  SVN: $Id: Entity.php 9 2007-12-25 11:26:03Z afi $
- * @link     nolink
+ * @package
+ * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 error_reporting(E_ALL);
 
 require_once 'PHPUnit/Framework/TestCase.php';
 
+require_once 'core/db/IDBAdapter.php';
+require_once 'core/db/PDOAdapter.php';
+require_once 'core/db/SoloPDOStatement.php';
+require_once 'core/db/SoloPDO.php';
+require_once 'core/db/ISQLCondition.php';
+require_once 'core/db/MySQLCondition.php';
 require_once 'core/EntityManager.php';
-require_once 'core/XDateTime.php';
+
 require_once 'phpunit/resources/Test.php';
 require_once 'phpunit/resources/TestManager.php';
-require_once 'core/db/SQLCondition.php';
-require_once 'core/db/IDBAdapter.php';
-require_once 'core/db/MySQLAdapter.php';
-require_once 'core/db/MySQLResult.php';
 
-class EntityManagerTest extends PHPUnit_Framework_TestCase
+class EntityManagerTest  extends PHPUnit_Framework_TestCase
 {
+	/**
+	 * Prepares the environment before running a test.
+	 */
+	protected function setUp ()
+	{
+		parent::setUp();
+	}
+
+	/**
+	 * Cleans up the environment after running a test.
+	 */
+	protected function tearDown()
+	{
+		parent::tearDown();
+
+		try
+		{
+			$tm = new TestManager();
+			$tm->removeAll();
+		}
+		catch (Exception $e)
+		{
+			echo $e->getMessage() . "\n";
+
+			echo "\n!!!!! Check connection setting in resources/PDOTestManager.php !!!!! \n";
+		}
+	}
+
+	public function test_defineClass()
+	{
+		$tm = new TestManager();
+		$this->assertEquals("Test", $tm->getDefineClass());
+	}
 
 	/**
 	 * Проверка форматирования даты в формат БД
@@ -41,151 +72,7 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals("2009-12-25 00:10:12", $stub->formatDateTimeIn("25.12.2009 00:10:12"));
 		$this->assertEquals("2009-09-10 00:00:00", $stub->formatDateTimeIn("10 September 2009"));
-	}
 
-	/**
-	 * Проверка форматирования даты в формат приложения
-	 */
-	public function test_FormatDateTimeOut()
-	{
-		$stub = $this->getMockForAbstractClass("EntityManager");
-
-		// В формате дд.мм.гггг
-		$this->assertEquals("2009-12-25T00:00:00+03:00", $stub->formatDateTimeOut("25.12.2009"));
-		$this->assertEquals("2009-12-25T00:00:00+03:00", $stub->formatDateTimeOut("25-12-2009"));
-
-		$this->assertEquals("2009-12-25T00:10:12+03:00", $stub->formatDateTimeOut("25.12.2009 00:10:12"));
-	}
-
-	public function test_defineClass()
-	{
-		$tm = new TestManager();
-		$this->assertEquals("Test", $tm->getDefineClass());
-	}
-
-
-	public function test_getSelect()
-	{
-		$tm = new TestManager();
-		$ent = new Test();
-
-		// Селект без условий
-		$this->assertEquals(
-				"SELECT * FROM `test`",
-				$tm->getSelect($ent)
-			);
-
-		// С условием
-		$sql = new SQLCondition("username = 'lala' AND id = 1");
-		$sql->groupBy = "username";
-		$sql->orderBy = "id ASC";
-		$sql->rows = 10;
-		$sql->offset = 100;
-
-		$this->assertEquals(
-				"SELECT * FROM `test` WHERE username = 'lala' AND id = 1 GROUP BY username ORDER BY id ASC LIMIT 100 , 10",
-				$tm->getSelect($ent, $sql)
-			);
-	}
-
-	/**
-	 * Тестирование вставки новой сущности
-	 *
-	 */
-	public function test_buildInsert()
-	{
-		$tm = new TestManager();
-
-		$ent = new Test();
-		$ent->num = 10;
-		$ent->username = "user_name";
-		$ent->dt = XDateTime::formatDateTime("25-12-2000");
-		$ent->time = "21:00:59";
-
-		// Обычная вставка
-		$this->assertEquals(
-				"INSERT INTO `test` (`username`, `dt`, `time`, `num`) VALUES('user_name', '2000-12-25 00:00:00', '21:00:59', 10)",
-				$tm->getInsert($ent)
-			);
-
-		// вставка сущности со спецсимволами
-		$ent->username = "O' Raily";
-		$this->assertEquals(
-				"INSERT INTO `test` (`username`, `dt`, `time`, `num`) VALUES('O\' Raily', '2000-12-25 00:00:00', '21:00:59', 10)",
-				$tm->getInsert($ent)
-			);
-
-
-		// вставка сущности с неустановленным полем time (== null)
-		$ent->time = null;
-		$this->assertEquals(
-				"INSERT INTO `test` (`username`, `dt`, `num`) VALUES('O\' Raily', '2000-12-25 00:00:00', 10)",
-				$tm->getInsert($ent)
-			);
-
-		$ent->time = null;
-		$this->assertEquals(
-				"INSERT INTO `test` (`username`, `dt`, `num`) VALUES('O\' Raily', '2000-12-25 00:00:00', 10)",
-				$tm->getInsert($ent)
-			);
-
-		// вставка сущности с неустановленным полем dt (== null)
-		$ent->dt = null;
-		$this->assertEquals(
-				"INSERT INTO `test` (`username`, `num`) VALUES('O\' Raily', 10)",
-				$tm->getInsert($ent)
-			);
-	}
-
-	/**
-	 * Тестируем постоение SQL запроса на обновление сущности в базе
-	 *
-	 */
-	public function test_buildUpdate()
-	{
-		$ent = new Test();
-		$ent->setId(1);
-		$ent->num = 10;
-		$ent->username = "user";
-		$ent->dt = XDateTime::formatDateTime("25-12-2000");
-		$ent->time = "21:00:59";
-
-		$tm = new TestManager();
-
-		// Обновление сущности
-		$this->assertEquals(
-				"UPDATE `test` SET `id` = 1, `username` = 'user', `dt` = '2000-12-25 00:00:00', `time` = '21:00:59', `num` = 10 WHERE id = 1",
-				$tm->getUpdate($ent)
-			);
-
-		// Обновление сущности со спецсимволами
-		$ent->username = "O' Raily";
-		$this->assertEquals(
-				"UPDATE `test` SET `id` = 1, `username` = 'O\' Raily', `dt` = '2000-12-25 00:00:00', `time` = '21:00:59', `num` = 10 WHERE id = 1",
-				$tm->getUpdate($ent)
-			);
-
-		// Обновление сущности, когда некоторые поля убрали вручную
-		// Иногда требуется, чтобы некоторые поля не обновлялись
-		unset($ent->username);
-		$this->assertEquals(
-				"UPDATE `test` SET `id` = 1, `dt` = '2000-12-25 00:00:00', `time` = '21:00:59', `num` = 10 WHERE id = 1",
-				$tm->getUpdate($ent)
-			);
-
-		// обновление сущности с неустановленным полем time (== null)
-		$ent->time = null;
-		$this->assertEquals(
-				"UPDATE `test` SET `id` = 1, `dt` = '2000-12-25 00:00:00', `time` = null, `num` = 10 WHERE id = 1",
-				$tm->getUpdate($ent)
-			);
-
-		// обновление сущности с неустановленным полем dt (== null)
-		$ent->dt = null;
-		$this->assertEquals(
-				"UPDATE `test` SET `id` = 1, `dt` = null, `time` = null, `num` = 10 WHERE id = 1",
-				$tm->getUpdate($ent)
-			);
 	}
 
 	public function test_Save()
@@ -222,35 +109,6 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$this->fail('An expected Exception has not been raised.');
 	}
 
-	public function test_formatEntityList()
-	{
-		$list = null;
-
-		for($i = 0; $i< 10; $i++)
-		{
-			$object = new Test();
-			$object->id = $i + 10;
-			$list[] = $object;
-		}
-
-		// преобразуем список
-		$res = EntityManager::formatEntityList($list);
-
-		$this->assertNotNull($res);
-		// кол-во элементов не должно измениться
-		$this->assertEquals(10, count($res));
-
-		// id = 15 должно быть у элемента массива 15
-		$this->assertEquals(15, $res[15]->getId());
-		// id = 10 должно быть у элемента массива 10
-		$this->assertEquals(10, $res[10]->getId());
-
-		$list = null;
-		// преобразуем список
-		$res = EntityManager::formatEntityList($list);
-		$this->assertNull($res);
-	}
-
 	public function test_Update()
 	{
 		$tm = new TestManager();
@@ -265,11 +123,13 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$object->time = "21:12:12";
 		$tm->save($object);
 
+
 		// retrieve & compare
 		$obj1 = $tm->getById($object->getId());
 		$this->assertEquals($object->username, $obj1->username);
 
 		$this->assertEquals(0, $obj1->num);
+		$this->assertEquals("21:12:12", $object->time);
 
 		// обновление времени как null
 		$object->time = null;
@@ -277,6 +137,11 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 
 		$obj1 = $tm->getById($object->getId());
 		$this->assertEquals(null, $obj1->time);
+
+		$object->num = null;
+		$tm->save($object);
+		$obj1 = $tm->getById($object->getId());
+		$this->assertEquals(null, $obj1->num);
 
 	}
 
@@ -291,73 +156,193 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$tm->save($object);
 
 		// получим по уникальному имени
-		$sql = "SELECT * FROM {$object->entityTable} WHERE username = '{$uname}'";
-		$res = $tm->getOneByAnySQL($sql);
+		$sql = "SELECT * FROM {$object->entityTable} WHERE username = ?";
+		$res = $tm->getOneByAnySQL($sql, array($uname));
 
 		$this->assertEquals($uname, $res["username"] );
 
-		//
-		// а если найдено несколько таких строк, то должны получить исключение
-		//
-		try
-		{
-			$uname = time();
-			$object = new Test();
-			$object->username = $uname;
-			$tm->save($object);
+		$uname = time();
+		$object = new Test();
+		$object->username = $uname;
+		$tm->save($object);
 
-			$object = new Test();
-			$object->username = $uname;
-			$tm->save($object);
+		$object = new Test();
+		$object->username = $uname;
+		$tm->save($object);
 
-			// получим по уникальному имени
-			$sql = "SELECT * FROM {$object->entityTable} WHERE username = '{$uname}'";
-			$res = $tm->getOneByAnySQL($sql);
-		}
-		catch(Exception $e)
-		{
-			return false;
-		}
-		$this->fail('An expected Exception has not been raised.');
-	}
-
-
-	/**
-	 * Prepares the environment before running a test.
-	 */
-	protected function setUp ()
-	{
-		parent::setUp();
+		// получим по уникальному имени
+		$sql = "SELECT * FROM {$object->entityTable} WHERE username = ?";
+		$res = $tm->getOneByAnySQL($sql, array($uname));
 	}
 
 	/**
-	 * Cleans up the environment after running a test.
+	 *
+	 *
+	 * @return
 	 */
-	protected function tearDown ()
+	public function test_get()
 	{
-		parent::tearDown();
+		$tm = new TestManager();
+		$object = new Test();
 
-		try
-		{
-			$tm = new TestManager();
-			$tm->removeAll();
-		}
-		catch (Exception $e)
-		{
-			echo $e->getMessage() . "\n";
+		$object->username = "get test";
+		$object->num = 10;
+		$tm->save($object);
 
-			if ($e->getCode() == 2003)
-				echo "\n!!!!! Check connection setting in resources/TestManager.php !!!!! \n";
-		}
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		// записи по условию
+		$cond = MySQLCondition::create()
+			->where("num > ?")
+			->setParams(10);
+
+		$res = $tm->get($cond);
+		$this->assertEquals(1, count($res));
+		$this->assertEquals("Test", get_class($res[0]));
+
+		// все записи
+		$res = $tm->get();
+		$this->assertEquals(2, count($res));
 	}
 
 	/**
-	 * Constructs the test case.
+	 *
+	 *
+	 * @return
 	 */
-	public function __construct ()
+	public function test_getBySQL()
 	{
+		$tm = new TestManager();
+		$object = new Test();
 
+		$object->username = "get test";
+		$object->num = 10;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		// записи по условию
+		$sql = "SELECT * FROM test WHERE num = ? AND username = ?";
+
+		$res = $tm->getBySQL($sql, array(20, "get"));
+
+		$this->assertEquals(1, count($res));
+		$this->assertEquals("Test", get_class($res[0]));
+		$this->assertEquals("get", $res[0]->username);
+	}
+
+	/**
+	 *
+	 *
+	 * @return
+	 */
+	public function test_removeByCondition()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "get test";
+		$object->num = 10;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		// Удалить записи по условию
+		//$sql = "SELECT * FROM test WHERE num = ? AND username = ?";
+
+		$res = $tm->removeByCondition(MySQLCondition::create()->where("num = ?")->setParams(20));
+		$this->assertEquals(1, $res);
+	}
+
+	/**
+	 *
+	 *
+	 * @return
+	 */
+	public function test_getOne()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "get test";
+		$object->num = 10;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		$res = $tm->getOne(MySQLCondition::create()->where("num = ?")->setParams(20));
+		$this->assertEquals(1, count($res));
+	}
+
+	/**
+	 *
+	 * @expectedException RuntimeException
+	 */
+	public function test_getOne_fail()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "get test";
+		$object->num = 20;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		$res = $tm->getOne(MySQLCondition::create()->where("num = ?")->setParams(20));
+		$this->assertEquals(1, count($res));
+	}
+
+
+	public function test_executeNonQuery()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "get test";
+		$object->num = 20;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		$res = $tm->executeNonQuery("DELETE FROM test WHERE num = ?", array(20));
+		$this->assertEquals(2, $res);
+	}
+
+	public function test_getColumn()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "get test";
+		$object->num = 20;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "get";
+		$tm->save($object2);
+
+		$res = $tm->getColumn("SELECT username FROM test WHERE num = ?", array(20), 0);
+		$this->assertEquals(2, count($res));
 	}
 }
-
 ?>

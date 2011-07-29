@@ -14,7 +14,7 @@
  * @link     nolink
  */
 
-class SQLCondition
+class MySQLCondition implements ISQLCondition
 {
 	/**
 	 * Значение отступа в SQL конструкции LIMIT

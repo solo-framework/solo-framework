@@ -281,8 +281,6 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals("some", $val);
 		Validator::reset();
 
-		var_dump(is_int(4294967289));
-
 	}
 }
 ?>
