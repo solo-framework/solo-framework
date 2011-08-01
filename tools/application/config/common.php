@@ -68,24 +68,22 @@ return array
 		//
 		"db" => array
 		(
-			"@class" => "MySQLAdapter",
+			"@class" => "PDOAdapter",
 
-			"host" => "localhost",
-			"user" => "root",
+			// строка подлючения
+			"dsn" => "mysql:host=localhost;dbname=database",
+			"username" => "root",
 			"password" => "password",
-			"database" => "classnet",
-			"port" => 3306,
-			"debug" => true,
-			"persist" => false,
-			"socket" => null,
-			"newLink" => false,
-			"clientFlags" => MYSQL_CLIENT_COMPRESS,
+			"isDebug" => true,
 
 			// Список команд, выполняемых сразу после подключения к серверу
 			"initialCommands" => array
 			(
 				"SET NAMES utf8",
-			)
+			),
+
+			// Настройки драйвера по-умолчанию
+			"defaultDriverOptions" => array()
 		)
 	),
 
