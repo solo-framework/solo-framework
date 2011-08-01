@@ -322,7 +322,7 @@ abstract class EntityManager
 	}
 
 	/**
-	 * Выполняет произвольный запрос и возвращает список массивов
+	 * Выполняет произвольный запрос и возвращает список строк из БД
 	 *
 	 * @param string $sql Параметризованный SQL запрос
 	 * @param array Значения параметризованного запроса
@@ -450,6 +450,48 @@ abstract class EntityManager
 	public function getColumn($sql, array $params, $colNum = 0, $driverOptions = array())
 	{
 		return $this->getReadConnection()->getColumn($sql, $colNum, $params, $driverOptions);
+	}
+
+	/**
+	 * Выполняет произвольный запрос и возвращает список строк из БД
+	 *
+	 * @param string $sql Параметризованный SQL запрос
+	 * @param array Значения параметризованного запроса
+	 * @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
+	 *
+	 * @return array
+	 */
+	public function callStoredProcedure($sql, array $params, $driverOptions = array())
+	{
+		return $this->getReadConnection()->getRows($sql, $params, $driverOptions);
+	}
+
+
+	/**
+	* Возвращает список сущностей с использованием хранимой процедуры
+	*
+	* @param string $sql Параметризованный SQL запрос
+	* @param array Значения параметризованного запроса
+	* @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
+	*
+	* @return array
+	*/
+	public function getByStoredProcedure($sql, array $params, $driverOptions = array())
+	{
+		$class = $this->defineClass();
+		$list = $this->getReadConnection()->getRows($sql, $params, $driverOptions);
+		$result = null;
+
+		if (count($list) > 0)
+		{
+			foreach ($list as $field => $value)
+			{
+				$obj = new $class();
+				$obj->$field = $value;
+				$result[] = $obj;
+			}
+		}
+		return $result;
 	}
 }
 ?>

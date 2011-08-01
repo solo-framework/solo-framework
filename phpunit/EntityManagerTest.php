@@ -31,6 +31,64 @@ class EntityManagerTest  extends PHPUnit_Framework_TestCase
 	protected function setUp ()
 	{
 		parent::setUp();
+		$tm = new TestManager();
+
+		//
+		// Таблица для тестирования
+		//
+		$dropTable = "DROP TABLE IF EXISTS `test`";
+		$tm->executeNonQuery($dropTable, array());
+
+		$table = "	CREATE TABLE `test` (
+						`id` INT(11) NOT NULL AUTO_INCREMENT,
+						`username` VARCHAR(200) NULL DEFAULT NULL,
+						`dt` DATETIME NULL,
+						`time` TIME NULL,
+						`num` INT(11) NULL DEFAULT NULL,
+						`ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+						INDEX `id` (`id`)
+					)
+					ENGINE=InnoDB
+					ROW_FORMAT=DEFAULT";
+
+		$tm->executeNonQuery($table, array());
+
+		//
+		// Хранимая процедура для тестирования
+		//
+		$dropSP = "DROP PROCEDURE IF EXISTS `getRows`";
+		$tm->executeNonQuery($dropSP, array());
+
+		$sp = "CREATE PROCEDURE `getRows`()
+				LANGUAGE SQL
+				NOT DETERMINISTIC
+				CONTAINS SQL
+				SQL SECURITY DEFINER
+				COMMENT ''
+			BEGIN
+				SELECT id, num FROM `test`;
+			END";
+		$tm->executeNonQuery($sp, array());
+
+		//
+		// И еще одна хранимая процедура
+		//
+
+		$dropSP2 = "DROP PROCEDURE IF EXISTS `getTest`";
+		$tm->executeNonQuery($dropSP2, array());
+
+		$sp2 = "
+		CREATE PROCEDURE `getTest`()
+			LANGUAGE SQL
+			NOT DETERMINISTIC
+			CONTAINS SQL
+			SQL SECURITY DEFINER
+			COMMENT ''
+		BEGIN
+			select * from `test`;
+		END
+		";
+		$tm->executeNonQuery($sp2, array());
 	}
 
 	/**
@@ -343,6 +401,54 @@ class EntityManagerTest  extends PHPUnit_Framework_TestCase
 
 		$res = $tm->getColumn("SELECT username FROM test WHERE num = ?", array(20), 0);
 		$this->assertEquals(2, count($res));
+	}
+
+	/**
+	 *
+	 *
+	 * @return
+	 */
+	public function test_call_stored_procedure()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "sp test";
+		$object->num = 10;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "sp test 2";
+		$tm->save($object2);
+
+		$res = $tm->callStoredProcedure("call getRows()", array());
+		$this->assertEquals(2, count($res));
+	}
+
+	/**
+	 *
+	 *
+	 * @return
+	 */
+	public function test_bet_by_stored_procedure()
+	{
+		$tm = new TestManager();
+		$object = new Test();
+
+		$object->username = "sp test";
+		$object->num = 10;
+		$tm->save($object);
+
+		$object2 = new Test();
+		$object2->num = 20;
+		$object2->username = "sp test 2";
+		$tm->save($object2);
+
+		$res = $tm->getByStoredProcedure("call getTest()", array());
+
+		$this->assertEquals(2, count($res));
+		$this->assertEquals("Test", get_class($res[0]));
 	}
 }
 ?>

@@ -6,8 +6,6 @@ class TestManager extends EntityManager
 	/**
 	 * Для тестирования нужно настроить
 	 * подключение к БД
-	 * и создать тестовую таблицу (SQL код смотри в Test.php)
-	 *
 	 */
 	public function __construct()
 	{
@@ -28,16 +26,6 @@ class TestManager extends EntityManager
 		return $this->defineClass();
 	}
 
-	/**
-	 * Для тестов переопределим метод escape
-	 * т.к. он требует подключения к базе,
-	 * но mysql_escape_string выполняет те же функции
-	 *
-	 * @param string $val Строка
-	 */
-//	public function escape($val)
-//	{
-//		return mysql_escape_string($val);
-//	}
+
 }
 ?>
