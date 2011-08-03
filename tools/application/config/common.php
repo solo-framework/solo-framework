@@ -82,8 +82,8 @@ return array
 				"SET NAMES utf8",
 			),
 
-			// Настройки драйвера по-умолчанию
-			"defaultDriverOptions" => array()
+			// Настройки драйвера
+			"driverOptions" => array()
 		)
 	),
 

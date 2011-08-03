@@ -431,7 +431,7 @@ class EntityManagerTest  extends PHPUnit_Framework_TestCase
 	 *
 	 * @return
 	 */
-	public function test_bet_by_stored_procedure()
+	public function test_test_by_stored_procedure()
 	{
 		$tm = new TestManager();
 		$object = new Test();

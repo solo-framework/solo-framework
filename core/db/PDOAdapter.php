@@ -110,7 +110,7 @@ class PDOAdapter implements IDBAdapter
 			if (count($this->initialCommands) > 0)
 			{
 				foreach ($this->initialCommands as $command)
-					$this->executeNonQuery($command);
+					$this->executeNonQuery($command, array());
 			}
 		}
 

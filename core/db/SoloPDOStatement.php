@@ -60,7 +60,7 @@ class SoloPDOStatement extends PDOStatement
 			{
 				for ($i = 0; $i < $count; $i++)
 				{
-					$tmp = isset($params[$i]) ? $params[$i] : null;
+					$tmp = isset($params[$i]) ? $this->pdo->quote($params[$i]) : null;
 					$sql .= $res[$i] . $tmp;
 				}
 			}

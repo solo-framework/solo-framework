@@ -16,6 +16,7 @@ class TestManager extends EntityManager
 
 		$adapter->username = "root";
 		$adapter->password = "password";
+		$adapter->initialCommands = array("SET NAMES utf8");
 
 		$this->setCommonConnection($adapter);
 	}
