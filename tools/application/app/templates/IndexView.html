@@ -9,10 +9,12 @@
 {* Вставим компонент, который выводит сообщения об ошибках *}
 {component name="DisplayError"}
 
+{* Вставим код для восстановления данных формы *}
+{formrestore id="upload_form"}
 
-<form name="upload" action="index.php?action=test" enctype="multipart/form-data" method="post">
-	Input text (required)<input type="text" name="text"/><br/>
-	I'am agree <input type="checkbox" name="agree" value="111"/>
+<form name="upload" id="upload_form" action="index.php?action=test" enctype="multipart/form-data" method="post">
+	Input text (required)<input type="text" name="text" id="text"/><br/>
+	I'am agree <input type="checkbox" name="agree" id="agree" value="111"/>
 	
 	<input type="submit" name="sub" value="go!" /><br/>
 	<input type="button" name="ajax" id="name" value="get by AJAX"/><br/>

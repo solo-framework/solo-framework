@@ -35,6 +35,7 @@ return array
 			"@framework/core/*",
 			"@framework/core/db/*",
 			"@framework/lib/Validator/*",
+			"@framework/lib/Web/*",
 			"@base/app/*",
 			"@base/app/views/*",
 			"@base/app/views/components/*",

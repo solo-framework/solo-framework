@@ -1,10 +1,10 @@
 <?php
 /**
  * Пример действия
- * 
+ *
  * PHP version 5
- * 
- * @package 
+ *
+ * @package
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
@@ -12,7 +12,7 @@ class TestAction extends Action
 {
 	/**
 	 * Выполнение действия
-	 * 
+	 *
 	 * @return void
 	 */
 	public function execute()
@@ -22,15 +22,20 @@ class TestAction extends Action
 			->required(true, "обязательное")
 			->minLength(3, "длина значения должна быть больше 3 символов");
 
-		// проверяем, выбран ли чекбокс
+		// проверям, выбрал ли чекбокс
 		Validator::check(Request::get("agree"))
 			->required(true, "Не выбран agree");
 
 		// В зависимости от результата валидации формы делаем редирект
 		if (!Validator::isValid())
+		{
+			FormRestore::saveData("upload_form");
 			Application::getInstance()->redirectBack(Validator::getMessages());
-		else 
-			Application::getInstance()->redirect("index.php?view=index", "Действие успешно выполнено");	
+		}
+		else
+			Application::getInstance()->redirect("index.php?view=index", "Действие успешно выполнено");
+
+
 	}
 }
 ?>
