@@ -20,21 +20,17 @@ class LogCommand extends BaseCommand
         date_default_timezone_set('Europe/Moscow');
         $migrations = $this->receiver->getAllMigrations('DESC');
 
-        echo "Number\tCreateTime\t\tComment\n\n";
+        echo "\tUid\t\tCreateTime\t\tComment\n\n";
+
         /* @var $m Migration */
         foreach ($migrations as $m)
         {
-            echo "#{$m->number}\t";
-            echo date('Y-m-d H:i:s', $m->createTime) . "\t";
-
-            if (stristr(PHP_OS, 'WIN'))
-            {
-                echo iconv('utf-8', 'windows-1251', $m->comment) . "\n";
-            }
-            else
-            {
-                echo $m->comment . "\n";
-            }
+            printf("%-19s %-23s %s\n",
+                $m->createTime,
+                date('Y-m-d H:i:s', $m->createTime),
+                stristr(PHP_OS, 'WIN') ?
+                    iconv('utf-8', 'windows-1251', $m->comment) : $m->comment
+            );
 
         }
     }

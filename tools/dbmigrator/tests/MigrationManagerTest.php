@@ -12,6 +12,7 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
      * @var MigrationManager
      */
     protected $object;
+	protected $dbName = "testmigration";
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -53,10 +54,10 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     {
         $this->object->dbHelper->createTable();
 
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (0, unix_timestamp(NOW()), '')");
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (1, unix_timestamp(NOW()), '')");
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (2, unix_timestamp(NOW()), '')");
-
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES ('1309952248.4191', '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES ('1309952249.4191', '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES ('1309952258.4191', '')");
+	    
         $this->assertEquals(3, count($this->object->getAllMigrations()), "3 migrations");
     }
 
@@ -67,12 +68,11 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     {
         $this->object->dbHelper->createTable();
 
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (0, 1111111111, '')");
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (1, 1222222222, '')");
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (2, 1333333333, '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES ('1309952248.4191', '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES ('1309952249.4191', '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES ('1309952258.4191', '')");
 
-        $this->assertEquals(1333333333, $this->object->getLastMigration()->createTime, "last timestamp");
-        $this->assertEquals(2, $this->object->getLastMigration()->number, "second number");
+        $this->assertEquals('1309952258.4191', $this->object->getLastMigration()->createTime, "last timestamp");
         $this->assertEquals(3, $this->object->getLastMigration()->id, "third id");
     }
 
@@ -81,7 +81,7 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateMigration()
     {
-        $this->object->createMigration('data/my_migration');
+        $this->object->createTempMigration('data/my_migration');
         $this->assertTrue(is_writable('data/my_migration/delta.sql'));
         $this->assertContains('/*YOU CODE HERE*/', file_get_contents('data/my_migration/delta.sql'));
     }
@@ -95,12 +95,13 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
 
         $this->check0Changes();
 
-        $this->assertTrue(is_writable('data/storage/0/data.sql'));
-        $this->assertTrue(is_writable('data/storage/0/procedures.sql'));
-        $this->assertTrue(is_writable('data/storage/0/scheme.sql'));
-        $this->assertTrue(is_writable('data/storage/0/triggers.sql'));
-
-        $this->assertEquals(0, $this->object->getLastMigration()->number, "number 0");
+	    $m = $this->object->getLastMigration();
+	    $this->assertEquals(1, $m->id, "id 1");
+	    
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/data.sql"));
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/procedures.sql"));
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/scheme.sql"));
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/triggers.sql"));
     }
 
     /**
@@ -111,7 +112,7 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
         $this->object->init('data/storage');
 
         // создаем миграцию
-        $this->object->createMigration('data/my_migration');
+        $this->object->createTempMigration('data/my_migration');
         
         // запишем дельту
         $str  = str_replace('/*YOU CODE HERE*/', 'CREATE TABLE ...', file_get_contents('data/my_migration/delta.sql'));
@@ -119,15 +120,16 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
 
         $this->object->commitMigration('data/my_migration', 'data/storage');
 
-        $this->assertTrue(is_writable('data/storage/1/data.sql'));
-        $this->assertTrue(is_writable('data/storage/1/delta.sql'));
-        $this->assertTrue(is_writable('data/storage/1/procedures.sql'));
-        $this->assertTrue(is_writable('data/storage/1/scheme.sql'));
-        $this->assertTrue(is_writable('data/storage/1/triggers.sql'));
+	    $m = $this->object->getLastMigration();
+	    $this->assertEquals(15, strlen($m->createTime), '15 symbols');
 
-        $this->assertEquals(1, $this->object->getLastMigration()->number, 'Number migration is 1');
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/data.sql"));
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/procedures.sql"));
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/scheme.sql"));
+        $this->assertTrue(is_writable("data/storage/{$m->createTime}/triggers.sql"));
+	    $this->assertTrue(is_writable("data/storage/{$m->createTime}/delta.sql"));
+
         $this->assertFalse(file_exists('data/my_migration'));
-
     }
 
     /**
@@ -147,13 +149,8 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
         $this->object->dbHelper->importFiles('data/deltas_work/3', array('delta.sql'));
 
         $delta = $this->object->getDeltaByBinLog("/var/log/mysql", 'data/storage', false);
+        //$delta = $this->object->getDeltaByBinLog("c:\\xampp\\mysql", 'data/storage', false);
         $this->assertNotEquals("", $delta);
-
-        /*
-        file_put_contents("auto_delta.sql", $delta);
-        $this->object->dbHelper->executeSQLFromFile("auto_delta.sql");
-        unlink("auto_delta.sql");
-        */
     }
 
     private function initState()
@@ -182,7 +179,7 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     public function testGoto0SoftMigration()
     {
         $this->initState();
-        $this->object->gotoMigration('data/storage', 0);
+        $this->object->gotoMigration('data/storage', $this->object->getMigrationById(1)->createTime);
 
         $this->check0Changes();
     }
@@ -192,21 +189,21 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
         $res = $this->object->dbHelper->executeQuery("
             SELECT COUNT(*) AS count
             FROM information_schema.tables
-            WHERE table_schema = 'testmigration'
+            WHERE table_schema = '{$this->dbName}'
         ");
         $this->assertEquals(24, mysql_result($res, 0), "24 tables");
 
         $res = $this->object->dbHelper->executeQuery("
             SELECT COUNT(*) AS COUNT
             FROM information_schema.triggers
-            WHERE trigger_schema = 'testmigration'
+            WHERE trigger_schema = '{$this->dbName}'
         ");
         $this->assertEquals(6, mysql_result($res, 0), "6 triggers");
 
         $res = $this->object->dbHelper->executeQuery("
             SELECT COUNT(*) AS COUNT
             FROM information_schema.routines
-            WHERE routine_schema = 'testmigration'
+            WHERE routine_schema = '{$this->dbName}'
         ");
         $this->assertEquals(6, mysql_result($res, 0), "6 procedures");
     }
@@ -215,7 +212,7 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     public function testGoto1SoftMigration()
     {
         $this->initState();
-        $this->object->gotoMigration('data/storage', 1);
+        $this->object->gotoMigration('data/storage', $this->object->getMigrationById(2)->createTime);
 
         $this->check0Changes();
         $this->check1Changes();
@@ -223,17 +220,17 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
 
     private function check1Changes()
     {
-        $res = $this->object->dbHelper->executeQuery("SHOW COLUMNS FROM actor LIKE 'first_name'");
+        $res = $this->object->dbHelper->executeQuery("SHOW COLUMNS FROM {$this->dbName}.actor LIKE 'first_name'");
         $this->assertEquals('varchar(128)', mysql_result($res, 0, 'Type'), "Field changed");
 
-        $res = $this->object->dbHelper->executeQuery("SHOW COLUMNS FROM address LIKE 'new_fiels'");
+        $res = $this->object->dbHelper->executeQuery("SHOW COLUMNS FROM {$this->dbName}.address LIKE 'new_fiels'");
         $this->assertEquals('new_fiels', mysql_result($res, 0, 'Field'), "New field added");
     }
 
     public function testGoto2SoftMigration()
     {
         $this->initState();
-        $this->object->gotoMigration('data/storage', 2);
+        $this->object->gotoMigration('data/storage', $this->object->getMigrationById(3)->createTime);
 
         $this->check1Changes();
         $this->check2Changes();
@@ -244,14 +241,14 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
         $res = $this->object->dbHelper->executeQuery("SHOW TABLES IN testmigration LIKE 'man'");
         $this->assertEquals('man', mysql_result($res, 0), "New table added");
 
-        $res = $this->object->dbHelper->executeQuery("SELECT COUNT(*) FROM man");
+        $res = $this->object->dbHelper->executeQuery("SELECT COUNT(*) FROM {$this->dbName}.man");
         $this->assertEquals(5, mysql_result($res, 0), "New table added");
     }
 
     public function testGoto3SoftMigration()
     {
         $this->initState();
-        $this->object->gotoMigration('data/storage', 3);
+        $this->object->gotoMigration('data/storage', $this->object->getMigrationById(4)->createTime);
 
         $this->check1Changes();
         $this->check2Changes();
@@ -274,7 +271,7 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     public function testGoto2ForceMigration()
     {
         $this->initState();
-        $this->object->gotoMigration('data/storage', 2, true);
+        $this->object->gotoMigration('data/storage', $this->object->getMigrationById(3)->createTime, true);
 
         $this->check1Changes();
         $this->check2Changes();
@@ -301,9 +298,9 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     {
         $this->object->dbHelper->createTable();
 
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (0, unix_timestamp(NOW()), '')");
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (1, unix_timestamp(NOW()), '')");
-        $this->object->dbHelper->executeQuery("INSERT INTO __migration (number, createTime, comment) VALUES (2, unix_timestamp(NOW()), '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES (1309952248.4191, '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES (1309952248.4192, '')");
+        $this->object->dbHelper->executeQuery("INSERT INTO __migration (createTime, comment) VALUES (1309952248.4193, '')");
 
         try
         {
@@ -317,12 +314,20 @@ class MigrationManagerTest extends PHPUnit_Framework_TestCase
     }
 
     public function testSetCurrentVersion()
-    {
-        $this->object->setCurrentVersion('data/storage');
-        $this->assertEquals(0, $this->object->getCurrentVersion('data/storage'));
-
-        $this->object->setCurrentVersion('data/storage', 12);
-        $this->assertEquals(12, $this->object->getCurrentVersion('data/storage'));
+    {        
+        $this->object->setCurrentVersion('data/storage', 1309952248.4191);
+        $this->assertEquals(1309952248.4191, $this->object->getCurrentVersion('data/storage'));
     }
+
+	public function testGetUniqId()
+	{
+		$this->markTestSkipped();
+//		for ($i = 0; $i < 1000; $i++)
+//		{
+//			echo number_format(microtime(true), 4, '.', '') . PHP_EOL;;
+//			usleep(1);
+//		}
+
+	}
 }
 ?>

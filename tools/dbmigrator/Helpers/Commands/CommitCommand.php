@@ -42,6 +42,7 @@ class CommitCommand extends BaseCommand
             $this->config['migrationStorage'],
             $this->comment
         );
-        echo "New migration was added\n";
+	    $version = $this->receiver->getCurrentVersion($this->config['migrationStorage']);
+        echo "New migration #{$version} was added\n";
     }
 }

@@ -30,19 +30,151 @@ class MigrationManager
 
     public function init($migrStorage)
     {
-        // создаем таблицу
+	    // создаем таблицу
         $this->dbHelper->createTable();
 
-        // создаем нулевой каталог c дампом базы
-        $this->dbHelper->createDump($migrStorage . "/0");
+		// проверяем существование начальной миграции
+		if ($this->getMigrationById(1))
+			throw new Exception("Can't apply init migration, because another exists");
 
-        // создаем запись в таблице
-        if (!$this->getMigrationByNumber(0))
-            $this->insertMigration(0, 'Init migration');
+	    // строим миграцию
+		$uid = $this->buildMigration($migrStorage, 'Init migration');
 
-        // устанавливаем версию миграции
-        self::setCurrentVersion($migrStorage, 0);
+		// устанавливаем версию миграции
+		self::setCurrentVersion($migrStorage, $uid);
 
+    }
+
+	/**
+     * Добавляет миграцию в хранилище
+     *
+     * @throws Exception
+     * @param  $migrPath Директория, где хранится миграция для добаваления
+     * @param  $migrStorage Директория, где хранятся миграции
+     * @param string $comment Комментарий к миграции
+     *
+     * @return void
+     */
+    public function commitMigration($migrPath, $migrStorage, $comment = '')
+    {
+        if (!$this->getMigrationById(1))
+            throw new Exception("Need init migration");
+
+		$this->dbHelper->checkFile("{$migrPath}/delta.sql");
+
+		$uid = $this->buildMigration($migrStorage, $comment);
+
+	    $path = "{$migrStorage}/{$uid}";
+
+        //copy delta
+        if (!copy("{$migrPath}/delta.sql", "{$path}/delta.sql"))
+            throw new Exception("Can't copy {$migrPath}/delta.sql to {$path}/delta.sql");
+
+        self::putInsertMigrationSql($uid, $comment, $path);
+
+        DirectoryHandler::delete($migrPath);
+
+        self::setCurrentVersion($migrStorage, $uid);
+    }
+
+    /**
+     * @static
+     * @param $createTime
+     * @param $comment
+     * @param $path
+     * @return void
+     */
+    public static function putInsertMigrationSql($createTime, $comment, $path)
+    { 
+        $sql = "\nINSERT INTO __migration (createTime, comment) VALUES ({$createTime}, '{$comment}');\n";
+        $file = file_get_contents("{$path}/delta.sql");
+        file_put_contents("{$path}/delta.sql", str_replace("/*MIGRATION_INSERT_STATEMENT*/", $sql, $file));
+    }
+
+    /**
+	 * Строит миграцию
+	 *
+	 * @param $migrStorage
+	 * @param $comment
+	 * 
+	 * @return mixed
+	 */
+	public function buildMigration($migrStorage, $comment)
+	{
+		$time = $this->getCurrentTime();
+		$path = "{$migrStorage}/{$time}";
+
+		$this->dbHelper->checkDir($migrStorage, $path);
+		
+		// создаем запись в таблице
+		if (!$this->getMigrationByTime($time))
+		{
+			sleep(1);
+			$this->insertMigration($time, $comment);
+		}
+
+		// создаем начальный каталог c дампом базы
+		$this->dbHelper->createDump($path);
+
+		return $time;
+	}
+
+	public function getCurrentTime()
+	{
+		return number_format(microtime(true), 4, '.', '');
+	}
+
+	/**
+	 * Накатывает миграции от 0 до $number из хранилища,
+	 * если установлен force, то накатывает только $number
+	 *
+	 * @param string $migrStorage Директория, где хранятся миграции
+	 * @param string $uid Уникальный идентификатор миграции
+	 * @param bool $force Флаг
+	 *
+	 *
+	 * @internal param $uuid Номер миграции
+	 * @return void
+	 */
+    public function gotoMigration($migrStorage, $uid, $force = false)
+    {
+        $migrations = $this->getAllMigrations();
+
+        $this->checkMigrations($migrations);
+        $this->checkMigration($uid, $migrations);
+
+        $this->dbHelper->makeDBEmpty();
+
+        if ($force)
+        {
+	        $this->dbHelper->importFiles("{$migrStorage}/{$uid}",
+                array('scheme.sql', 'data.sql', 'procedures.sql', 'triggers.sql'));
+        }
+        else
+        {
+	        /**
+	         * @var $m Migration
+	         */
+	        foreach ($migrations as $m)
+	        {
+				if ($m->id == 1)
+				{
+					$this->dbHelper->importFiles("{$migrStorage}/{$m->createTime}",
+                        array('scheme.sql', 'data.sql', 'procedures.sql', 'triggers.sql'));
+				}
+                else
+                {
+	                $this->dbHelper->importFiles("{$migrStorage}/{$m->createTime}", array('delta.sql'));
+                }
+
+                if ($m->createTime == $uid)
+                {
+	                break;
+                }
+	        }
+        }
+        $this->restoreMigrations($migrations);
+        self::setCurrentVersion($migrStorage, $uid);
     }
 
     /**
@@ -56,7 +188,7 @@ class MigrationManager
     {
         $migrations = array();
 
-        $sql = "SELECT * FROM __migration ORDER BY number {$order}";
+        $sql = "SELECT * FROM __migration ORDER BY createTime {$order}";
         $res = $this->dbHelper->executeQuery($sql);
         while ($m = mysql_fetch_object($res, "Migration"))
 		{
@@ -80,21 +212,50 @@ class MigrationManager
         return $m;
     }
 
-    /**
-     * Возвращает миграцию по номеру
-     *
-     * @param  $num Номер миграции
-     *
-     * @return an|object
-     */
-    public function getMigrationByNumber($num)
+	/**
+	 * Возвращает миграцию по времени создания
+	 *
+	 * @param $time
+	 *
+	 * @return an|object
+	 */
+    public function getMigrationByTime($time)
     {
-        $sql = "SELECT * FROM __migration WHERE number = {$num}";
+        $sql = "SELECT * FROM __migration WHERE createTime = {$time}";
         $res = $this->dbHelper->executeQuery($sql);
         $m = mysql_fetch_object($res);
 
         return $m;
     }
+
+	/**
+	 * Возвращает миграцию id
+	 *
+	 * @param $id
+	 *
+	 * @return an|object
+	 */
+	public function getMigrationById($id)
+	{
+		$sql = "SELECT * FROM __migration WHERE id = {$id}";
+        $res = $this->dbHelper->executeQuery($sql);
+        $m = mysql_fetch_object($res);
+
+        return $m;
+	}
+
+   /**
+	* Возврщает номер последней папки
+	*
+	* @param $migrStorage
+	*
+	* @return mixed
+	*/
+	private function getMigrationsByDirectories($migrStorage)
+	{
+		$pattern = "/^\d{10}\.\d{4}$/is";
+		return DirectoryHandler::dirList($migrStorage, $pattern);
+	}
 
     /**
      * Создает файл delta.sql в указанной директории
@@ -104,7 +265,7 @@ class MigrationManager
      *
      * @return void
      */
-    public static function createMigration($migrPath)
+    public static function createTempMigration($migrPath)
     {
         if (!@mkdir($migrPath, 0777, true))
             throw new Exception("Can't create {$migrPath}");
@@ -113,107 +274,30 @@ class MigrationManager
     }
 
     /**
-     * Добавляет миграцию в хранилище
-     *
-     * @throws Exception
-     * @param  $migrPath Директория, где хранится миграция для добаваления
-     * @param  $migrStorage Директория, где хранятся миграции
-     * @param string $comment Комментарий к миграции
-     *
-     * @return void
-     */
-    public function commitMigration($migrPath, $migrStorage, $comment = '')
-    {
-        $lastMigration = $this->getLastMigration();
-        if (!$lastMigration)
-            throw new Exception("Need init migration");
-
-        $nextMigrationNum = $lastMigration->number + 1;
-
-        $path = "{$migrStorage}/{$nextMigrationNum}";
-
-        $this->dbHelper->checkDir($migrStorage, $path);
-        $this->dbHelper->checkFile("{$migrPath}/delta.sql");
-
-        //dump
-        $this->dbHelper->createDump($path);
-
-        //copy delta
-        if (!copy("{$migrPath}/delta.sql", "{$path}/delta.sql"))
-            throw new Exception("Can't copy {$migrPath}/delta.sql to {$path}/delta.sql");
-
-        DirectoryHandler::delete($migrPath);
-
-        sleep(1);
-
-        $this->insertMigration($nextMigrationNum, $comment);
-        self::setCurrentVersion($migrStorage, $nextMigrationNum);
-    }
-
-    /**
     * Удаляет миграцию
     *
     * @throws Exception
-    * @param  $migrNum Номер миграции
+    * @param  $migrUuid Номер миграции
     * @param  $migrStorage Директория, где хранятся миграции
     *
     * @return void
     */
-    public function deleteMigration($migrNum, $migrStorage)
+    public function deleteMigration($migrUuid, $migrStorage)
     {
-        $this->checkMigrationNum($migrNum);
+        $this->checkMigration($migrUuid);
         
-        $sql = "DELETE FROM __migration WHERE number = {$migrNum}";
+        $sql = "DELETE FROM __migration WHERE uuid = '{$migrUuid}'";
         $this->dbHelper->executeQuery($sql);
 
-        MigrationManagerHelper::cleanMigrDir("{$migrStorage}/{$migrNum}");
+        MigrationManagerHelper::cleanMigrDir("{$migrStorage}/{$migrUuid}");
     }
 
-    public function insertMigration($num, $comment)
+    public function insertMigration($createTime, $comment)
     {
-        $sql = "INSERT INTO __migration (number, createTime, comment)
-            VALUES ({$num}, unix_timestamp(NOW()), '{$comment}')";
+        $sql = "INSERT INTO __migration (createTime, comment)
+            VALUES ({$createTime}, '{$comment}')";
 
         $this->dbHelper->executeQuery($sql);
-    }
-
-    /**
-     * Накатывает миграции от 0 до $number из хранилища,
-     * если установлен force, то накатывает только $number
-     *
-     * @param  $migrStorage Директория, где хранятся миграции
-     * @param  $number Номер миграции
-     * @param bool $force Флаг
-     *
-     * @return void
-     */
-    public function gotoMigration($migrStorage, $number, $force = false)
-    {
-        $migrations = $this->getAllMigrations();
-
-        $this->checkMigrations($migrations);
-        $this->checkStorage($migrStorage, $migrations);
-        $this->checkMigrationNum($number,$migrations);
-
-        $this->dbHelper->makeDBEmpty();
-
-        if ($force)
-            $this->dbHelper->importFiles("{$migrStorage}/{$number}",
-                array('scheme.sql', 'data.sql', 'procedures.sql', 'triggers.sql'));
-        else
-        {
-            for ($i = 0; $i <= $number; $i++)
-            {
-                if ($migrations[$i]->number == 0)
-                    $this->dbHelper->importFiles("{$migrStorage}/{$migrations[$i]->number}",
-                        array('scheme.sql', 'data.sql', 'procedures.sql', 'triggers.sql'));
-                else
-                    $this->dbHelper->importFiles("{$migrStorage}/{$migrations[$i]->number}", array('delta.sql'));
-            }
-        }
-        $this->restoreMigrations($migrations);
-        self::setCurrentVersion($migrStorage, $number);
-
     }
 
     /**
@@ -231,29 +315,39 @@ class MigrationManager
         /* @var $m Migration */
         foreach ($migrations as $m)
         {
-            $sql = "INSERT INTO __migration (id, number, createTime, comment)
-                VALUES ({$m->id}, {$m->number}, {$m->createTime}, '{$m->comment}');";
+            $sql = "INSERT INTO __migration (id, createTime, comment)
+                VALUES ({$m->id}, {$m->createTime}, '{$m->comment}');";
             $this->dbHelper->executeQuery($sql);
         }
     }
 
+	public function gotoLastMigration($migrStorage)
+	{
+		 $migrationsUids = $this->getMigrationsByDirectories($migrStorage);
+	     if (empty($migrationsUids))
+	         throw new Exception("Can't found migrations");
 
-    /**
-     * Накатывает все миграции до последней существующей
-     *
-     * @param  $migrStorage Директория, где хранятся миграции
-     * @throws Exception
-     *
-     * @return void
-     */
-    public function gotoLastMigration($migrStorage)
-    {
-         $lastMigration = $this->getLastMigration();
-         if (is_null($lastMigration))
-             throw new Exception("Can't found migrations");
+	     $this->gotoMigrationWithoutHistory($migrStorage, $migrationsUids);
+	}
 
-         $this->gotoMigration($migrStorage, $lastMigration->number);
-    }
+
+	private function gotoMigrationWithoutHistory($migrStorage, $migrationsUids)
+	{
+		$this->dbHelper->makeDBEmpty();
+
+        // apply init migration
+		$_migrationsUids = $migrationsUids;
+        $uid = array_shift($_migrationsUids);
+        $this->dbHelper->importFiles("{$migrStorage}/{$uid}",
+                array('scheme.sql', 'data.sql', 'procedures.sql', 'triggers.sql'));
+
+        foreach ($_migrationsUids as $uid)
+        {
+            $this->dbHelper->importFiles("{$migrStorage}/{$uid}", array('delta.sql'));
+        }
+
+		self::setCurrentVersion($migrStorage, end($migrationsUids));
+	}
 
     /**
      * Проверяет валидность Миграций в базе
@@ -268,52 +362,22 @@ class MigrationManager
         if (is_null($migrations) || empty($migrations))
             throw new Exception("Can't found migrations");
 
-        if ($migrations[0]->number != 0)
-            throw new Exception("Can't found initial migration (with 0 number)");
-    }
-
-    /**
-     * Проверяет соответствие записей таблицы миграций и директорий в хранилище миграций
-     *
-     * @param  $migrStorage Путь, где хранятся миграции
-     * @param  $migrations Массив объектов миграций
-     *
-     * @return bool
-     */
-    public function checkStorage($migrStorage, $migrations)
-    {
-        //TODO: not implemented
-        return true;
+        if ($migrations[0]->id != 1)
+            throw new Exception("Can't found initial migration (with id 1)");
     }
 
     /**
      * Проверяет номер миграции
      *
      * @throws Exception
-     * @param  $number
+     * @param  $uuid
      *
      * @return void
      */
-    public function checkMigrationNum($number)
+    public function checkMigration($uuid)
     {
-        if (!$this->getMigrationByNumber($number))
-            throw new Exception("Migration #{$number} not found");
-    }
-
-    /**
-     * Тестирует работоспособность миграций,
-     * пока не используется
-     *
-     * @param  $migrStorage Путь, где хранятся миграции
-     *
-     * @return void
-     */
-    public function test($migrStorage)
-    {
-        $migrations = $this->getAllMigrations();
-
-        $this->checkMigrations($migrations);
-        $this->checkStorage($migrStorage, $migrations);
+        if (!$this->getMigrationByTime($uuid))
+            throw new Exception("Migration {$uuid} not found");
     }
 
     public static function getCurrentVersion($migrStorage)
@@ -327,22 +391,18 @@ class MigrationManager
         return $xml->getElementsByTagName('version')->item(0)->nodeValue;
     }
 
-    public static function setCurrentVersion($migrStorage, $version = 0)
+    public static function setCurrentVersion($migrStorage, $version)
     {
         $path = $migrStorage . DIRECTORY_SEPARATOR . 'migration.xml';
         $xml = new DomDocument('1.0','utf-8');
-
-        if (!file_exists($path))
-            $version = 0;
 
         $xml->loadXML("<version>{$version}</version>");
         $xml->save($path);
     }
 
-
     public function getDeltaByBinLog($binaryLogPath, $migrStorage, $unique = false)
     {
-        $currMigration = $this->getMigrationByNumber($this->getCurrentVersion($migrStorage));
+        $currMigration = $this->getMigrationByTime($this->getCurrentVersion($migrStorage));
 
         if (!$currMigration)
             throw new Exception("Incorrect current migration");
@@ -363,4 +423,5 @@ class MigrationManager
         
         return $queries . "\n";
     }
+
 }

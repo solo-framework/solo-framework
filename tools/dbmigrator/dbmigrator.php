@@ -10,6 +10,8 @@
  * @link     nolink
  */
 
+date_default_timezone_set("Europe/Moscow");
+
 require_once 'Helpers/ArgumentsExtractor.php';
 require_once 'Helpers/CommandFactory.php';
 

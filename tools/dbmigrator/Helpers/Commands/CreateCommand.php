@@ -17,7 +17,7 @@ class CreateCommand extends BaseCommand
     public function execute()
     {
         $migrPath = $this->config['migrationTempPath'];
-        MigrationManager::createMigration($migrPath);
+        MigrationManager::createTempMigration($migrPath);
         echo "Created {$migrPath}\n";
     }
 }

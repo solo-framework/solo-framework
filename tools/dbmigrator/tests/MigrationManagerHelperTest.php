@@ -11,6 +11,7 @@ class MigrationManagerHelperTest extends PHPUnit_Framework_TestCase
      * @var MigrationManagerHelper
      */
     protected $object;
+	protected $dbName = "testmigration";
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -18,7 +19,7 @@ class MigrationManagerHelperTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new MigrationManagerHelper('localhost', 'root', 'toor', 'testmigration');;
+        $this->object = new MigrationManagerHelper('localhost', 'root', 'toor', $this->dbName);
     }
 
     /**
@@ -41,7 +42,7 @@ class MigrationManagerHelperTest extends PHPUnit_Framework_TestCase
         $res = $this->object->executeQuery("
             SELECT COUNT(*) AS count
             FROM information_schema.tables
-            WHERE table_schema = 'testmigration'
+            WHERE table_schema = '{$this->dbName}'
             AND table_name = '__migration'
         ");
 
@@ -59,21 +60,21 @@ class MigrationManagerHelperTest extends PHPUnit_Framework_TestCase
          $res = $this->object->executeQuery("
             SELECT COUNT(*) AS count
             FROM information_schema.tables
-            WHERE table_schema = 'testmigration'
+            WHERE table_schema = '{$this->dbName}'
         ");
         $this->assertEquals(0, mysql_result($res, 0), "No tables");
 
         $res = $this->object->executeQuery("
             SELECT COUNT(*) AS COUNT
             FROM information_schema.triggers
-            WHERE trigger_schema = 'testmigration'
+            WHERE trigger_schema = '{$this->dbName}'
         ");
         $this->assertEquals(0, mysql_result($res, 0), "No triggers");
 
         $res = $this->object->executeQuery("
             SELECT COUNT(*) AS COUNT
             FROM information_schema.routines
-            WHERE routine_schema = 'testmigration'
+            WHERE routine_schema = '{$this->dbName}'
         ");
         $this->assertEquals(0, mysql_result($res, 0), "No procedures and functions");
     }
@@ -120,21 +121,21 @@ class MigrationManagerHelperTest extends PHPUnit_Framework_TestCase
         $res = $this->object->executeQuery("
             SELECT COUNT(*) AS count
             FROM information_schema.tables
-            WHERE table_schema = 'testmigration'
+            WHERE table_schema = '{$this->dbName}'
         ");
         $this->assertEquals(24, mysql_result($res, 0), "24 tables");
 
         $res = $this->object->executeQuery("
             SELECT COUNT(*) AS COUNT
             FROM information_schema.triggers
-            WHERE trigger_schema = 'testmigration'
+            WHERE trigger_schema = '{$this->dbName}'
         ");
         $this->assertEquals(6, mysql_result($res, 0), "6 triggers");
 
         $res = $this->object->executeQuery("
             SELECT COUNT(*) AS COUNT
             FROM information_schema.routines
-            WHERE routine_schema = 'testmigration'
+            WHERE routine_schema = '{$this->dbName}'
         ");
         $this->assertEquals(6, mysql_result($res, 0), "6 procedures");
 

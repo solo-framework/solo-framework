@@ -100,5 +100,24 @@ class DirectoryHandler
         self::delete($startDir);
     }
 
+	public static function dirList($target, $pattern)
+	{
+		$list = array();
+		if (is_dir($target))
+        {
+            for ($source = new DirectoryIterator($target); $source->valid(); $source->next())
+            {
+                if ($source->isDot())
+                    continue;
+
+				if($source->isDir() && preg_match($pattern, $source->getFilename()))
+				{
+					$list[] = $source->getFilename();
+				}
+            }
+        }
+		sort($list, SORT_STRING | SORT_ASC);
+		return $list;
+	}
 
 }

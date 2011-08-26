@@ -14,9 +14,7 @@
 class ArgumentsExtractor
 {
     public static function extract($args)
-    {
-        global $argv;
-        
+    {                
         if (count($args) < 2)
             throw new Exception('Incorrect arguments. Use <help>');
 

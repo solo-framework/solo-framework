@@ -68,10 +68,9 @@ class MigrationManagerHelper
         (
             "CREATE TABLE IF NOT EXISTS `__migration`
             (
-                `id`            INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-                `createTime`    INT(11) UNSIGNED NOT NULL,
-                `comment`       VARCHAR(256),
-                `number`        INT(10) UNSIGNED NOT NULL,
+                `id`			INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+                `createTime`	DECIMAL(14, 4) NOT NULL,
+                `comment`		VARCHAR(255) NOT NULL,
                 PRIMARY KEY (`id`)
             )"
         );
@@ -181,10 +180,11 @@ class MigrationManagerHelper
 
     public function checkFile($path)
     {
-        $hashEmptyDelta = "19f52acc9ba33950daf5e2980ca56bd1";
+        //$hashEmptyDelta = "19f52acc9ba33950daf5e2980ca56bd1";
+	    $hashEmptyDelta = "1b05bbfbef36037f33011dbddedc5d34";
 
         if (!file_exists($path) || !is_readable($path))
-            throw new Exception("File not found {$path}");
+            throw new Exception("Not found temp delta in {$path}. You should use 'create'");
 
         if ($hashEmptyDelta === md5_file($path))
             throw new Exception("Put your code in {$path}");
@@ -256,6 +256,7 @@ class MigrationManagerHelper
         $str .= "/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;\n";
         $str .= "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;\n";
         $str .= "\n/*YOU CODE HERE*/\n\n";
+        $str .= "/*MIGRATION_INSERT_STATEMENT*/\n";
         $str .= "/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;\n";
         $str .= "/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;\n";
         $str .= "/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;\n";
@@ -284,7 +285,7 @@ class MigrationManagerHelper
 		{
 			$sLogs .= $logPath . DIRECTORY_SEPARATOR . $log['Log_name'] . " ";
 		}
-        $command = "mysqlbinlog -s -d {$this->dbname} --start-datetime='{$startTime}' -t {$sLogs}" . "\n";
+        $command = "mysqlbinlog -s -d {$this->dbname} --start-datetime=\"{$startTime}\" -t {$sLogs}" . "\n";
         exec($command, $q);
         $out = implode("\n", $q);
 

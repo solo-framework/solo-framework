@@ -3,7 +3,7 @@
 ::set code page
 @chcp 1251 > nul
 
-if "%1"=="" goto empty
+if "%1"=="" goto help
    
 goto %1
     :help
@@ -33,7 +33,7 @@ goto %1
     :showdelta
         php dbmigrator.php showdelta %2
         goto end_switch		
-	:empty
+	  :empty
 		php dbmigrator.php help
         goto end_switch
 :end_switch

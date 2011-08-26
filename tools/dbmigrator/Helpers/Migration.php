@@ -13,7 +13,6 @@
 class Migration
 {
     public $id = null;
-    public $number = null;
     public $createTime = null;
     public $comment = null;
 }

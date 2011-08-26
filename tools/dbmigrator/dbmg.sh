@@ -20,5 +20,5 @@ case $1 in
     showdelta)
         php dbmigrator.php showdelta $2 ;;
     *)
-        echo "Unknown command."
+        php dbmigrator.php help ;;
 esac
