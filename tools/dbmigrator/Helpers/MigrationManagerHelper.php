@@ -88,8 +88,8 @@ class MigrationManagerHelper
      */
     public function makeDBEmpty()
     {
-        $this->executeQuery("DROP DATABASE IF EXISTS {$this->dbname}");
-        $this->executeQuery("CREATE DATABASE {$this->dbname}");
+        $this->executeQuery("DROP DATABASE IF EXISTS `{$this->dbname}`");
+        $this->executeQuery("CREATE DATABASE `{$this->dbname}`");
     }
 
         /**
@@ -180,7 +180,6 @@ class MigrationManagerHelper
 
     public function checkFile($path)
     {
-        //$hashEmptyDelta = "19f52acc9ba33950daf5e2980ca56bd1";
 	    $hashEmptyDelta = "1b05bbfbef36037f33011dbddedc5d34";
 
         if (!file_exists($path) || !is_readable($path))

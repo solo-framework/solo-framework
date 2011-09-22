@@ -21,31 +21,29 @@ class HelpCommand extends BaseCommand
     {
 $msg = "
 DataBase Migration tool. Only MySQL supports.
-See config file 'dbmigration.ini'.
+See example config file 'dbmigration.ini.example'.
 
 Commands:
 
-init    - create empty migration table
-
-create  - create temp migration directory
-
-commit [<comment>] - commit migration
-
-delete <num> - delete migration with number <num>
-
-goto <num|head> [-f] - migrate to version
-    <num> - migratoin number
-    <head> - migrate to last
-    [-f] - force migration
-
 help - list of commands
 
-info - show current migration version
+init <configPath>    - create empty migration table
 
-log - show migrations log
+create <configPath>  - create temp migration directory
 
-showdelta [-u] - show delta by mysql binlog
-    [-u] - show only unique queries
+commit <comment> <configPath> - commit migration
+
+info <configPath>    - show current migration version
+
+log <configPath>     - show migrations log
+
+goto  <id|head> <configPath> [-f] - migrate to version
+      <id> - migratoin id
+      <head> - migrate to last
+      [-f] - force migration
+
+showdelta <configPath> [-u] - show delta by mysql binlog
+          [-u] - show only unique queries
 
 ";
 

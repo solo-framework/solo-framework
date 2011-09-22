@@ -16,9 +16,14 @@ abstract class BaseCommand
     protected $receiver = null;
     protected $config = null;
 
-    function __construct()
+    function __construct($configPath)
     {
-        $this->config = parse_ini_file(realpath(dirname(__FILE__)) . '/../../dbmigrator.ini');
+        if (!file_exists($configPath))
+        {
+            throw new Exception("Configuration file: '{$configPath}' not found");
+        }
+
+        $this->config = parse_ini_file($configPath);
         
         $this->receiver = new MigrationManager(
             $this->config['host'],

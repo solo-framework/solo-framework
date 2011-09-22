@@ -17,9 +17,9 @@ class ShowdeltaCommand extends BaseCommand
 {
     private $showUnique = false;
 
-    function __construct($showUnique = false)
+    function __construct($configPath, $showUnique = false)
     {
-        parent::__construct();
+        parent::__construct($configPath);
 
         $this->showUnique = ($showUnique == '-u') ? true : false;
     }
