@@ -493,5 +493,35 @@ abstract class EntityManager
 		}
 		return $result;
 	}
+
+	/**
+	* Стартуем транзакцию
+	*
+	* @return void
+	*/
+	public function startTransaction()
+	{
+		$this->getWriteConnection()->startTransaction();
+	}
+
+	/**
+	* Завершение транзакции
+	*
+	* @return void
+	*/
+	public function commitTransaction()
+	{
+		$this->getWriteConnection()->commitTransaction();
+	}
+
+	/**
+	* откат транзакции
+	*
+	* @return void
+	*/
+	public function rollbackTransaction()
+	{
+		$this->getWriteConnection()->rollbackTransaction();
+	}
 }
 ?>

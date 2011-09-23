@@ -19,9 +19,9 @@ class GotoCommand extends BaseCommand
     private $migrNum = null;
     private $forceMigrate = false;
 
-    function __construct($migrNum, $forceMigrate = false)
+    function __construct($migrNum, $configPath, $forceMigrate = false)
     {
-        parent::__construct();
+        parent::__construct($configPath);
         
         $this->migrNum = $migrNum;
         $this->forceMigrate = ($forceMigrate == '-f') ? true : false;
