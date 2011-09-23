@@ -18,9 +18,9 @@ class DeleteCommand extends BaseCommand
 {
     private $migrNum = null;
 
-    function __construct($migrNum)
+    function __construct($migrNum, $configPath)
     {
-        parent::__construct();
+        parent::__construct($configPath);
         
         $this->migrNum = $migrNum;                
     }

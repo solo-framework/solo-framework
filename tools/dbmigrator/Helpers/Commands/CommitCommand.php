@@ -10,7 +10,6 @@
  * @link     nolink
  */
 
-
 require_once 'BaseCommand.php';
 require_once realpath(dirname(__FILE__)) . '/../MigrationManager.php';
 
@@ -20,19 +19,23 @@ class CommitCommand extends BaseCommand
 
     function __construct()
     {
-        parent::__construct();
-
         $numArgs = func_num_args();
-        if ($numArgs == 0)
-            throw new Exception("Comment required");
+        if ($numArgs < 2)
+            throw new Exception("Comment and configPath required");
 
         $args = func_get_args();
+
+        $configPath = $args[count($args) - 1];
+        unset($args[count($args) - 1]);
+
+        parent::__construct($configPath);
+
         $this->comment = implode(" ", $args);
 
         if (stristr(PHP_OS, 'WIN'))
         {
             $this->comment = iconv('windows-1251', 'utf-8', $this->comment);
-        }        
+        }
     }
 
     public function execute()

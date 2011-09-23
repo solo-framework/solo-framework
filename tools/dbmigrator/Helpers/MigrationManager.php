@@ -413,11 +413,11 @@ class MigrationManager
         $res = $this->dbHelper->executeQuery("SELECT FROM_UNIXTIME({$currMigration->createTime})");
         $startTime = mysql_result($res, 0);
 
+        $queries = $this->dbHelper->getDeltaByBinLog($binaryLogPath, $startTime, $unique);
+
         echo "# Delta from {$startTime} to {$endTime}";
         if ($unique)
             echo " (Unique)";
-
-        $queries = $this->dbHelper->getDeltaByBinLog($binaryLogPath, $startTime, $unique);
 
         echo "\n\n";
         
