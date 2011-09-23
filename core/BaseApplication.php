@@ -162,6 +162,9 @@ abstract class BaseApplication
 
 	/**
 	 * Возвращает экземпляр компонента
+	 * При создании компонента можно передать в его конструктор
+	 * дополнительные параметры
+	 * например: Application::getInstance()->getComponent("comp_name", $param1, $param2);
 	 *
 	 * @param string $componentName Имя компонента, соотвествующее записи в конфигураторе
 	 *
