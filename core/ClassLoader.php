@@ -84,8 +84,8 @@ class ClassLoader
 		self::$method = $method;
 		self::$baseDirectory = $baseDirectory;
 		spl_autoload_register($method);
-		self::$classMapFile = $classMapFile;
-		self::$isFileExist = file_exists($classMapFile);
+		self::$classMapFile = $classMapFile;		
+		self::$isFileExist = is_file($classMapFile);		
 	}
 
 	/**
@@ -176,7 +176,7 @@ class ClassLoader
 			$path = str_replace("@" . $matches[1], "", $path);
 			$pathByAlias = self::getPathByAlias($matches[1]);
 
-			if (!file_exists($pathByAlias . $path))
+			if (!is_file($pathByAlias . $path) && !is_dir($pathByAlias . $path))
 				throw new Exception("ClassLoader: path '{$pathByAlias}{$path}' does not exists.");
 
 			return realpath($pathByAlias . $path);
@@ -222,7 +222,7 @@ class ClassLoader
 				else
 					$path = self::$baseDirectory . DIRECTORY_SEPARATOR .$path;
 
-				if (!file_exists($path))
+				if (!is_dir($path))
 					throw new Exception("ClassLoader: can't find directory '{$path}'");
 
 				// сканируем каталог и добавляем все файлы в репозиторий
@@ -263,7 +263,7 @@ class ClassLoader
 	 */
 	private static function addToClassMap($path, $className = null)
 	{
-		if (!file_exists($path))
+		if (!is_file($path) && !is_dir($path))
 			throw new Exception("ClassLoader: can't import file {$path}. File does not exists.");
 
 		if (!is_file($path))
@@ -304,7 +304,7 @@ class ClassLoader
 		self::$classMap = array();
 		self::$importedDirs = array();
 
-		if (file_exists(self::$classMapFile))
+		if (is_file(self::$classMapFile))
 			unlink(self::$classMapFile);
 	}
 
