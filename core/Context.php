@@ -1,13 +1,13 @@
 <?php
 /**
  * Контекст приложения
- * 
- * Представляет собой репозиторий основных объектов приложения. 
+ *
+ * Представляет собой репозиторий основных объектов приложения.
  * Стартует сессию.
  * Управление и контроль за данными сессии.
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category Framework
  * @package  Core
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -16,49 +16,49 @@
  * @link     nolink
  */
 
-final class Context 
+final class Context
 {
 	/**
 	 * Экземпляр класса Context
-	 * 
+	 *
 	 * @var Context
 	 */
 	private static $instance = null;
-	
+
 	/**
 	* Приватный конструктор
-	* 
+	*
 	* @param string $name Имя контекста (сессии)
-	* 
+	*
 	* @return void
 	*/
 	private function Context($name)
 	{
 		Session::start($name);
 	}
-	
+
 	/**
 	 * Стартует контекст
-	 * 
+	 *
 	 * @param string $name Имя контекста (сессии)
-	 * 
+	 *
 	 * @return Context
 	 * */
-	public static function start($name) 
+	public static function start($name)
 	{
 		if (!isset(self::$instance))
-		{			
+		{
 			self::$instance = new Context($name);
 		}
-		
+
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Установка пользователя в контекст
-	 * 
+	 *
 	 * @param mixed $user Данные пользователя
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function setActor($user)
@@ -68,22 +68,22 @@ final class Context
 
 	/**
 	 * Возвращает текущего пользователя
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public static function getActor()
 	{
 		return Session::get("__user");
 	}
-	
+
 	/**
 	 * Установка flash-сообщения в контекст
-	 * 
+	 *
 	 * @param mixed|Exception $message Сообщение (текст, массив или исключение)
-	 * @param string $flashMessageId Идентификатор сообщения. 
+	 * @param string $flashMessageId Идентификатор сообщения.
 	 * 			Например: error, если нужно отобразить как ошибку.
 	 * 			Отображение настраивается в представлении.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function setFlashMessage($message, $flashMessageId)
@@ -92,23 +92,23 @@ final class Context
 		$flash["id"] = $flashMessageId;
 		self::setObject("__solo_flash_message", $flash);
 	}
-	
+
 	/**
 	 * Получение flash-сообщения из контекста.
 	 * Само сообщение очищается
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public static function getFlashMessage()
 	{
 		return self::push("__solo_flash_message");
 	}
-	
+
 	/**
 	 * Метод возвращает удаляет объект из сессии, возвращая его
-	 * 
+	 *
 	 * @param string $objectName Имя объекта
-	 * 
+	 *
 	 * @return mixed
 	 * */
 	public static function push($objectName)
@@ -116,15 +116,15 @@ final class Context
 		$res = self::getObject($objectName);
 		self::clearObject($objectName);
 		return $res;
-	}	
-	
-	
+	}
+
+
 	/**
 	 * Установка объекта в сессию
-	 * 
+	 *
 	 * @param string $objName Имя объекта
 	 * @param mixed $objValue Данные
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function setObject($objName, $objValue)
@@ -134,9 +134,9 @@ final class Context
 
 	/**
 	 * Возвращает объект из сессии
-	 * 
+	 *
 	 * @param string $objName Имя объекта
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public static function getObject($objName)
@@ -146,19 +146,29 @@ final class Context
 
 	/**
 	 * Удаление объекта из сессии
-	 * 
+	 *
 	 * @param string $objName Имя объекта
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function clearObject($objName)
 	{
 		Session::clear($objName);
 	}
-	
+
 	/**
-	* Нельзя клонировать 
-	* 
+	 * Уничтожает все данные контекста
+	 *
+	 * @return session
+	 */
+	public static function destroy()
+	{
+		Session::close();
+	}
+
+	/**
+	* Нельзя клонировать
+	*
 	* @return void
 	*/
 	public function __clone()
