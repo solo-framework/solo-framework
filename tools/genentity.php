@@ -1,9 +1,9 @@
 <?php
 /**
  * Скрипт для генерации файла с классом сущности
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category Framework
  * @package  Core
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -25,7 +25,7 @@ echo <<<EOT
 =========================================
 	Entity class generator
 	Output file: your_entity_name.php
-=========================================	
+=========================================
 
 EOT;
 
@@ -33,7 +33,7 @@ if (!$host || !$dbName || !$user || !$password || !$entityTable || !$entityName)
 {
 	echo <<<EOT
 
-Usage: php -f genentity.php host_name database_name mysql_user mysql_password entity_table entity_name	
+Usage: php -f genentity.php host_name database_name mysql_user mysql_password entity_table entity_name
 
 EOT;
 	exit();
@@ -49,7 +49,7 @@ mysql_selectdb($dbName);
 $sql = "SHOW TABLE STATUS FROM {$dbName} WHERE Name = '{$entityTable}'";
 $link = mysql_query($sql, $conn);
 $tableComment = "";
-$tableMetaData = mysql_fetch_array($link, MYSQL_ASSOC);	
+$tableMetaData = mysql_fetch_array($link, MYSQL_ASSOC);
 $tableComment = $tableMetaData["Comment"];
 
 #
@@ -63,23 +63,23 @@ $primaryKey = null;
 $fieldsMetaData = null;
 $fieldList = null;
 
-while ($item = mysql_fetch_array($link, MYSQL_ASSOC)) 
+while ($item = mysql_fetch_array($link, MYSQL_ASSOC))
 {
-	$type = preg_replace('/\(.*\)/', "", $item["Type"]);	
+	$type = preg_replace('/\(.*\)/', "", $item["Type"]);
 	$item["Type"] = recognizeType($type);
-	
+
 	if ($item["Key"] == "PRI")
 		$primaryKey = $item["Field"];
 
 	if ($item["Field"] !== $primaryKey)
 	{
 		$varType = recognizeType($type, true);
-		
+
 	// описания полей
 $fieldsMetaData .=<<<TTT
 	/**
 	 * {$item["Comment"]}
-	 * 
+	 *
 	 * @var {$varType}
 	 */
 	public \${$item["Field"]} = null;
@@ -87,7 +87,7 @@ $fieldsMetaData .=<<<TTT
 
 TTT;
 	}
-	
+
 	// массив с полями и типами
 $fieldList .=<<<FT
 		\t"{$item["Field"]}" => {$item["Type"]},\n
@@ -105,7 +105,10 @@ function recognizeType($type, $asPHPTypes = false)
         case "bit":
         case "float":
             return !$asPHPTypes ? "self::ENTITY_FIELD_INT" : "integer";
-            break;        
+            break;
+        case "decimal":
+            return !$asPHPTypes ? "self::ENTITY_FIELD_DECIMAL" : "decimal";
+            break;
         case "char":
             return !$asPHPTypes ? "self::ENTITY_FIELD_STRING" : "string";
             break;
@@ -121,7 +124,7 @@ function recognizeType($type, $asPHPTypes = false)
         	return !$asPHPTypes ? "self::ENTITY_FIELD_TIMESTAMP": "DateTime";
         case "datetime":
         	return !$asPHPTypes ? "self::ENTITY_FIELD_DATETIME" : "DateTime";
-     	
+
         default:
             throw new Exception("Undefined type '{$type}'") ;
     }
@@ -131,9 +134,9 @@ $template = <<<EOT
 <?php
 /**
  * {$tableComment}
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category BL
  * @package  Entity
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -146,23 +149,23 @@ class {$entityName} extends Entity
 {
 	/**
 	 * Содержит наименование таблицы в БД, где хранятся сущности этого типа. Не является атрибутом сущности
-	 * 
+	 *
 	 * @var string
 	 */
 	public \$entityTable = "{$entityTable}";
-	
+
 	/**
-	 * Первичный ключ, обычно соответствует атрибуту "id".  Не является атрибутом сущности. 
-	 * 
+	 * Первичный ключ, обычно соответствует атрибуту "id".  Не является атрибутом сущности.
+	 *
 	 * @var string
 	 */
 	public \$primaryKey = "{$primaryKey}";
-	
+
 {$fieldsMetaData}
-	
+
 	/**
 	 * Возвращает список полей сущности и их типы
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getFields()

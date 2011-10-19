@@ -38,11 +38,18 @@ abstract class Entity
 	/** Типы данных, соотсветсвующий типам MYSQL */
 
 	/**
-	 * Тип integer
+	 * Все целочисленные типы
 	 *
 	 * @var string
 	 */
 	const ENTITY_FIELD_INT = "ENTITY_FIELD_INT";
+
+	/**
+	 * Все типы данных с точным значением
+	 *
+	 * @var string
+	 */
+	const ENTITY_FIELD_DECIMAL = "ENTITY_FIELD_DECIMAL";
 
 	/**
 	 * Тип char, varchar, text и т.д.
