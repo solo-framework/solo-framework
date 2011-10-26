@@ -8,6 +8,7 @@
  * @author   Andrey Filippov <afi@i-loto.ru>
  */
 
+require_once "../framework/core/BaseApplication.php";
 require_once '../app/Application.php';
 
 $basePath = "../";
