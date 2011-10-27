@@ -101,6 +101,7 @@ function recognizeType($type, $asPHPTypes = false)
     switch ($type)
     {
         case "int":
+        case "int unsigned":
         case "tinyint":
         case "bit":
         case "float":
