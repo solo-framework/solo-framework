@@ -292,7 +292,7 @@ abstract class EntityManager
 	{
 		$ent = self::newEntity($this->defineClass());
 		$sql = "SELECT * FROM `{$ent->entityTable}` WHERE {$ent->primaryKey} = ?";
-		return $this->getReadConnection()->getOneObject($sql, $ent->entityTable, array($id));
+		return $this->getReadConnection()->getOneObject($sql, $this->defineClass(), array($id));
 	}
 
 	/**
@@ -366,7 +366,7 @@ abstract class EntityManager
 			$params = $condition->getParams();
 		}
 
-		return $this->getReadConnection()->getObjects($sql, $object->entityTable, $params);
+		return $this->getReadConnection()->getObjects($sql, $this->defineClass(), $params);
 	}
 
 	/**

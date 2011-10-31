@@ -275,14 +275,15 @@ class Validator
 	 *
 	 * @param int $len Минимальное количество символов
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 * @param string $encoding Кодировка символов
 	 *
 	 * @return Validator
 	 */
-	public function minLength($len, $comment = "")
+	public function minLength($len, $comment = "", $encoding = "utf-8")
 	{
 		if (self::$isValid)
 		{
-			if (mb_strlen(self::$val) < $len)
+			if (iconv_strlen(self::$val, $encoding) < $len)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -293,14 +294,34 @@ class Validator
 	 *
 	 * @param int $len Максимальное количество символов
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 * @param string $encoding Кодировка символов
 	 *
 	 * @return Validator
 	 */
-	public function maxLength($len, $comment = "")
+	public function maxLength($len, $comment = "", $encoding = "utf-8")
 	{
 		if (self::$isValid)
 		{
-			if (mb_strlen(self::$val) > $len)
+			if (iconv_strlen(self::$val, $encoding) > $len)
+				self::addMessage($comment);
+		}
+		return $this;
+	}
+
+	/**
+	 * Точное совпадение длины значения
+	 *
+	 * @param int $len Точное количество символов
+	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 * @param string $encoding Кодировка символов
+	 *
+	 * @return Validator
+	 */
+	public function matchLenght($len, $comment = "", $encoding = "utf-8")
+	{
+		if (self::$isValid)
+		{
+			if (iconv_strlen(self::$val, $encoding) !== $len)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -344,14 +365,15 @@ class Validator
 	 * @param int $min Минимальное значение
 	 * @param int $max Максимальное значение
 	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 * @param string $encoding Кодировка символов
 	 *
 	 * @return Validator
 	 */
-	public function rangeLenght($min, $max, $comment = "")
+	public function rangeLenght($min, $max, $comment = "", $encoding = "utf-8")
 	{
 		if (self::$isValid)
 		{
-			$len = mb_strlen(self::$val);
+			$len = iconv_strlen(self::$val, $encoding);
 			if ($len < $min || $len > $max)
 				self::addMessage($comment);
 		}

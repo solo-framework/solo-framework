@@ -188,6 +188,10 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 		Validator::reset();
 		Validator::check("value")->minLength(30);
 		$this->assertFalse(Validator::isValid());
+
+		Validator::reset();
+		Validator::check("строка")->minLength(6);
+		$this->assertTrue(Validator::isValid());
 	}
 
 	public function test_maxLength()
@@ -205,6 +209,10 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 
 		Validator::reset();
 		Validator::check("value")->maxLength(30);
+		$this->assertTrue(Validator::isValid());
+
+		Validator::reset();
+		Validator::check("стро")->maxLength(6);
 		$this->assertTrue(Validator::isValid());
 	}
 
@@ -281,6 +289,26 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals("some", $val);
 		Validator::reset();
 
+	}
+
+	/**
+	 * Точное совпадение длины значения
+	 *
+	 * @return void
+	 */
+	public function test_matchLenght()
+	{
+		Validator::check("тестовая строка")->matchLenght(15);
+		$this->assertTrue(Validator::isValid());
+		Validator::reset();
+
+		Validator::check(222)->matchLenght(3);
+		$this->assertTrue(Validator::isValid());
+		Validator::reset();
+
+		Validator::check("тест")->matchLenght(3);
+		$this->assertFalse(Validator::isValid());
+		Validator::reset();
 	}
 }
 ?>

@@ -107,7 +107,7 @@ class EntityManagerTest  extends PHPUnit_Framework_TestCase
 		{
 			echo $e->getMessage() . "\n";
 
-			echo "\n!!!!! Check connection setting in resources/PDOTestManager.php !!!!! \n";
+			echo "\n!!!!! Check connection setting in resources/TestManager.php !!!!! \n";
 		}
 	}
 
