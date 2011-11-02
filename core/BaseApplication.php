@@ -22,14 +22,14 @@ abstract class BaseApplication
 	 *
 	 * @var string
 	 */
-	public static $defaultView = "index";
+	public $defaultView = "index";
 
 	/**
 	 * Скрипт-обработчик запросов
 	 *
 	 * @var string
 	 */
-	public static $entryScript = "index.php";
+	public $entryScript = "index.php";
 
 	/**
 	 * Экземпляр приложения
@@ -448,7 +448,7 @@ abstract class BaseApplication
 			$actionName = Request::get("action");
 
 			// или какое представление: если ничего не задано - показываем IndexView
-			$viewName = Request::get("view", self::$defaultView);
+			$viewName = Request::get("view", $this->defaultView);
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML
