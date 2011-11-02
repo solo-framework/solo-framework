@@ -21,9 +21,14 @@ require_once 'core/db/MySQLCondition.php';
 require_once 'core/EntityManager.php';
 
 require_once 'phpunit/resources/Test.php';
+require_once 'phpunit/resources/Family.php';
+
+require_once 'phpunit/resources/BaseTestEntityManager.php';
+require_once 'phpunit/resources/FamilyManager.php';
 require_once 'phpunit/resources/TestManager.php';
 
-class EntityManagerTest  extends PHPUnit_Framework_TestCase
+
+class EntityManagerTest extends PHPUnit_Framework_TestCase
 {
 	/**
 	 * Prepares the environment before running a test.
@@ -51,6 +56,19 @@ class EntityManagerTest  extends PHPUnit_Framework_TestCase
 					ENGINE=InnoDB
 					ROW_FORMAT=DEFAULT";
 
+		$tm->executeNonQuery($table, array());
+
+
+		$dropTable = "DROP TABLE IF EXISTS `family`";
+		$tm->executeNonQuery($dropTable, array());
+		$table = "CREATE TABLE `family` (
+					`id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+					`ts` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp',
+					PRIMARY KEY (`id`)
+					)
+				COMMENT='test'
+				COLLATE='utf8_general_ci'
+				ENGINE=InnoDB;";
 		$tm->executeNonQuery($table, array());
 
 		//
@@ -109,6 +127,20 @@ class EntityManagerTest  extends PHPUnit_Framework_TestCase
 
 			echo "\n!!!!! Check connection setting in resources/TestManager.php !!!!! \n";
 		}
+	}
+
+	public function test_insert_empty_entity()
+	{
+		// сущность Family имеет два поля, которые автоматически
+		// заполняются при их сохранении
+
+		$f = new Family();
+		$fm = new FamilyManager();
+		$fm->save($f);
+
+		// проверим, что есть одна запись
+		$res = $fm->get();
+		$this->assertEquals(1, count($res));
 	}
 
 	public function test_defineClass()

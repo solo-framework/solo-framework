@@ -131,11 +131,20 @@ abstract class EntityManager
 			$fields[] = "`{$name}`";
 		}
 
-		$fields = implode(", ", $fields);
-		$holders = implode(", ", array_fill(0, count($values), "?"));
 		$table = $object->entityTable;
+		$count = count($values);
+		$sql = "";
 
-		$sql = "INSERT INTO `{$table}` ({$fields}) VALUES({$holders})";
+		if (0 == $count)
+		{
+			$sql = "INSERT INTO `{$table}` () VALUES()";
+		}
+		else
+		{
+			$fields = implode(", ", $fields);
+			$holders = implode(", ", array_fill(0, $count, "?"));
+			$sql = "INSERT INTO `{$table}` ({$fields}) VALUES({$holders})";
+		}
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
 
