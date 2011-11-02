@@ -37,33 +37,27 @@
 
 class Validator
 {
-	/**
-	 * ссылка на экземпляр валидатора
-	 *
-	 * @var Validator
-	 */
-	private static $instance = null;
 
 	/**
 	 * Валидность значения
 	 *
 	 * @var boolean
 	 */
-	private static $isValid = true;
+	private $isValid = true;
 
 	/**
 	 * Список сообщений об ошибках проверок
 	 *
 	 * @var array
 	 */
-	private static $messages = null;
+	private $messages = null;
 
 	/**
 	 * Проверяемое значение
 	 *
 	 * @var mixed
 	 */
-	private static $val = null;
+	private $val = null;
 
 	/**
 	 * Текст общего сообщения об ошибке
@@ -71,14 +65,14 @@ class Validator
 	 *
 	 * @var string
 	 */
-	private static $commonComment = "";
+	private $commonComment = "";
 
 	/**
 	 * Конструктор
 	 *
 	 * @return void
 	 */
-	private function __construct()
+	public function __construct()
 	{
 
 	}
@@ -93,15 +87,12 @@ class Validator
 	 *
 	 * @return Validator
 	 */
-	public static function check($val, $comment = "")
+	public function check($val, $comment = "")
 	{
-		if (self::$instance == null)
-			self::$instance = new self();
-
-		self::$commonComment = $comment;
-		self::$val = $val;
-		self::$isValid = true;
-		return self::$instance;
+		$this->commonComment = $comment;
+		$this->val = $val;
+		$this->isValid = true;
+		return $this;
 	}
 
 	/**
@@ -114,16 +105,16 @@ class Validator
 	 */
 	public function required($isRequired, $comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
 			// если значение обязательное и задано - проходим все проверки
-			if ($isRequired && (is_null(self::$val)))
+			if ($isRequired && (is_null($this->val)))
 				self::addMessage($comment);
 
 			// если необязательное и не задано, то дальнейшие проверки
 			// проходить не обязательно
-			if (!$isRequired && is_null(self::$val))
-				self::$isValid = false;
+			if (!$isRequired && is_null($this->val))
+				$this->isValid = false;
 		}
 		return $this;
 	}
@@ -138,9 +129,9 @@ class Validator
 	 */
 	public function isNumeric($comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (!is_numeric(self::$val))
+			if (!is_numeric($this->val))
 				self::addMessage($comment);
 		}
 
@@ -156,9 +147,9 @@ class Validator
 	 */
 	public function isArray($comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (!is_array(self::$val))
+			if (!is_array($this->val))
 				self::addMessage($comment);
 		}
 
@@ -175,9 +166,9 @@ class Validator
 	 */
 	public function matchRegex($pattern, $comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (!preg_match($pattern, self::$val))
+			if (!preg_match($pattern, $this->val))
 				self::addMessage($comment);
 		}
 		return $this;
@@ -191,10 +182,10 @@ class Validator
 	 *
 	 * @return void
 	 */
-	public static function addMessage($text)
+	public function addMessage($text)
 	{
-		self::$isValid = false;
-		self::$messages[] = self::$commonComment . $text;
+		$this->isValid = false;
+		$this->messages[] = $this->commonComment . $text;
 	}
 
 	/**
@@ -207,9 +198,9 @@ class Validator
 	 */
 	public function lessThen($value, $comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (self::$val > $value)
+			if ($this->val > $value)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -225,9 +216,9 @@ class Validator
 	 */
 	public function greateThen($value, $comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (self::$val < $value)
+			if ($this->val < $value)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -243,9 +234,9 @@ class Validator
 	 */
 	public function equalTo($value, $comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (self::$val !== $value)
+			if ($this->val !== $value)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -254,18 +245,18 @@ class Validator
 
 	/**
 	 * Расширяет способы проверки с помощью расширений - классов,
-	 * имплементирующих интерфейс IValidator
+	 * имплементирующих интерфейс IValidatorRule
 	 *
-	 * @param IValidator $filter Экземпляр фильтра
+	 * @param IValidatorRule $rule Экземпляр правила
 	 *
 	 * @return Validator
 	 */
-	public function addValidator(IValidator $filter)
+	public function addValidator(IValidatorRule $rule)
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (!$filter->check(self::$val))
-				self::addMessage($filter->getMessage());
+			if (!$rule->check($this->val))
+				self::addMessage($rule->getMessage());
 		}
 		return $this;
 	}
@@ -281,9 +272,9 @@ class Validator
 	 */
 	public function minLength($len, $comment = "", $encoding = "utf-8")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (iconv_strlen(self::$val, $encoding) < $len)
+			if (iconv_strlen($this->val, $encoding) < $len)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -300,9 +291,9 @@ class Validator
 	 */
 	public function maxLength($len, $comment = "", $encoding = "utf-8")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (iconv_strlen(self::$val, $encoding) > $len)
+			if (iconv_strlen($this->val, $encoding) > $len)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -319,9 +310,9 @@ class Validator
 	 */
 	public function matchLenght($len, $comment = "", $encoding = "utf-8")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (iconv_strlen(self::$val, $encoding) !== $len)
+			if (iconv_strlen($this->val, $encoding) !== $len)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -334,8 +325,8 @@ class Validator
 	 */
 	public function value($defaultValue = null)
 	{
-		if (self::$val !== null)
-			return self::$val;
+		if ($this->val !== null)
+			return $this->val;
 		else
 			return $defaultValue;
 	}
@@ -351,9 +342,9 @@ class Validator
 	 */
 	public function range($min, $max, $comment = "")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			if (self::$val < $min || self::$val > $max)
+			if ($this->val < $min || $this->val > $max)
 				self::addMessage($comment);
 		}
 		return $this;
@@ -371,9 +362,9 @@ class Validator
 	 */
 	public function rangeLenght($min, $max, $comment = "", $encoding = "utf-8")
 	{
-		if (self::$isValid)
+		if ($this->isValid)
 		{
-			$len = iconv_strlen(self::$val, $encoding);
+			$len = iconv_strlen($this->val, $encoding);
 			if ($len < $min || $len > $max)
 				self::addMessage($comment);
 		}
@@ -385,9 +376,9 @@ class Validator
 	 *
 	 * @return boolean
 	 */
-	public static function isValid()
+	public function isValid()
 	{
-		return count(self::$messages) == 0;
+		return count($this->messages) == 0;
 	}
 
 	/**
@@ -396,9 +387,9 @@ class Validator
 	 *
 	 * @return array
 	 */
-	public static function getMessages()
+	public function getMessages()
 	{
-		return self::$messages;
+		return $this->messages;
 	}
 
 	/**
@@ -407,10 +398,10 @@ class Validator
 	 *
 	 * @return void
 	 */
-	public static function reset()
+	public function reset()
 	{
-		self::$messages = null;
-		self::$isValid = true;
+		$this->messages = null;
+		$this->isValid = true;
 	}
 }
 ?>

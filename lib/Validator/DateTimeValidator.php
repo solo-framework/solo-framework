@@ -8,7 +8,7 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-class DateTimeValidator implements IValidator
+class DateTimeValidator extends BaseValidatorRule
 {
 	/**
 	 * Дата и время в формате ISO 8601 (2011-05-13T16:18:41+04:00)
@@ -71,18 +71,6 @@ class DateTimeValidator implements IValidator
 		}
 
 		throw new Exception("Undefined datetime format");
-	}
-
-	/**
-	 * Возвращает сообщение об ошибке
-	 *
-	 * @see IValidator::getMessage()
-	 *
-	 * @return string
-	 */
-	public function getMessage()
-	{
-		return $this->comment;
 	}
 }
 ?>

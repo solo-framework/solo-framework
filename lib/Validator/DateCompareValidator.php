@@ -8,7 +8,7 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-class DateCompareValidator implements IValidator
+class DateCompareValidator extends BaseValidatorRule
 {
 
 	/**
@@ -141,19 +141,6 @@ class DateCompareValidator implements IValidator
 		}
 
 	}
-
-	/**
-	 * Возвращает сообщение об ошибке
-	 *
-	 * @see IValidator::getMessage()
-	 *
-	 * @return string
-	 */
-	public function getMessage()
-	{
-		return $this->comment;
-	}
-
 }
 
 ?>

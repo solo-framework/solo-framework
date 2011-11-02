@@ -1,22 +1,37 @@
 <?php
-
 /**
- * Validator::reset() здесь вызывается для того, чтобы исключить влияние одних тестов на другие
+ * Тестирование валидатора
+ *
+ * PHP version 5
+ *
+ * @package
+ * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 require_once 'PHPUnit/Framework/TestCase.php';
-require_once 'lib/Validator/IValidator.php';
+require_once 'lib/Validator/IValidatorRule.php';
+require_once 'lib/Validator/BaseValidatorRule.php';
 require_once 'lib/Validator/Validator.php';
 require_once 'lib/Validator/DateTimeValidator.php';
+require_once 'lib/Validator/IdValidatorRule.php';
 
-class ValidatorTest extends PHPUnit_Framework_TestCase
+
+class ValidatorTest2 extends PHPUnit_Framework_TestCase
 {
+	/**
+	 * Экземпляр валидатора
+	 *
+	 * @var Validator
+	 */
+	private $val = null;
+
 	/**
 	 * Prepares the environment before running a test.
 	 */
 	protected function setUp()
 	{
 		parent::setUp();
+		$this->val = new Validator();
 	}
 
 	/**
@@ -26,18 +41,17 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 	{
 		parent::tearDown();
 		// Сбросим валидатор, чтобы не было влияния одних тестов на другие
-		Validator::reset();
+		//$this->val->reset();
+		$this->val->reset();
 	}
 
 	public function test_required()
 	{
-		Validator::check("value")->required(false, "not required");
+		$this->val->check("value")->required(false, "not required");
+		$this->val->check(null)->required(false, "not required");
+		$this->val->check(null)->required(true, "required");
 
-		Validator::check(null)->required(false, "not required");
-
-		Validator::check(null)->required(true, "required");
-
-		$this->assertFalse(Validator::isValid());
+		$this->assertFalse($this->val->isValid());
 	}
 
 	/**
@@ -48,204 +62,203 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_isNumeric()
 	{
-		Validator::check("1")->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check("1")->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check("1.2")->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check("1.2")->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check("12e2")->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check("12e2")->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check(".2")->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(".2")->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check("123174235892350983498324698723489713478123987514987532489714239875124785324987")->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check("123174235892350983498324698723489713478123987514987532489714239875124785324987")->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check(1)->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(1)->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check(2.32)->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(2.32)->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check(12e4)->isNumeric("Не число");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(12e4)->isNumeric("Не число");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
 		// not valid
-		Validator::check("1,2")->isNumeric("Не число");
-		$this->assertFalse(Validator::isValid());
-		Validator::reset();
+		$this->val->check("1,2")->isNumeric("Не число");
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check("12w4")->isNumeric("Не число");
-		$this->assertFalse(Validator::isValid());
-		Validator::reset();
-
+		$this->val->check("12w4")->isNumeric("Не число");
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
 	}
 
 	public function test_isArray()
 	{
-		Validator::check(array(1))->isArray("Не список");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(array(1))->isArray("Не список");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check(array(1, 2, "item"))->isArray("Не список");
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(array(1, 2, "item"))->isArray("Не список");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
 		// not valid
-		Validator::check("value")->isArray("Не список");
-		$this->assertFalse(Validator::isValid());
-		Validator::reset();
+		$this->val->check("value")->isArray("Не список");
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
 	}
 
 	public function test_matchRegex()
 	{
-		Validator::check(123)->matchRegex('/[\d]+/', "regex ok");
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(123)->matchRegex('/[\d]+/', "regex ok");
+		$this->assertTrue($this->val->isValid());
 
-		Validator::check("32123")->matchRegex('/[\d]+/', "regex ok");
-		$this->assertTrue(Validator::isValid());
+		$this->val->check("32123")->matchRegex('/[\d]+/', "regex ok");
+		$this->assertTrue($this->val->isValid());
 	}
 
 	public function test_matchRegex_fail()
 	{
-		Validator::check(123)->matchRegex('/[a-z]+/', "regex ok");
-		$this->assertFalse(Validator::isValid());
+		$this->val->check(123)->matchRegex('/[a-z]+/', "regex ok");
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
+		$this->val->reset();
 
-		Validator::check("32123")->matchRegex('/[a-z]+/', "regex ok");
-		$this->assertFalse(Validator::isValid());
+		$this->val->check("32123")->matchRegex('/[a-z]+/', "regex ok");
+		$this->assertFalse($this->val->isValid());
 	}
 
 	public function test_addMessage()
 	{
 		// добавление сообщения в валидатор делает его невалидным
-		Validator::addMessage("something wrong!");
-		$this->assertFalse(Validator::isValid());
+		$this->val->addMessage("something wrong!");
+		$this->assertFalse($this->val->isValid());
 	}
 
 	public function test_lessThen()
 	{
-		Validator::check(20)->lessThen(21);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(20)->lessThen(21);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
+		$this->val->reset();
 
-		Validator::check(20)->lessThen(19);
-		$this->assertFalse(Validator::isValid());
+		$this->val->check(20)->lessThen(19);
+		$this->assertFalse($this->val->isValid());
 	}
 
 
 	public function test_greateThen()
 	{
-		Validator::check(20)->greateThen(19);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(20)->greateThen(19);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
+		$this->val->reset();
 
-		Validator::check(20)->greateThen(22);
-		$this->assertFalse(Validator::isValid());
+		$this->val->check(20)->greateThen(22);
+		$this->assertFalse($this->val->isValid());
 	}
 
 
 	public function test_equalTo()
 	{
-		Validator::check(20)->equalTo(20);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(20)->equalTo(20);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check(20)->equalTo(22);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check(20)->equalTo(22);
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("value")->equalTo("other_value");
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("value")->equalTo("other_value");
+		$this->assertFalse($this->val->isValid());
 	}
 
 	public function test_minLength()
 	{
-		Validator::check(20)->minLength(2);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(20)->minLength(2);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check(2)->minLength(2);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check(2)->minLength(2);
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("value")->minLength(3);
-		$this->assertTrue(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("value")->minLength(3);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("value")->minLength(30);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("value")->minLength(30);
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("строка")->minLength(6);
-		$this->assertTrue(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("строка")->minLength(6);
+		$this->assertTrue($this->val->isValid());
 	}
 
 	public function test_maxLength()
 	{
-		Validator::check(20)->maxLength(2);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(20)->maxLength(2);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check(222)->maxLength(2);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check(222)->maxLength(2);
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("value")->maxLength(3);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("value")->maxLength(3);
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("value")->maxLength(30);
-		$this->assertTrue(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("value")->maxLength(30);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("стро")->maxLength(6);
-		$this->assertTrue(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("стро")->maxLength(6);
+		$this->assertTrue($this->val->isValid());
 	}
 
 	public function test_range()
 	{
-		Validator::check(10)->range(8, 20);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(10)->range(8, 20);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check(10)->range(10, 20);
-		$this->assertTrue(Validator::isValid());
+		$this->val->reset();
+		$this->val->check(10)->range(10, 20);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check(30)->range(10, 20);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check(30)->range(10, 20);
+		$this->assertFalse($this->val->isValid());
 	}
 
 	public function test_rangeLenght()
 	{
-		Validator::check(103)->rangeLenght(3, 10);
-		$this->assertTrue(Validator::isValid());
+		$this->val->check(103)->rangeLenght(3, 10);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("value")->rangeLenght(4, 10);
-		$this->assertTrue(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("value")->rangeLenght(4, 10);
+		$this->assertTrue($this->val->isValid());
 
-		Validator::reset();
-		Validator::check(30)->rangeLenght(10, 20);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check(30)->rangeLenght(10, 20);
+		$this->assertFalse($this->val->isValid());
 
-		Validator::reset();
-		Validator::check("hello")->rangeLenght(10, 20);
-		$this->assertFalse(Validator::isValid());
+		$this->val->reset();
+		$this->val->check("hello")->rangeLenght(10, 20);
+		$this->assertFalse($this->val->isValid());
 	}
 
 	/**
@@ -255,19 +268,19 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_DateTimeValidator()
 	{
-		Validator::check("2005-08-09")->addValidator(
+		$this->val->check("2005-08-09")->addValidator(
 			new DateTimeValidator("comment", DateTimeValidator::FORMAT_ISO_8601)
 		);
 
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check("2005-08-09 12:33:45")->addValidator(
+		$this->val->check("2005-08-09 12:33:45")->addValidator(
 			new DateTimeValidator("comment", DateTimeValidator::FORMAT_ISO_8601)
 		);
 
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 	}
 
 	/**
@@ -277,17 +290,17 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_get_default_value()
 	{
-		$val = Validator::check("val")->value();
+		$val = $this->val->check("val")->value();
 		$this->assertEquals("val", $val);
-		Validator::reset();
+		$this->val->reset();
 
-		$val = Validator::check(null)->value("default");
+		$val = $this->val->check(null)->value("default");
 		$this->assertEquals("default", $val);
-		Validator::reset();
+		$this->val->reset();
 
-		$val = Validator::check("some")->value("default");
+		$val = $this->val->check("some")->value("default");
 		$this->assertEquals("some", $val);
-		Validator::reset();
+		$this->val->reset();
 
 	}
 
@@ -298,17 +311,39 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_matchLenght()
 	{
-		Validator::check("тестовая строка")->matchLenght(15);
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check("тестовая строка")->matchLenght(15);
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check(222)->matchLenght(3);
-		$this->assertTrue(Validator::isValid());
-		Validator::reset();
+		$this->val->check(222)->matchLenght(3);
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 
-		Validator::check("тест")->matchLenght(3);
-		$this->assertFalse(Validator::isValid());
-		Validator::reset();
+		$this->val->check("тест")->matchLenght(3);
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
+	}
+
+	public function test_id_validator()
+	{
+		$this->val->check("ddd")
+			->addValidator(new IdValidatorRule());
+
+		// только числовые значения
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
+
+		// длина ID от 1 - 11 цифр
+		$this->val->check(1111111111111111111)
+			->addValidator(new IdValidatorRule());
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
+
+		// идентификатор может и не быть указан
+		$this->val->check(null)
+			->addValidator(new IdValidatorRule());
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
 	}
 }
 ?>
