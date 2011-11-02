@@ -54,6 +54,26 @@ class ValidatorTest2 extends PHPUnit_Framework_TestCase
 		$this->assertFalse($this->val->isValid());
 	}
 
+	public function test_inArray()
+	{
+		$arr = array(0, 1, 2);
+		$this->val->check("0", "not found")->inArray($arr);
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
+
+		$this->val->check(2, "not found")->inArray($arr);
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
+
+		$this->val->check("string", "not found")->inArray($arr, "in");
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
+
+		$this->val->check("string", "not found")->inArray(array(), "in");
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
+	}
+
 	/**
 	 * Проверяет значение на принадлежность к
 	 * числовым типам int, float

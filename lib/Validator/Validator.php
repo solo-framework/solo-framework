@@ -372,6 +372,25 @@ class Validator
 	}
 
 	/**
+	 * Значение должно быть в списке
+	 *
+	 * @param array $array Список значений
+	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 *
+	 * @return Validator
+	 */
+	public function inArray($array, $comment = "")
+	{
+		if ($this->isValid)
+		{
+			$res = array_intersect($array, array($this->val));
+			if (!$res)
+				self::addMessage($comment);
+		}
+		return $this;
+	}
+
+	/**
 	 * Результат проверки
 	 *
 	 * @return boolean
