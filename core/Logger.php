@@ -1,21 +1,21 @@
-<?php 
+<?php
 /**
  * Класс для логгирования
- * 
+ *
  * PHP version 5
- * 
- * @example 
- * 
+ *
+ * @example
+ *
  * Logger::init();
  * Logger::info($a);
  * Logger::debug($a);
  * Logger::error($a);
  * Logger::warning($a);
- * 
+ *
  * OR
  * Logger::init(array("logger.dir" => "logs"));
- * 
- * 
+ *
+ *
  * @category Framework
  * @package  Core
  * @author   Andrey Filippov <afi@i-loto.ru>
@@ -24,36 +24,36 @@
  * @link     nolink
  */
 
-class Logger 
+class Logger
 {
 	/**
 	 * Путь к каталогу для хранения файлов лога
-	 * 
+	 *
 	 * @var string
 	 */
 	private static $dir = ".";
-	
+
 	/**
 	 * Массив с настройками
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $options = null;
-	
+
 	/**
 	 * Экземпляр класса Logger
-	 * 
+	 *
 	 * @var Logger
 	 */
 	private static $logger = null;
-	
+
 	/**
 	 * Префикс для файлов лога
-	 * 
+	 *
 	 * @var string
 	 */
 	public static $filePrefix = "";
-	
+
 	/**
 	 * Конструктор
 	 * принимает параметры в виде массива
@@ -61,7 +61,7 @@ class Logger
 	 * logger.dir - путь к каталогу
 	 *
 	 * @param array $options список с настройками
-	 * 
+	 *
 	 * @return void
 	 */
 	private function __construct($options = null)
@@ -70,36 +70,36 @@ class Logger
 		if (!is_dir(self::$dir))
 			throw new Exception("Logger directory does not exists : " . self::$dir);
 	}
-	
+
 	/**
 	 * Инициализация логгера
 	 *
 	 * @param array $options Набор настроек из конфигуратора
 	 * 				Если нет настроек, пишет файл в текущий каталог
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function init($options = null)
 	{
 		if (!isset(self::$logger))
-		{			
+		{
 			self::$logger = new Logger($options);
-		}		
+		}
 	}
-	
+
 	/**
 	 * Установка каталога для хранения файлов
-	 * 
+	 *
 	 * @param string $path Каталог для хранения файлов
-	 * 
+	 *
 	 * @return void
 	 */
 	private static function setDir($path)
 	{
 		if ($path != null)
 			self::$dir = $path;
-	}	
-	
+	}
+
 	/**
 	 * Возвращает символ конца строки
 	 *
@@ -109,10 +109,10 @@ class Logger
 	{
 		if (substr(php_uname(), 0, 7) == "Windows")
 			return "\r\n";
-		else 
+		else
 			return "\n";
 	}
-	
+
 	/**
 	 * Возвращает метку времени в опред. формате
 	 *
@@ -124,31 +124,31 @@ class Logger
 		$ms = round((float)$usec, 3);
 		$res = date("d-m-Y H:i:s",  (float)$sec) ." [{$ms}] ";
 		return $res;
-	}	
-	
+	}
+
 	/**
 	 * Возвращает дамп объекта
 	 *
 	 * @param mixed $object Данные, записываемые в файл
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function parseEvent($object)
 	{
 		if (is_object($object) || is_array($object))
-			return @var_export($object, true);
-		if (is_resource($object)) 
+			return print_r($object, true);
+		if (is_resource($object))
 			return  "Resource type: " . get_resource_type($object);
 
 		return $object;
-	}	
-	
+	}
+
 	/**
 	 * Запись в файл
 	 *
 	 * @param object $object Данные, записываемые в файл
 	 * @param string $level Уровень логгирования
-	 * 
+	 *
 	 * @return void
 	 */
 	private static function write($object, $level = "INFO")
@@ -157,14 +157,14 @@ class Logger
 		$str = self::getEOL() . self::getDateTime();
 		$str .= "$level: ";
 		$str .= self::parseEvent($object);
-		
+
 		$fp = fopen($fileName, "a");
 		flock($fp, LOCK_EX);
 		fwrite($fp, $str);
 		flock($fp, LOCK_UN);
 		fclose($fp);
-	}	
-	
+	}
+
 	/**
 	 * Проверяет , был ли инициализирован логгер
 	 *
@@ -175,12 +175,12 @@ class Logger
 		if (self::$logger == null)
 			throw new Exception("Logger not initialized.");
 	}
-	
+
 	/**
 	* Пишет сообщение в лог с уровнем DEBUG
-	* 
+	*
 	* @param mixed $object Данные
-	* 
+	*
 	* @return void
 	*/
 	public static function debug($object)
@@ -188,12 +188,12 @@ class Logger
 		self::checkInit();
 		self::write($object, "DEBUG");
 	}
-	
+
 	/**
 	* Пишет сообщение в лог с уровнем ERROR
-	* 
+	*
 	* @param mixed $object Данные
-	* 
+	*
 	* @return void
 	*/
 	public static function error($object)
@@ -201,25 +201,25 @@ class Logger
 		self::checkInit();
 		self::write($object, "ERROR");
 	}
-	
+
 	/**
 	* Пишет сообщение в лог с уровнем WARNING
-	* 
+	*
 	* @param mixed $object Данные
-	* 
+	*
 	* @return void
 	*/
 	public static function warning($object)
 	{
 		self::checkInit();
 		self::write($object, "WARNING");
-	}	
-	
+	}
+
 	/**
 	 * Пишет сообщение в лог с уровнем INFO
-	 * 
+	 *
 	 * @param mixed $object Данные
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function info($object)

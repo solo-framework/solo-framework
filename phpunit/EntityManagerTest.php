@@ -129,6 +129,12 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		}
 	}
 
+	public function test_sqlcondition_without_setParams()
+	{
+		$tm = new TestManager();
+		$res = $tm->get(MySQLCondition::create());
+	}
+
 	public function test_insert_empty_entity()
 	{
 		// сущность Family имеет два поля, которые автоматически

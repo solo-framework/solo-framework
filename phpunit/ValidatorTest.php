@@ -16,7 +16,7 @@ require_once 'lib/Validator/DateTimeValidator.php';
 require_once 'lib/Validator/IdValidatorRule.php';
 
 
-class ValidatorTest2 extends PHPUnit_Framework_TestCase
+class ValidatorTest extends PHPUnit_Framework_TestCase
 {
 	/**
 	 * Экземпляр валидатора
@@ -41,7 +41,6 @@ class ValidatorTest2 extends PHPUnit_Framework_TestCase
 	{
 		parent::tearDown();
 		// Сбросим валидатор, чтобы не было влияния одних тестов на другие
-		//$this->val->reset();
 		$this->val->reset();
 	}
 

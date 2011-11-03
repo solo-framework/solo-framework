@@ -23,7 +23,7 @@ class MySQLCondition implements ISQLCondition
 	 *
 	 * @var array
 	 */
-	public $params = null;
+	public $params = array();
 
 	private function __construct()
 	{
