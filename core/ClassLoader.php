@@ -84,8 +84,8 @@ class ClassLoader
 		self::$method = $method;
 		self::$baseDirectory = $baseDirectory;
 		spl_autoload_register($method);
-		self::$classMapFile = $classMapFile;		
-		self::$isFileExist = is_file($classMapFile);		
+		self::$classMapFile = $classMapFile;
+		self::$isFileExist = is_file($classMapFile);
 	}
 
 	/**
@@ -270,6 +270,10 @@ class ClassLoader
 			return false;
 
 		$pathinfo = pathinfo($path);
+
+		if (!isset($pathinfo["extension"]))
+			return false;
+
 		if ($pathinfo["extension"] !== "php")
 			return false;
 
