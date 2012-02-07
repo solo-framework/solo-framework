@@ -215,7 +215,7 @@ class PDOAdapter implements IDBAdapter
 	public function getObjects($sql, $className, array $params, $driverOptions = array())
 	{
 		$stmt = $this->query($sql, $params, $driverOptions);
-		$objects = null;
+		$objects = array();
 		while ($obj = $stmt->fetchObject($className))
 			$objects[] = $obj;
 
@@ -318,7 +318,7 @@ class PDOAdapter implements IDBAdapter
 	public function getColumn($sql, $col = 0, array $params, $driverOptions = array())
 	{
 		$stmt = $this->query($sql, $params, $driverOptions);
-		$res = null;
+		$res = array();
 		while ($data = $stmt->fetchColumn($col))
 			$res[] = $data;
 

@@ -441,6 +441,17 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(2, count($res));
 	}
 
+	public function test_get_empty_Column()
+	{
+		$tm = new TestManager();
+
+		$res = $tm->getColumn("SELECT username FROM test WHERE num = ?", array(20000), 0);
+		$this->assertEquals(0, count($res));
+
+		foreach ($res as $item)
+		{}
+	}
+
 	/**
 	 *
 	 *
@@ -488,5 +499,28 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(2, count($res));
 		$this->assertEquals("Test", get_class($res[0]));
 	}
+
+	public function test_empty_entity_list()
+	{
+		$tm = new TestManager();
+		$res = $tm->getByAnySQL("SELECT * FROM test WHERE username = ?", array("undefined_username"));
+		$this->assertEmpty($res);
+
+		// try to foreach empty list
+		foreach ($res as $item)
+		{}
+
+		$res = $tm->get(
+				MySQLCondition::create()
+					->where("username = ?")
+					->setParams("undefined_username")
+				);
+
+
+		$this->assertEmpty($res, "must be empty");
+		foreach ($res as $item)
+		{}
+	}
+
 }
 ?>
