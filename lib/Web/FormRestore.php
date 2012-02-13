@@ -69,14 +69,14 @@ class FormRestore
 		if (!isset($_SESSION))
 			throw new Exception("FormRestore: session was not started");
 	}
-	
+
 	/**
 	 * Добавляем данные формы
-	 * 
+	 *
 	 * @param string $formId Значение атрибута id формы
 	 * @return void
 	 */
-	public static function saveData()
+	public static function saveData($formId)
 	{
 		self::checkSessionStarted();
 		
@@ -93,11 +93,11 @@ class FormRestore
 		if ("GET" == $httpMethod)
 			$data = json_encode($_GET);
 		
-		$_SESSION[self::$sessionName] = $data;
+		$_SESSION[self::$sessionName][$formId] = $data;
 	}
 	
 	/**
-	 * Возвращает данные для формы
+	 * Возвращает данные для всех форм
 	 * 
 	 * @return mixed
 	 */
@@ -105,43 +105,44 @@ class FormRestore
 	{
 		self::checkSessionStarted();
 		
-		$res = null;
+		$res = array();
 		if (isset($_SESSION[self::$sessionName]))
 		{
 			$res = $_SESSION[self::$sessionName];
 			unset($_SESSION[self::$sessionName]);
 		}
-		
+
 		return $res;
 	}
 	
 	/**
 	 * Восстановление форм на странице
 	 * 1. Возвращает скрипт для десериализации данных
-	 * 2. Генерирует и возвращает данные для восстановления указанных форм
+	 * 2. Генерирует и возвращает данные для восстановления всех форм
 	 * 
-	 * @param string $formId Значение атрибута id формы, для 
-	 * 		которой происходит восстановление
-	 * 
-	 * @return strinf
+	 * @return string|void
 	 */
-	public static function restore($formId)
+	public static function restore()
 	{
-		$data = self::get();
-		if ($data != null)
-		{			
+		$dataForms = self::get();
+
+		if ($dataForms != null)
+		{
 			// вставляем скрипт десериализации
 			$script = self::insertScript();
-			
-			$script .= "
-				<script language=\"javascript\" type=\"text/javascript\">
-				$().ready(function() 
-				{
-					$('#{$formId}').deserialize({$data}, {isPHPnaming:true});
-				});
-				</script>
-			";
-			return $script;
+
+			foreach ($dataForms as $idForm => $dataForm)
+			{
+				$script .= "
+					<script language=\"javascript\" type=\"text/javascript\">
+					$().ready(function()
+					{
+						$('#{$idForm}').deserialize({$dataForm}, {isPHPnaming:true});
+					});
+					</script>
+				";
+				return $script;
+			}
 		}
 	}
 	
