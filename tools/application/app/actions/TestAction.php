@@ -17,20 +17,22 @@ class TestAction extends Action
 	 */
 	public function execute()
 	{
+		$val = new Validator();
+
 		// проверяем текстовое поле
-		Validator::check(Request::get("text"), "Поле Text: ")
+		$val->check(Request::get("text"), "Поле Text: ")
 			->required(true, "обязательное")
 			->minLength(3, "длина значения должна быть больше 3 символов");
 
 		// проверям, выбрал ли чекбокс
-		Validator::check(Request::get("agree"))
+		$val->check(Request::get("agree"))
 			->required(true, "Не выбран agree");
 
 		// В зависимости от результата валидации формы делаем редирект
-		if (!Validator::isValid())
+		if (!$val->isValid())
 		{
 			FormRestore::saveData("upload_form");
-			Application::getInstance()->redirectBack(Validator::getMessages());
+			Application::getInstance()->redirectBack($val->getMessages());
 		}
 		else
 			Application::getInstance()->redirect("index.php?view=index", "Действие успешно выполнено");

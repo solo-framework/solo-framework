@@ -302,5 +302,34 @@ EOT;
 
 		exit();
 	}
+
+	/**
+	 * Возвращает true, если запрос был послан через https
+	 * Иначе - false
+	 *
+	 * @return bool
+	 */
+	public static function isHTTPS()
+	{
+		return isset($_SERVER['HTTPS']) && !strcasecmp($_SERVER['HTTPS'], 'on');
+	}
+
+	/**
+	 * Возвращает URL приложения с указанием протокола
+	 * Пока только HTTP и HTTPS
+	 *
+	 * @return string
+	 */
+	public function getBaseURL()
+	{
+		$host = $_SERVER["HTTP_HOST"];
+
+		if (self::isHTTPS())
+			$host = "https://{$host}";
+		else
+			$host = "http://{$host}";
+
+		return $host;
+	}
 }
 ?>

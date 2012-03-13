@@ -65,11 +65,11 @@
 	<!-- ключевые слова управляющих структур в нижнем регистре -->
 	<rule ref="Squiz.ControlStructures.LowercaseDeclaration" />
 	
-	<!-- Окончания строк должны быть в Unix формате, т.е. "\n", а не "\r\n" -->
+	<!-- Окончания строк должны быть в Unix формате, т.е. "\n", а не "\r\n"
 	<rule ref="Generic.Files.LineEndings">
 		<properties>
 			<property name="eolChar" value="\n"/>
 		</properties>
 	</rule>
-
+	-->
 </ruleset>
