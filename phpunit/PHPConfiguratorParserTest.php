@@ -27,11 +27,20 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_construct()
 	{
-		$ini = new PHPConfiguratorParser("undefined");
+		try
+		{
+			$ini = new PHPConfiguratorParser("undefined");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_get()
@@ -43,16 +52,25 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_get()
 	{
-		$ini = new PHPConfiguratorParser($this->file);
-		$res = $ini->get("section:undefined");
+		try
+		{
+			$ini = new PHPConfiguratorParser($this->file);
+			$res = $ini->get("section:undefined");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_inherited_options()
 	{
@@ -60,8 +78,17 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 		// конфигурации, но не определенные в основном
 		// недоступны
 
-		$ini = new PHPConfiguratorParser($this->second);
-		$res = $ini->get("second:secondVal");
+		try
+		{
+			$ini = new PHPConfiguratorParser($this->second);
+			$res = $ini->get("second:secondVal");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 
@@ -142,12 +169,21 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_getSection()
 	{
-		$ini = new PHPConfiguratorParser($this->file);
-		$res = $ini->getSection("undefinedsection");
+		try
+		{
+			$ini = new PHPConfiguratorParser($this->file);
+			$res = $ini->getSection("undefinedsection");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_getArray()
@@ -159,12 +195,21 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_getArray()
 	{
-		$ini = new PHPConfiguratorParser($this->file);
-		$res = $ini->getArray("section:undef");
+		try
+		{
+			$ini = new PHPConfiguratorParser($this->file);
+			$res = $ini->getArray("section:undef");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 }
 ?>

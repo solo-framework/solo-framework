@@ -148,7 +148,8 @@ class Request
 		{
 			$input = stripslashes($input);
 		}
-		return addslashes($input);
+		return $input;
+		//return addslashes($input);
 	}
 
 	/**

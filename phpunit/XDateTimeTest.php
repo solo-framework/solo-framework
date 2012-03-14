@@ -65,11 +65,20 @@ class XDateTimeTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_exception()
 	{
-		$d = new XDateTime("wrong_value");
+		try
+		{
+			$d = new XDateTime("wrong_value");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_formatTime()

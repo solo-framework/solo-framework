@@ -25,6 +25,8 @@ require_once 'phpunit/URLManagerTest.php';
 require_once 'phpunit/MySQLConditionTest.php';
 require_once 'phpunit/ClientScriptTest.php';
 
+require_once 'phpunit/PHPSettingsTest.php';
+
 class runAllTests extends PHPUnit_Framework_TestSuite
 {
 
@@ -36,6 +38,7 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		date_default_timezone_set("Europe/Moscow");
 
 		$this->setName('Framework tests');
+		$this->addTestSuite("PHPSettingsTest");
 		$this->addTestSuite("ConfiguratorTest");
 		$this->addTestSuite("ClassLoaderTest");
 		$this->addTestSuite("ValidatorTest");

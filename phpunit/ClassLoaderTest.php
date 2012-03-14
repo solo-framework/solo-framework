@@ -102,24 +102,42 @@ class ClassLoaderTest extends PHPUnit_Framework_TestCase
 	 * Нельзя импортировать классы с одинаковым названием, они
 	 * должны быть уникальны
 	 *
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_exception_import_not_once()
 	{
-		ClassLoader::init($this->baseDir, $this->pathToClassMap);
-		ClassLoader::import("phpunit/resources/Test.php");
-		ClassLoader::import("phpunit/resources/directory/Test.php");
+		try
+		{
+			ClassLoader::init($this->baseDir, $this->pathToClassMap);
+			ClassLoader::import("phpunit/resources/Test.php");
+			ClassLoader::import("phpunit/resources/directory/Test.php");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	/**
 	 * Если файла нет - исключение
 	 *
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_exception_import_wrong_file()
 	{
-		ClassLoader::init($this->baseDir, $this->pathToClassMap);
-		ClassLoader::import("phpunit/resources/FileDoesNotExists.php");
+		try
+		{
+			ClassLoader::init($this->baseDir, $this->pathToClassMap);
+			ClassLoader::import("phpunit/resources/FileDoesNotExists.php");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	/**
@@ -157,12 +175,22 @@ class ClassLoaderTest extends PHPUnit_Framework_TestCase
 	/**
 	 * Если файла нет - исключение
 	 *
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_exception_undefined_alias()
 	{
-		ClassLoader::init($this->baseDir, $this->pathToClassMap);
-		ClassLoader::getPathByAlias("undefined");
+		try
+		{
+			ClassLoader::init($this->baseDir, $this->pathToClassMap);
+			ClassLoader::getPathByAlias("undefined");
+
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 }
