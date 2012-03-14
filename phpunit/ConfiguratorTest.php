@@ -53,12 +53,21 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_construct()
 	{
-		Configurator::reset();
-		Configurator::init(new IniConfiguratorParser("undefined"));
+		try
+		{
+			Configurator::reset();
+			Configurator::init(new IniConfiguratorParser("undefined"));
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_get()
@@ -68,11 +77,20 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_get()
 	{
-		Configurator::get("section:undefined");
+		try
+		{
+			Configurator::get("section:undefined");
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_extends_getAll()
@@ -152,11 +170,20 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_getSection()
 	{
-		$res = Configurator::getSection("undefinedsection");
+		try
+		{
+			$res = Configurator::getSection("undefinedsection");
+		}
+		catch (Exception $e)
+		{
+		return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_getArray()
@@ -167,20 +194,39 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_fail_getArray()
 	{
-		$res = Configurator::getArray("section:undef");
+		try
+		{
+			$res = Configurator::getArray("section:undef");
+		}
+		catch (Exception $e)
+		{
+		return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_extends_fail()
 	{
 		Configurator::reset();
-		Configurator::init(new IniConfiguratorParser($this->fail));
+
+		try
+		{
+			Configurator::init(new IniConfiguratorParser($this->fail));
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 
 	public function test_exdends_get()
@@ -193,17 +239,28 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException Exception
+	 *
 	 */
 	public function test_exdends_get_fail()
 	{
 		Configurator::reset();
-		// подключили файл, не расширяющий main
-		Configurator::init(new IniConfiguratorParser($this->file));
 
-		// и пробуем получить значения, определенные в main
-		$res = Configurator::get("main:val");
-		$this->assertEquals("string", $res);
+		try
+		{
+			// подключили файл, не расширяющий main
+			Configurator::init(new IniConfiguratorParser($this->file));
+
+			// и пробуем получить значения, определенные в main
+			$res = Configurator::get("main:val");
+			$this->assertEquals("string", $res);
+
+		}
+		catch (Exception $e)
+		{
+			return ;
+		}
+
+		$this->fail("An expected exception has not been raised.");
 	}
 }
 

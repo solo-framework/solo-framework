@@ -148,7 +148,8 @@ class Request
 		{
 			$input = stripslashes($input);
 		}
-		return addslashes($input);
+		return $input;
+		//return addslashes($input);
 	}
 
 	/**
@@ -320,7 +321,7 @@ EOT;
 	 *
 	 * @return string
 	 */
-	public function getBaseURL()
+	public static function getBaseURL()
 	{
 		$host = $_SERVER["HTTP_HOST"];
 
