@@ -163,6 +163,7 @@ class PDOAdapter implements IDBAdapter
 	*/
 	public function startTransaction()
 	{
+		$this->checkConnection();
 		$this->pdo->beginTransaction();
 	}
 
