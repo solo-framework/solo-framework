@@ -177,7 +177,7 @@ class ClassLoader
 			$pathByAlias = self::getPathByAlias($matches[1]);
 
 			if (!is_file($pathByAlias . $path) && !is_dir($pathByAlias . $path))
-				throw new Exception("ClassLoader: path '{$pathByAlias}{$path}' does not exists.");
+				throw new Exception("ClassLoader: path '{$pathByAlias}{$path}' does not exist.");
 
 			return realpath($pathByAlias . $path);
 		}
@@ -264,7 +264,7 @@ class ClassLoader
 	private static function addToClassMap($path, $className = null)
 	{
 		if (!is_file($path) && !is_dir($path))
-			throw new Exception("ClassLoader: can't import file {$path}. File does not exists.");
+			throw new Exception("ClassLoader: can't import file {$path}. File does not exist.");
 
 		if (!is_file($path))
 			return false;
@@ -343,7 +343,7 @@ class ClassLoader
 		if (array_key_exists($class, self::$classMap))
 			require_once self::$classMap[strtolower($class)];
 		else
-			throw new Exception("ClassLoader: Class '{$class}' does not exists in repository");
+			throw new Exception("ClassLoader: Class '{$class}' does not exist in repository");
 		//require_once $file;
 	}
 

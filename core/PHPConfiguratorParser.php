@@ -21,7 +21,7 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	public function __construct($configFile)
 	{
 		if (!file_exists($configFile))
-			throw new Exception("Config file '{$configFile}' does not exists.");
+			throw new Exception("Config file '{$configFile}' does not exist.");
 
 		$this->config = require $configFile;
 

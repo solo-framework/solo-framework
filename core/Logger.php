@@ -68,7 +68,7 @@ class Logger
 	{
 		self::setDir(@$options['logger.dir']);
 		if (!is_dir(self::$dir))
-			throw new Exception("Logger directory does not exists : " . self::$dir);
+			throw new Exception("Logger directory does not exist : " . self::$dir);
 	}
 
 	/**

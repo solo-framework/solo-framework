@@ -46,7 +46,7 @@ class Solo_Sniffs_Commenting_ClassAttributeCommentSniff implements PHP_CodeSniff
 			
 			// проверяем, следует ли за комментарием переменная
 			if($commentLine !== ($constLine - 1))
-				$phpcsFile->addError("Comment for const {$tokens[$stackPtr+2]["content"]} does not exists", $stackPtr);
+				$phpcsFile->addError("Comment for const {$tokens[$stackPtr+2]["content"]} does not exist", $stackPtr);
 		}
 			
 
@@ -74,7 +74,7 @@ class Solo_Sniffs_Commenting_ClassAttributeCommentSniff implements PHP_CodeSniff
 				
 				// проверяем, следует ли за комментарием переменная
 				if($commentLine + 1 !== $varLine)
-					$phpcsFile->addError("Comment for var {$tokens[$stackPtr]["content"]} does not exists", $stackPtr);
+					$phpcsFile->addError("Comment for var {$tokens[$stackPtr]["content"]} does not exist", $stackPtr);
 			//}
 			//else
 			//{
