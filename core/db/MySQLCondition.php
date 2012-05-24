@@ -94,7 +94,7 @@ class MySQLCondition implements ISQLCondition
 	/**
 	 * Генерирует SQL код запроса IN
 	 *
-	 * @param array Список значений
+	 * @param array $list Список значений
 	 *
 	 * @return MySQLCondition
 	 */
@@ -107,7 +107,7 @@ class MySQLCondition implements ISQLCondition
 	/**
 	 * Устанавливает значения параметризованного запроса
 	 *
-	 * @return void
+	 * @return MySQLCondition
 	 */
 	public function setParams()
 	{
@@ -119,6 +119,7 @@ class MySQLCondition implements ISQLCondition
 	 * Возвращает собранный SQL запрос
 	 *
 	 * @see ISQLCondition::buildSQL()
+	 * @return string
 	 */
 	public function buildSQL()
 	{

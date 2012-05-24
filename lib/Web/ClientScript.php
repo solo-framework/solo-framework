@@ -8,7 +8,7 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-class ClientScript
+class ClientScript implements IApplicationComponent
 {
 	/**
 	 * Версия файла
@@ -60,5 +60,18 @@ class ClientScript
 			return false;
 		}
 	}
+
+	/**
+	 * Инициализация компонента
+	 *
+	 * @see IApplicationComponent::initComponent()
+	 *
+	 * @return void
+	 **/
+	public function initComponent()
+	{
+		return true;
+	}
+
 }
 ?>

@@ -16,42 +16,104 @@
  * @link     nolink
  */
 
-final class Context
+class Context
 {
-	/**
-	 * Экземпляр класса Context
-	 *
-	 * @var Context
-	 */
 	private static $instance = null;
 
-	/**
-	* Приватный конструктор
-	*
-	* @param string $name Имя контекста (сессии)
-	*
-	* @return void
-	*/
-	private function Context($name)
+	private function Context($name, ISessionProvider $provider)
 	{
-		Session::start($name);
+		$provider->start();
+		session_name($name);
+		session_start();
 	}
 
-	/**
-	 * Стартует контекст
-	 *
-	 * @param string $name Имя контекста (сессии)
-	 *
-	 * @return Context
-	 * */
-	public static function start($name)
+	public static function start($name, ISessionProvider $provider)
 	{
 		if (!isset(self::$instance))
 		{
-			self::$instance = new Context($name);
+			self::$instance = new Context($name, $provider);
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Установка объекта в сессию
+	 *
+	 * @param string $objName Имя объекта
+	 * @param mixed $objValue Объект
+	 *
+	 * @return void
+	 */
+	public static function set($objName, $objValue)
+	{
+		if (!isset($_SESSION))
+			throw new Exception("Context not started");
+
+		$_SESSION[$objName] = $objValue;
+	}
+
+	/**
+	 * Удаление объекта из сессии
+	 *
+	 * @param string $objName Имя объекта
+	 *
+	 * @return void
+	 */
+	public static function clear($objName)
+	{
+		if (isset($_SESSION))
+			unset($_SESSION[$objName]);
+	}
+
+	/**
+	 * Метод возвращает удаляет объект из сессии, возвращая его
+	 *
+	 * @param string $objectName Имя объекта
+	 *
+	 * @return mixed
+	 * */
+	public static function push($objectName)
+	{
+		$res = self::get($objectName);
+		self::clear($objectName);
+		return $res;
+	}
+
+	/**
+	 * Возвращает объект из сессии
+	 *
+	 * @param string $objName Имя объекта
+	 *
+	 * @return mixed|NULL
+	 */
+	public static function get($objName)
+	{
+		if (isset($_SESSION[$objName]))
+			return $_SESSION[$objName];
+		else
+			return null;
+	}
+
+	/**
+	 * Уничтожает все данные контекста
+	 *
+	 * @return session
+	 */
+	public static function destroy()
+	{
+		unset($_SESSION);
+		@session_destroy();
+	}
+
+	/**
+	 * Нельзя клонировать
+	 *
+	 * @return void
+	 */
+	public function __clone()
+	{
+		throw new Exception("Can't clone singleton object ". __CLASS__);
 	}
 
 	/**
@@ -63,7 +125,7 @@ final class Context
 	 */
 	public static function setActor($user)
 	{
-		Session::set("__user", $user);
+		self::set("__solo__user", $user);
 	}
 
 	/**
@@ -73,7 +135,7 @@ final class Context
 	 */
 	public static function getActor()
 	{
-		return Session::get("__user");
+		return self::get("__solo__user");
 	}
 
 	/**
@@ -90,7 +152,7 @@ final class Context
 	{
 		$flash["message"] = $message;
 		$flash["id"] = $flashMessageId;
-		self::setObject("__solo_flash_message", $flash);
+		self::set("__solo_flash_message", $flash);
 	}
 
 	/**
@@ -103,78 +165,5 @@ final class Context
 	{
 		return self::push("__solo_flash_message");
 	}
-
-	/**
-	 * Метод возвращает удаляет объект из сессии, возвращая его
-	 *
-	 * @param string $objectName Имя объекта
-	 *
-	 * @return mixed
-	 * */
-	public static function push($objectName)
-	{
-		$res = self::getObject($objectName);
-		self::clearObject($objectName);
-		return $res;
-	}
-
-
-	/**
-	 * Установка объекта в сессию
-	 *
-	 * @param string $objName Имя объекта
-	 * @param mixed $objValue Данные
-	 *
-	 * @return void
-	 */
-	public static function setObject($objName, $objValue)
-	{
-		Session::set($objName, $objValue);
-	}
-
-	/**
-	 * Возвращает объект из сессии
-	 *
-	 * @param string $objName Имя объекта
-	 *
-	 * @return mixed
-	 */
-	public static function getObject($objName)
-	{
-		return Session::get($objName);
-	}
-
-	/**
-	 * Удаление объекта из сессии
-	 *
-	 * @param string $objName Имя объекта
-	 *
-	 * @return void
-	 */
-	public static function clearObject($objName)
-	{
-		Session::clear($objName);
-	}
-
-	/**
-	 * Уничтожает все данные контекста
-	 *
-	 * @return session
-	 */
-	public static function destroy()
-	{
-		Session::close();
-	}
-
-	/**
-	* Нельзя клонировать
-	*
-	* @return void
-	*/
-	public function __clone()
-	{
-		throw new Exception("Can't clone singleton object ". __CLASS__);
-	}
-
 }
 ?>

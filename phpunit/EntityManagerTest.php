@@ -12,6 +12,7 @@ error_reporting(E_ALL);
 
 require_once 'PHPUnit/Framework/TestCase.php';
 
+require_once 'core/IApplicationComponent.php';
 require_once 'core/db/IDBAdapter.php';
 require_once 'core/db/PDOAdapter.php';
 require_once 'core/db/SoloPDOStatement.php';
@@ -19,6 +20,7 @@ require_once 'core/db/SoloPDO.php';
 require_once 'core/db/ISQLCondition.php';
 require_once 'core/db/MySQLCondition.php';
 require_once 'core/EntityManager.php';
+
 
 require_once 'phpunit/resources/Test.php';
 require_once 'phpunit/resources/Family.php';

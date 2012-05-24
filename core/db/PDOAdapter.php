@@ -8,7 +8,7 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-class PDOAdapter implements IDBAdapter
+class PDOAdapter implements IDBAdapter, IApplicationComponent
 {
 
 	/**
@@ -89,6 +89,18 @@ class PDOAdapter implements IDBAdapter
 	public function __construct()
 	{
 
+	}
+
+	/**
+	 * Инициализация компонента
+	 *
+	 * @see IApplicationComponent::initComponent()
+	 *
+	 * @return void
+	 **/
+	public function initComponent()
+	{
+		return true;
 	}
 
 	/* (non-PHPdoc)

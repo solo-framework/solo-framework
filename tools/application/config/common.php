@@ -36,6 +36,8 @@ return array
 			"@framework/core/db/*",
 			"@framework/lib/Validator/*",
 			"@framework/lib/Web/*",
+			"@framework/core/web/session/*",
+
 			"@base/app/*",
 			"@base/app/views/*",
 			"@base/app/views/components/*",
@@ -85,7 +87,12 @@ return array
 
 			// Настройки драйвера
 			"driverOptions" => array()
-		)
+		),
+
+		"session.files" => array
+		(
+			"@class" => "FileSessionProvider"
+		),
 	),
 
 	//
@@ -95,6 +102,9 @@ return array
 	(
 		// имя сессии
 		"sessionname" => "application_name",
+
+		// имя компонента приложения, реализующего провайдер сессии
+		"session.provider" => "session.files",
 
 		// будем ли отправлять заголовки запрещающие кэширование
 		"nocache" => true,

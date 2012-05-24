@@ -181,20 +181,33 @@ abstract class BaseApplication
 		if (!isset($config["@class"]))
 			throw new RuntimeException("Component configuration must have a 'class' option");
 
+		// имя класса создаваемого компонента
 		$className = $config["@class"];
 		unset($config["@class"]);
 
-		// Если переданы доп. параметры, то передаем их в конструктор
-		if (func_num_args() > 1)
+		// параметры, передаваемые в конструктор
+		$ctor = isset($config["@constructor"]) ? $config["@constructor"] : null;
+		unset($config["@constructor"]);
+
+		if ($ctor !== null)
 		{
-			$args = func_get_args();
-			unset($args[0]);
 			$object = new ReflectionClass($className);
-			$component = $object->newInstanceArgs($args);
+			$component = $object->newInstanceArgs($ctor);
 		}
 		else
 		{
-			$component = new $className();
+			// Если переданы доп. параметры, то передаем их в конструктор
+			if (func_num_args() > 1)
+			{
+				$args = func_get_args();
+				unset($args[0]);
+				$object = new ReflectionClass($className);
+				$component = $object->newInstanceArgs($args);
+			}
+			else
+			{
+				$component = new $className();
+			}
 		}
 
 		// теперь публичным свойствам экземпляра назначим значения из конфига
@@ -204,6 +217,9 @@ abstract class BaseApplication
 				throw new RuntimeException("Undefined class property `{$key}` in {$className}");
 			$component->$key = $value;
 		}
+
+		// инициализация компонента
+		$component->initComponent();
 
 		$this->components[$componentName] = $component;
 		return $component;
@@ -258,8 +274,21 @@ abstract class BaseApplication
 			// загрузка конфигурации
 			self::$instance->loadConfiguration($configFile);
 
-			// Инициализация  всех необходимых объектов: логгера, контекста и пр.
-			self::$instance->init();
+			// режим работы приложения
+			self::$isDebug = Configurator::get("application:debug");
+
+			// Инициализация логгера
+			Logger::init(Configurator::getSection("logger"));
+
+			try
+			{
+				// Инициализация  всех необходимых объектов: контекста и пр.
+				self::$instance->init();
+			}
+			catch (Exception $e)
+			{
+				self::$instance->handleException($e);
+			}
 		}
 
 		return self::$instance;
@@ -315,20 +344,15 @@ abstract class BaseApplication
 	}
 
 	/**
-	 * Инициализация  всех необходимых объектов: логгера, контекста и пр.
+	 * Инициализация  всех необходимых объектов:контекста и пр.
 	 *
 	 * @return void
 	 */
 	protected function init()
 	{
-		// Инициализация логгера
-		Logger::init(Configurator::getSection("logger"));
-
+		$session = self::getComponent(Configurator::get("application:session.provider"));
 		// Старт контекста приложения (сессии)
-		Context::start(Configurator::get("application:sessionname"));
-
-		// режим работы приложения
-		self::$isDebug = Configurator::get("application:debug");
+		Context::start(Configurator::get("application:sessionname"), $session);
 	}
 
 	/**
