@@ -19,7 +19,7 @@ require_once 'phpunit/PHPConfiguratorParserTest.php';
 
 require_once 'phpunit/EntityManagerTest.php';
 require_once 'phpunit/XDateTimeTest.php';
-require_once 'phpunit/SessionTest.php';
+//require_once 'phpunit/SessionTest.php';
 //require_once 'phpunit/SQLConditionTest.php';
 require_once 'phpunit/URLManagerTest.php';
 require_once 'phpunit/MySQLConditionTest.php';
@@ -47,7 +47,7 @@ class runAllTests extends PHPUnit_Framework_TestSuite
 		$this->addTestSuite("RequestTest");
 		$this->addTestSuite("XDateTimeTest");
 
-		$this->addTestSuite("SessionTest");
+		//$this->addTestSuite("SessionTest");
 		$this->addTestSuite("MySQLConditionTest");
 		$this->addTestSuite("IniConfiguratorTest");
 		$this->addTestSuite("PHPConfiguratorParserTest");

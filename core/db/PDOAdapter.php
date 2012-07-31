@@ -249,7 +249,11 @@ class PDOAdapter implements IDBAdapter, IApplicationComponent
 	public function getOneObject($sql, $className, array $params, $driverOptions = array())
 	{
 		$res = $this->query($sql, $params, $driverOptions);
-		return $res->fetchObject($className);
+		$result = $res->fetchObject($className);
+		if (false === $result)
+			return null;
+		else
+			return $result;
 	}
 
 	 /**
@@ -286,7 +290,11 @@ class PDOAdapter implements IDBAdapter, IApplicationComponent
 	public function getOneRow($sql, array $params, $driverOptions = array())
 	{
 		$stmt = $this->query($sql, $params, $driverOptions = array());
-		return $stmt->fetch();
+		$result = $stmt->fetch();
+		if (false === $result)
+			return array();
+		else
+			return $result;
 	}
 
 	/**
@@ -302,7 +310,11 @@ class PDOAdapter implements IDBAdapter, IApplicationComponent
 	public function getOne($sql, array $params, $driverOptions = array())
 	{
 		$row = $this->getOneRow($sql, $params, $driverOptions);
-		return reset($row);
+		$result = reset($row);
+		if (false === $result)
+			return null;
+		else
+			return $result;
 	}
 
 	/**
