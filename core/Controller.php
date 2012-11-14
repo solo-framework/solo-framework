@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * @package Framework
- * @author  Andrey Filippov <afi@i-loto.ru>
+ * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
 class Controller

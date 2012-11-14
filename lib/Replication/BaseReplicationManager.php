@@ -13,7 +13,7 @@
  * 
  * @category Framework
  * @package  Core
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  * @license  %license% name
  * @version  SVN: $Id: BaseEntityManager.php 2982 2011-02-08 14:10:06Z afi $
  * @link     nolink

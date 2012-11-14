@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @package
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  */
 
 ClassLoader::import("@framework/lib/Smarty/Smarty.class.php", "Smarty");

@@ -10,7 +10,7 @@
  *
  * PHP version 5
  *
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  */
 
 function smarty_function_clientscript($params, $smarty)

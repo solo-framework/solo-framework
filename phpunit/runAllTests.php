@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @package  Test
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  */
 
 require_once 'PHPUnit/Framework/TestSuite.php';

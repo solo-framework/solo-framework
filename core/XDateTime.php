@@ -11,7 +11,7 @@
  *
  * @category Framework
  * @package  DateTime
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  * @license  %license% name
  * @version  SVN: $Id: Entity.php 9 2007-12-25 11:26:03Z afi $
  * @link     nolink

@@ -6,7 +6,7 @@
  *
  * @category Framework
  * @package  Core
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  * @license  %license% name
  * @version  SVN: $Id: genentity.php 9 2007-12-25 11:26:03Z afi $
  * @link     nolink
@@ -140,7 +140,7 @@ $template = <<<EOT
  *
  * @category BL
  * @package  Entity
- * @author   Andrey Filippov <afi@i-loto.ru>
+ * @author   Andrey Filippov <afi.work@gmail.com>
  * @license  %license% name
  * @version  SVN: \$Id: {$entityName}.php 9 2007-12-25 11:26:03Z afi \$
  * @link     nolink
