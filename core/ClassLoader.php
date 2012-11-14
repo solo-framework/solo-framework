@@ -101,7 +101,7 @@ class ClassLoader
 		if (isset(self::$aliases[$alias]))
 			return self::$aliases[$alias];
 		else
-			throw new Exception("Undefined alias '{$alias}'");
+			throw new ClassLoaderException("Undefined alias '{$alias}'");
 	}
 
 	/**
@@ -153,7 +153,7 @@ class ClassLoader
 
 		$res = @file_put_contents(self::$classMapFile, serialize($out), LOCK_EX);
 		if (!$res)
-			throw new Exception("ClassLoader: can't write repository file to " . self::$classMapFile);
+			throw new ClassLoaderException("ClassLoader: can't write repository file to " . self::$classMapFile);
 
 		self::$isFileExist = true;
 	}
@@ -164,7 +164,7 @@ class ClassLoader
 	 * реальные пути
 	 *
 	 * @static
-	 * @param string $path Путь к файлу или каталогу
+	 * @param string $path Путь к файлу или каталогу`
 	 *
 	 * @return null|string
 	 */
@@ -177,7 +177,7 @@ class ClassLoader
 			$pathByAlias = self::getPathByAlias($matches[1]);
 
 			if (!is_file($pathByAlias . $path) && !is_dir($pathByAlias . $path))
-				throw new Exception("ClassLoader: path '{$pathByAlias}{$path}' does not exist.");
+				throw new ClassLoaderException("ClassLoader: path '{$pathByAlias}{$path}' does not exist.");
 
 			return realpath($pathByAlias . $path);
 		}
@@ -223,7 +223,7 @@ class ClassLoader
 					$path = self::$baseDirectory . DIRECTORY_SEPARATOR .$path;
 
 				if (!is_dir($path))
-					throw new Exception("ClassLoader: can't find directory '{$path}'");
+					throw new ClassLoaderException("ClassLoader: can't find directory '{$path}'");
 
 				// сканируем каталог и добавляем все файлы в репозиторий
 				$di = new DirectoryIterator($path);
@@ -264,7 +264,7 @@ class ClassLoader
 	private static function addToClassMap($path, $className = null)
 	{
 		if (!is_file($path) && !is_dir($path))
-			throw new Exception("ClassLoader: can't import file {$path}. File does not exist.");
+			throw new ClassLoaderException("ClassLoader: can't import file {$path}. File does not exist.");
 
 		if (!is_file($path))
 			return false;
@@ -290,7 +290,7 @@ class ClassLoader
 		else
 		{
 			if ($path !== self::$classMap[$fileName])
-				throw new Exception("ClassLoader: class '{$fileName}' (from {$path}) already imported in " . self::$classMap[$fileName]);
+				throw new ClassLoaderException("ClassLoader: class '{$fileName}' (from {$path}) already imported in " . self::$classMap[$fileName]);
 			else
 				return false;
 		}
@@ -343,7 +343,7 @@ class ClassLoader
 		if (array_key_exists($class, self::$classMap))
 			require_once self::$classMap[strtolower($class)];
 		else
-			throw new Exception("ClassLoader: Class '{$class}' does not exist in repository");
+			throw new ClassLoaderException("ClassLoader: Class '{$class}' does not exist in repository");
 		//require_once $file;
 	}
 

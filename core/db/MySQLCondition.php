@@ -44,6 +44,8 @@ class MySQLCondition implements ISQLCondition
 	 * Генерирует SQL код запроса WHERE
 	 *
 	 * @param string $sql
+	 *
+	 * @return MySQLCondition
 	 */
 	public function where($sql)
 	{
@@ -54,7 +56,7 @@ class MySQLCondition implements ISQLCondition
 	/**
 	 * Генерирует SQL код запроса ORDER BY
 	 *
-	 * @param string $sql
+	 * @param string $orderBy Текст запроса
 	 *
 	 * @return MySQLCondition
 	 */
@@ -67,7 +69,7 @@ class MySQLCondition implements ISQLCondition
 	/**
 	 * Генерирует SQL код запроса GROUP BY
 	 *
-	 * @param string $sql
+	 * @param string $sql Текст запроса
 	 *
 	 * @return MySQLCondition
 	 */
@@ -112,6 +114,19 @@ class MySQLCondition implements ISQLCondition
 	public function setParams()
 	{
 		$this->params = func_get_args();
+		return $this;
+	}
+
+	/**
+	 * Устанавливает список значений параметризованного запроса
+	 *
+	 * @param array $array Список параметров
+	 *
+	 * @return MySQLCondition
+	 */
+	public function setArrayParams($array)
+	{
+		$this->params = $array;
 		return $this;
 	}
 

@@ -67,12 +67,12 @@ class Validator
 	 */
 	private $commonComment = "";
 
-	/**
-	 * Конструктор
-	 *
-	 * @return void
-	 */
-	public function __construct()
+    /**
+     * Конструктор
+     *
+     * @return Validator
+     */
+    public function __construct()
 	{
 
 	}

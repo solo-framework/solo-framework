@@ -32,17 +32,27 @@ class SmartyTemplateHandler extends Smarty implements ITemplateHandler
 
 		// template_dir указываем, чтобы система безопасности Smarty
 		// позволяла читать файлы
-		$this->template_dir = ".";
-		$this->compile_dir = Configurator::get("smarty:compile.dir");
-		$this->config_dir = Configurator::get("smarty:config.dir");
-		$this->cache_dir = Configurator::get("smarty:cache.dir");
+// 		$this->template_dir = ".";
+// 		$this->compile_dir = Configurator::get("smarty:compile.dir");
+// 		$this->config_dir = Configurator::get("smarty:config.dir");
+// 		$this->cache_dir = Configurator::get("smarty:cache.dir");
+// 		$this->compile_check = Configurator::get("smarty:compile.check");
+// 		$this->debugging = (bool)Configurator::get("smarty:debugging");
+// 		$this->error_reporting = Configurator::get("smarty:error.reporting");
+// 		$this->compile_check = Configurator::get("smarty:compile.check");
+
 		$this->compile_check = Configurator::get("smarty:compile.check");
 		$this->debugging = (bool)Configurator::get("smarty:debugging");
 		$this->error_reporting = Configurator::get("smarty:error.reporting");
 		$this->compile_check = Configurator::get("smarty:compile.check");
 
+		$this->setCompileDir(Configurator::get("smarty:compile.dir"));
+		$this->setConfigDir(Configurator::get("smarty:config.dir"));
+		$this->setCacheDir(Configurator::get("smarty:cache.dir"));
+
 		//Загрузка пользовательских плагинов и функций
-		$this->plugins_dir[] = Configurator::get("smarty:user.plugins");
+		$this->addPluginsDir(Configurator::get("smarty:user.plugins"));
+		//$this->plugins_dir[] = Configurator::get("smarty:user.plugins");
 	}
 
 }

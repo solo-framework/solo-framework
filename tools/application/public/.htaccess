@@ -21,6 +21,9 @@ AddDefaultCharset utf-8
 # Запрет просмотра каталогов по урлу
 Options -Indexes
 
+# временная зона
+php_value date.timezone "Europe/Moscow"
+
 # Настройка mod_rewrite
 <IfModule mod_rewrite.c>
     RewriteEngine off

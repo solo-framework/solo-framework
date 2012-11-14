@@ -76,13 +76,20 @@ class Controller
 	 */
 	public function execute($actionName, $viewName)
 	{
-		// обрабатываем действие
-		if (null !== $actionName)
-			$this->executeAction($actionName);
+		try
+		{
+			// обрабатываем действие
+			if (null !== $actionName)
+				$this->executeAction($actionName);
 
-		// отрисовка представления
-		if ($viewName)
-			return $this->handleView($viewName);
+			// отрисовка представления
+			if ($viewName)
+				return $this->handleView($viewName);
+		}
+		catch (ClassLoaderException $cle)
+		{
+			throw new HTTP404Exception($cle);
+		}
 	}
 
 	/**
@@ -158,33 +165,40 @@ class Controller
 	 */
 	public function renderViewComponent($className, $args = null)
 	{
-		$rc = new ReflectionClass($className . "View");
-		if (count($args) !== 0)
-			$view = $rc->newInstanceArgs($args);
-		else
-			$view = $rc->newInstance();
+		try
+		{
+			$rc = new ReflectionClass($className . "View");
+			if (count($args) !== 0)
+				$view = $rc->newInstanceArgs($args);
+			else
+				$view = $rc->newInstance();
 
-		// Получение данных в Представлении
-		$view->preRender();
-		$view->render();
-		$view->postRender();
+			// Получение данных в Представлении
+			$view->preRender();
+			$view->render();
+			$view->postRender();
 
-		$templateHandlerClass = $this->getTemplateHandlerClass();
-		// экземпляр обработчика шаблонов
-		$rcTh = new ReflectionClass($templateHandlerClass);
-		$tplHandler = $rcTh->newInstance();
+			$templateHandlerClass = $this->getTemplateHandlerClass();
+			// экземпляр обработчика шаблонов
+			$rcTh = new ReflectionClass($templateHandlerClass);
+			$tplHandler = $rcTh->newInstance();
 
-		// переменные Представления отправим в шаблон
-		$tplHandler = $this->assignToHandler($view, $tplHandler);
-		$view->templateFile = $this->getViewTemplate($view);
+			// переменные Представления отправим в шаблон
+			$tplHandler = $this->assignToHandler($view, $tplHandler);
+			$view->templateFile = $this->getViewTemplate($view);
 
-		// Вывод HTML
-		$html = $tplHandler->fetch($view->templateFile, $view->cacheId, $view->compileId);
+			// Вывод HTML
+			$html = $tplHandler->fetch($view->templateFile, $view->cacheId, $view->compileId);
 
-		if ($this->isDebug)
-			$html = $this->addDebugInfo($className, $html, $view->templateFile);
+			if ($this->isDebug)
+				$html = $this->addDebugInfo($className, $html, $view->templateFile);
 
-		return $html;
+			return $html;
+		}
+		catch (ClassLoaderException $cle)
+		{
+			throw new HTTP404Exception($cle->getMessage());
+		}
 	}
 
 	/**

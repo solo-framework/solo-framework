@@ -13,7 +13,7 @@
  */
 interface ITemplateHandler
 {
-	public function fetch($template, $cacheId = null, $compileId = null);
+	//public function fetch($template, $cacheId = null, $compileId = null);
 }
 
 ?>

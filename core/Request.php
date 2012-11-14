@@ -88,7 +88,7 @@ class Request
 	 * 				специальные символы в HTML сущности и не экранирует кавычки
 	 *
 	 * @return mixed
-	 * 	 */
+	 */
 	public static function get($name, $default = null, $allowHTML = false)
 	{
 		$res = self::getRawData($name, $default);

@@ -422,12 +422,24 @@ abstract class BaseApplication
 	{
 		if (self::$isDebug)
 		{
+			header("HTTP/1.1 500 Internal Server Error");
+			Logger::error($e);
 			throw $e;
 		}
 		else
 		{
-			header("HTTP/1.1 404 Not Found");
-			exit("404 Not Found");
+			$host = Request::getBaseURL();
+
+			if ($e instanceof HTTP404Exception)
+			{
+				header("HTTP/1.1 404 Not Found");
+				Request::redirect("{$host}/404.html");
+			}
+			if ($e instanceof Exception)
+			{
+				Logger::error($e);
+				Request::redirect("{$host}/error.html");
+			}
 		}
 	}
 
