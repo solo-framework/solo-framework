@@ -25,6 +25,13 @@
 class URLManager
 {
 	/**
+	 * Включить\выключить
+	 *
+	 * @var bool
+	 */
+	public $isEnabled = false;
+
+	/**
 	 * Правила фильтрации
 	 *
 	 * Фильтр имеет вид:
@@ -72,6 +79,9 @@ class URLManager
 
 	public function parse($queryString = null)
 	{
+		if (!$this->isEnabled)
+			return;
+
 		if (count($this->rules) == 0)
 			throw new RuntimeException("Please define URLManager rules");
 
@@ -106,6 +116,11 @@ class URLManager
 
 
 	public function createRequestUri($params)
+	{
+
+	}
+
+	public function initComponent()
 	{
 
 	}
