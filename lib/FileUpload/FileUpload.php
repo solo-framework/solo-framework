@@ -3,14 +3,14 @@
  * Реализует функционал загрузки файла на сервер
  *
  * PHP version 5
- * 
+ *
  * @example
  * 		if (FileUpload::fileIsLoaded("myfile"))
-		{		
+		{
 			try
 			{
 				$file = new FileUpload("myfile");
-								
+
 				// проверяем, соответствует ли файл нашим требования
 				// если нет - генерируется исключение
 				$file->filterExtensionInList("exe,jpg", "Разрешенное расширение exe,jpg")
@@ -18,7 +18,7 @@
 					->filterSizeMustBeLessThen(50 * 1024, "Размер файла д.б. меньше, чем 50кб")
 					->filterFileNameRegex("/bulova[.*]?/i", "Имя файла не соответствует шаблону")
 					->filterFileNameEqual("bulova.jpg", "Неправильное имя файла");
-			
+
 				// перемещаем файл в каталог 1/ с новым именем и новым расширением
 				$file->moveAs("1/", "test", "png");
 			}
@@ -26,7 +26,7 @@
 			{
 				echo $e->getMessage();
 			}
-		}	
+		}
  *
  * @package
  * @author  Andrey Filippov <afi.work@gmail.com>
@@ -82,8 +82,8 @@ class FileUpload
 	 * @var string
 	 */
 	public $baseFileName = "";
-	
-	
+
+
 	/**
 	 * Код ошибки
 	 *
@@ -103,7 +103,7 @@ class FileUpload
 	 *
 	 * @var string
 	 */
-	private $tmpName = null;
+	public $tmpName = null;
 
 	/**
 	 * Путь к файлу после его перемещения
@@ -165,11 +165,11 @@ class FileUpload
 	* @return bool
 	*/
 	public function move($path)
-	{		
+	{
 		$this->newPath = $path . $this->name;
 		return move_uploaded_file($this->tmpName, $path . $this->name);
 	}
-	
+
 	/**
 	* Перемещение загруженного файла с новым
 	* именем и/или расширением
@@ -190,7 +190,7 @@ class FileUpload
 		$this->name = $this->baseFileName . "." . $this->extension;
 		$this->newPath = $path . $this->name;
 		return move_uploaded_file($this->tmpName, $path . $this->name);
-	}	
+	}
 
 	/**
 	 * Проверяет, был ли загружен файл
@@ -270,7 +270,7 @@ class FileUpload
 		else
 			return $this;
 	}
-	
+
 	/**
 	 * Фильтр по списку запрещенных расширений(указываются через запятую, напр jpg,png,gif)
 	 *
@@ -288,7 +288,7 @@ class FileUpload
 			throw new Exception($comment);
 		else
 			return $this;
-	}	
+	}
 
 
 	/**
