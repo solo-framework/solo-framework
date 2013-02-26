@@ -1,5 +1,7 @@
 <?php
 
+namespace Solo\Core;
+
 class PHPConfiguratorParser implements IConfiguratorParser
 {
 
@@ -21,7 +23,7 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	public function __construct($configFile)
 	{
 		if (!file_exists($configFile))
-			throw new Exception("Config file '{$configFile}' does not exist.");
+			throw new \Exception("Config file '{$configFile}' does not exist.");
 
 		$this->config = require $configFile;
 
@@ -44,7 +46,7 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	public function extend($baseFile)
 	{
 		if (!file_exists($baseFile))
-			throw new RuntimeException("Can't load parent config file '{$baseFile}'");
+			throw new \RuntimeException("Can't load parent config file '{$baseFile}'");
 
 		// директива больше не нужна
 		unset($this->config["@extends"]);
@@ -79,7 +81,7 @@ class PHPConfiguratorParser implements IConfiguratorParser
 		if (isset($this->config[$tmp[0]][$tmp[1]]))
 			return $this->config[$tmp[0]][$tmp[1]];
 		else
-			throw new Exception("Undefined config option : {$tmp[0]}:{$tmp[1]}");
+			throw new \Exception("Undefined config option : {$tmp[0]}:{$tmp[1]}");
 	}
 
 	/**
@@ -112,7 +114,7 @@ class PHPConfiguratorParser implements IConfiguratorParser
 		if (isset($this->config[$sectionName]))
 			return $this->config[$sectionName];
 		else
-			throw new Exception("Undefined config section : {$sectionName}");
+			throw new \Exception("Undefined config section : {$sectionName}");
 	}
 }
 ?>

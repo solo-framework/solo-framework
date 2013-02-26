@@ -13,6 +13,8 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+
 interface IViewComponent
 {
 

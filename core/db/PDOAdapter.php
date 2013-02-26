@@ -8,6 +8,10 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Core\DB;
+
+use Solo\Core\IApplicationComponent;
+
 class PDOAdapter implements IDBAdapter, IApplicationComponent
 {
 
@@ -72,13 +76,13 @@ class PDOAdapter implements IDBAdapter, IApplicationComponent
 	private $defaultDriverOptions = array(
 
 			// Коммитим сразу после вставки
-			PDO::ATTR_AUTOCOMMIT => true,
+			\PDO::ATTR_AUTOCOMMIT => true,
 
 			// ошибки  преобразуем в исключения
-			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
 
 			// получаем ассоциативный список при запросе
-			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+			\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
 		);
 
 	/**

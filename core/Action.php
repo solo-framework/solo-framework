@@ -1,9 +1,9 @@
-<?php 
+<?php
 /**
  * Абстрактный класс. Предок всех действий (actions)
- * 
+ *
  * PHP version 5
- * 
+ *
  * @category Framework
  * @package  Core
  * @author   Andrey Filippov <afi.work@gmail.com>
@@ -12,19 +12,21 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+
 abstract class Action
 {
 	/**
 	 * Указывает тип HTTP-метода, который
 	 * обрабатывает это Действие
-	 * 
+	 *
 	 * @var string
 	 */
 	public $requestMethod = "POST";
-	
+
 	/**
 	 * Выполняется перед выполнением действия
-	 * 
+	 *
 	 * @return void
 	 * */
 	public function preExecute()
@@ -33,14 +35,14 @@ abstract class Action
 
 	/**
 	 * Выполнение действия
-	 * 
+	 *
 	 * @return void
 	 */
 	public abstract function execute();
-	
+
 	/**
 	 * Выполняется после выполнения действия
-	 * 
+	 *
 	 * @return void
 	 * */
 	public function postExecute()

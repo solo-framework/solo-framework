@@ -1,5 +1,7 @@
 <?php
 
+namespace Solo\Lib\Validator;
+
 abstract class BaseValidatorRule implements IValidatorRule
 {
 	/**

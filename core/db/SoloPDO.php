@@ -9,7 +9,9 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
-class SoloPDO extends PDO
+namespace Solo\Core\DB;
+
+class SoloPDO extends \PDO
 {
 	/**
 	 * Список выполненных SQL запросов
@@ -49,10 +51,10 @@ class SoloPDO extends PDO
 		$this->isDebug = $isDebug;
 
 		// подготовленные выражения обслуживает наш класс
-		$this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array($this->statementClass, array($this)));
+		$this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array($this->statementClass, array($this)));
 
-		if ($this->getAttribute(PDO::ATTR_DRIVER_NAME) == "mysql")
-			$this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+		if ($this->getAttribute(\PDO::ATTR_DRIVER_NAME) == "mysql")
+			$this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 
 	}
 

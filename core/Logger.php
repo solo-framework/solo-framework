@@ -24,6 +24,8 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+
 class Logger
 {
 	/**
@@ -68,7 +70,7 @@ class Logger
 	{
 		self::setDir(@$options['logger.dir']);
 		if (!is_dir(self::$dir))
-			throw new Exception("Logger directory does not exist : " . self::$dir);
+			throw new \Exception("Logger directory does not exist : " . self::$dir);
 	}
 
 	/**
@@ -173,7 +175,7 @@ class Logger
 	private static function checkInit()
 	{
 		if (self::$logger == null)
-			throw new Exception("Logger not initialized.");
+			throw new \Exception("Logger not initialized.");
 	}
 
 	/**

@@ -8,6 +8,10 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Lib\Web;
+
+use Solo\Core\IApplicationComponent;
+
 class ClientScript implements IApplicationComponent
 {
 	/**

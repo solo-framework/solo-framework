@@ -8,15 +8,21 @@
  * @author   Andrey Filippov <afi.work@gmail.com>
  */
 
-ClassLoader::import("@framework/lib/Smarty/Smarty.class.php", "Smarty");
-ClassLoader::import("@framework/lib/Smarty/sysplugins/smarty_internal_data.php", "Smarty_Internal_Data");
+//ClassLoader::import("@solo/lib/Smarty/Smarty.class.php", "Smarty");
+//ClassLoader::import("@solo/lib/Smarty/sysplugins/smarty_internal_data.php", "Smarty_Internal_Data");
+namespace Solo\Core;
 
-class SmartyTemplateHandler extends Smarty implements ITemplateHandler
+
+//\solo\core\NSClassLoader::import("Smarty", "../solo/lib/Smarty/Smarty.class.php");
+//\solo\core\NSClassLoader::import("Smarty_Internal_Data", "../solo/lib/Smarty/sysplugins/smarty_internal_data.php");
+
+class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 {
 	public function __construct()
 	{
 		// регистрируем метод загрузки классов Smarty
-		ClassLoader::registerAutoloader("smartyAutoload");
+		//ClassLoader::registerAutoloader("smartyAutoload");
+		//\solo\core\NSClassLoader::registerAutoloader("smartyAutoload");
 
 		parent::__construct();
 

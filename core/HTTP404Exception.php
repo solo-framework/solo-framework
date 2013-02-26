@@ -7,8 +7,10 @@
  * @package
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
- 
-class HTTP404Exception extends Exception
+
+namespace Solo\Core;
+
+class HTTP404Exception extends \Exception
 {
-	
+
 }

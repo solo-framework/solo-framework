@@ -9,6 +9,10 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Core\Web\Session;
+
+use Solo\Core\IApplicationComponent;
+
 class RedisSessionProvider implements ISessionProvider, IApplicationComponent
 {
 	/**
@@ -53,7 +57,7 @@ class RedisSessionProvider implements ISessionProvider, IApplicationComponent
 		{
 			$this->gcMaxLifeTime = (int)ini_get('session.gc_maxlifetime');
 			if (0 == $this->gcMaxLifeTime)
-				throw new Exception("Please set session.gc_maxlifetime to enable garbage collection");
+				throw new \Exception("Please set session.gc_maxlifetime to enable garbage collection");
 		}
 
 		ini_set("session.save_handler", "redis");

@@ -9,7 +9,9 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
-class SoloPDOStatement extends PDOStatement
+namespace Solo\Core\DB;
+
+class SoloPDOStatement extends \PDOStatement
 {
 	/**
 	 * Ссылка на соединение к БД

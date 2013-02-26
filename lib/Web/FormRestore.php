@@ -34,6 +34,9 @@
  * 	}
  * ?>
  */
+
+namespace Solo\Lib\Web;
+
 class FormRestore
 {
 
@@ -67,7 +70,7 @@ class FormRestore
 	public static function checkSessionStarted()
 	{
 		if (!isset($_SESSION))
-			throw new Exception("FormRestore: session was not started");
+			throw new \Exception("FormRestore: session was not started");
 	}
 
 	/**

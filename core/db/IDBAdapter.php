@@ -12,6 +12,8 @@
  * @link     nolink
  */
 
+namespace Solo\Core\DB;
+
 interface IDBAdapter
 {
 	/**

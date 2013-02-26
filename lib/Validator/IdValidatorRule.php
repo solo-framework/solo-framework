@@ -1,5 +1,7 @@
 <?php
 
+namespace Solo\Lib\Validator;
+
 class IdValidatorRule extends BaseValidatorRule
 {
 	/**

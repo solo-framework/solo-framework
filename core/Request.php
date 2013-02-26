@@ -14,6 +14,8 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+
 class Request
 {
 	/**

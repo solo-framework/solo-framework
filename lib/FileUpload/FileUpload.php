@@ -32,6 +32,8 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Lib\FileUpload;
+
 class FileUpload
 {
 	/**

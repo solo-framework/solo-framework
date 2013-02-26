@@ -9,6 +9,8 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Core;
+
 class Controller
 {
 	/**
@@ -23,7 +25,7 @@ class Controller
 	 *
 	 * @var string
 	 */
-	private $templateHandlerClass = "SmartyTemplateHandler";
+	private $templateHandlerClass = "Solo\\Core\\SmartyTemplateHandler";
 
 	/**
 	 * Расширение файлов, содержащих шаблоны
@@ -33,9 +35,9 @@ class Controller
 	public $templateExtension = ".html";
 
 	/**
-	 * Ссылка на текущий экземпляр Binder
+	 * Ссылка на текущий экземпляр Controller
 	 *
-	 * @var Binder
+	 * @var Controller
 	 */
 	private static $instance = null;
 
@@ -44,7 +46,7 @@ class Controller
 	 *
 	 * @param boolean $isDebug Режим отладки
 	 *
-	 * @return void
+	 * @return \solo\core\Controller
 	 */
 	private function __construct($isDebug)
 	{
@@ -72,19 +74,37 @@ class Controller
 	 * @param string $actionName
 	 * @param string $viewName
 	 *
+	 * @throws HTTP404Exception
 	 * @return string
 	 */
-	public function execute($actionName, $viewName)
+	public function execute($requestUri, Route $route)
 	{
 		try
 		{
-			// обрабатываем действие
-			if (null !== $actionName)
-				$this->executeAction($actionName);
+			$classname = $route->get($requestUri);
 
-			// отрисовка представления
-			if ($viewName)
-				return $this->handleView($viewName);
+			// Создание экземпляра действия
+			$rc = new \ReflectionClass($classname);
+
+			if ($rc->isSubclassOf("Solo\\Core\\View"))
+				return $this->handleView($rc);
+
+			if ($rc->isSubclassOf("Solo\\Core\\Action"))
+				$this->executeAction($rc);
+
+			//$action = $rc->newInstance();
+
+
+
+			//var_dump($action);
+
+//			// обрабатываем действие
+//			if (null !== $actionName)
+//				$this->executeAction($actionName);
+//
+//			// отрисовка представления
+//			if ($viewName)
+//				return $this->handleView($viewName);
 		}
 		catch (ClassLoaderException $cle)
 		{
@@ -95,25 +115,30 @@ class Controller
 	/**
 	 * Обработка и отрисовка запрашиваемого представления
 	 *
-	 * @param string $viewName
+	 * @param \ReflectionClass $view
+	 *
+	 * @throws \RuntimeException
+	 * @internal param object $viewName
 	 *
 	 * @return string
 	 */
-	public function handleView($viewName)
+	public function handleView(\ReflectionClass $view)
 	{
-		$rc = new ReflectionClass($viewName . "View");
-		$view = $rc->newInstance();
+		//$rc = new \ReflectionClass($viewName . "View");
+		//$view = $rc->newInstance();
 
 		// Нельзя напрямую отображать Компоненты
-		if($rc->implementsInterface("IViewComponent"))
-			throw new RuntimeException("Can't display component {$viewName}");
+		if($view->implementsInterface("Solo\\Core\\IViewComponent"))
+			throw new \RuntimeException("Can't display component {$view->name}");
 
 		// значит, не нужно будет рисовать макет (layout)
-		if ($rc->implementsInterface("IAjaxView"))
+		if ($view->implementsInterface("Solo\\Core\\IAjaxView"))
 			return $this->handleAjaxView($view);
 
+		$view = $view->newInstance();
+
 		if ($view->layout == null)
-			throw new RuntimeException("Undefined 'layout' property for {$viewName}");
+			throw new \RuntimeException("Undefined 'layout' property for {$view->__toString()}");
 
 		// Получение данных в Представлении
 		$view->preRender();
@@ -121,7 +146,7 @@ class Controller
 		$view->postRender();
 
 		// экземпляр обработчика шаблонов
-		$rcTh = new ReflectionClass($this->getTemplateHandlerClass());
+		$rcTh = new \ReflectionClass($this->getTemplateHandlerClass());
 		$tplHandler = $rcTh->newInstance();
 
 		$view->templateFile = $this->getViewTemplate($view);
@@ -135,8 +160,9 @@ class Controller
 		// Вывод HTML
 		$html = $tplHandler->fetch($this->getViewLayout($view), $view->cacheId, $view->compileId);
 
-		if ($this->isDebug)
-			$html = $this->addDebugInfo($viewName, $html, $view->templateFile);
+
+		//if ($this->isDebug)
+		//	$html = $this->addDebugInfo($view->name, $html, $view->templateFile);
 
 		return $html;
 	}
@@ -161,13 +187,15 @@ class Controller
 	 * @param string $className Имя класса Представления Компонента
 	 * @param array $args Список значений, передаваемых в конструктор компонента
 	 *
+	 * @throws HTTP404Exception
 	 * @return string
 	 */
 	public function renderViewComponent($className, $args = null)
 	{
 		try
 		{
-			$rc = new ReflectionClass($className . "View");
+			//$rc = new \ReflectionClass($className . "View");
+			$rc = new \ReflectionClass($className);
 			if (count($args) !== 0)
 				$view = $rc->newInstanceArgs($args);
 			else
@@ -180,11 +208,12 @@ class Controller
 
 			$templateHandlerClass = $this->getTemplateHandlerClass();
 			// экземпляр обработчика шаблонов
-			$rcTh = new ReflectionClass($templateHandlerClass);
+			$rcTh = new \ReflectionClass($templateHandlerClass);
 			$tplHandler = $rcTh->newInstance();
 
 			// переменные Представления отправим в шаблон
 			$tplHandler = $this->assignToHandler($view, $tplHandler);
+
 			$view->templateFile = $this->getViewTemplate($view);
 
 			// Вывод HTML
@@ -208,15 +237,17 @@ class Controller
 	 *
 	 * @return string
 	 */
-	public function handleAjaxView(View $view)
+	public function handleAjaxView(\ReflectionClass $view)
 	{
+		$view = $view->newInstance();
+
 		// Получение данных в Представлении
 		$view->preRender();
 		$view->render();
 		$view->postRender();
 
 		// экземпляр обработчика шаблонов
-		$rcTh = new ReflectionClass($this->getTemplateHandlerClass());
+		$rcTh = new \ReflectionClass($this->getTemplateHandlerClass());
 		$tplHandler = $rcTh->newInstance();
 
 		// назначим шаблону переменные Представления
@@ -229,16 +260,17 @@ class Controller
 	/**
 	 * Заполняем шаблон данными
 	 *
-	 * @param View $view Экземпляр представления
 	 * @param View $view Экземпляр шаблонизатора
+	 *
+	 * @param ITemplateHandler $th
 	 *
 	 * @return ITemplateHandler
 	 */
 	protected function assignToHandler(View $view, ITemplateHandler $th)
 	{
 		// помещаем в шаблон публичные переменные представления
-		$rc = new ReflectionClass($view);
-		$props = $rc->getProperties(ReflectionProperty::IS_PUBLIC);
+		$rc = new \ReflectionClass($view);
+		$props = $rc->getProperties(\ReflectionProperty::IS_PUBLIC);
 
 		foreach ($props as $item)
 		{
@@ -264,19 +296,28 @@ class Controller
 			$folder = $view->templateFolder . DIRECTORY_SEPARATOR;
 
 		$file = null;
+
+		//$fileId = str_replace('\\', "_", get_class($view));
+		$fileId = str_replace('App\\Views\\', "", get_class($view));
+		//$fileId = str_replace('\\', ".", $fileId);
+
 		if ($view->templateFile)
 			$file = $folder . $view->templateFile;
 		else
-			$file = $folder . get_class($view) . $this->templateExtension;
+			$file = $folder . $fileId . $this->templateExtension;
+
+		$file = str_replace("\\", DIRECTORY_SEPARATOR, $file);
 
 		return Configurator::get("application:directory.templates") . DIRECTORY_SEPARATOR . $file;
 	}
 
 	/**
-	* Возвращает путь к файлу общего шаблона страницы
-	*
-	* @return string
-	*/
+	 * Возвращает путь к файлу общего шаблона страницы
+	 *
+	 * @param View $view
+	 *
+	 * @return string
+	 */
 	private function getViewLayout(View $view)
 	{
 		$layoutDir = Configurator::get("application:directory.layouts");
@@ -289,19 +330,18 @@ class Controller
 	 *
 	 * @param string $className
 	 *
+	 * @throws \RuntimeException
 	 * @return void
 	 */
-	public function executeAction($className)
+	public function executeAction($rc)
 	{
 		$requestMethod = $_SERVER["REQUEST_METHOD"];
 
-		// Создание экземпляра действия
-		$rc = new ReflectionClass($className . "Action");
 		$action = $rc->newInstance();
 
 		// проверим, совпадают ли HTTP методы у запроса и Действия
 		if ($action->requestMethod !== $requestMethod)
-			throw new RuntimeException("Can't execute action '{$className}': current HTTP request
+			throw new \RuntimeException("Can't execute action '{$className}': current HTTP request
 				method is '{$action->requestMethod}' against required '{$requestMethod}'");
 
 		// выполнение цепочки методов Действия
@@ -310,7 +350,7 @@ class Controller
 		$action->postExecute();
 
 		// Действие должно заканчиваться редиректом - иначе ошибка
-		throw new RuntimeException("Action '{$className}' has been executed. Redirect?");
+		throw new \RuntimeException("Action '{$className}' has been executed. Redirect?");
 	}
 
 	/**
@@ -335,4 +375,3 @@ class Controller
 		$this->templateHandlerClass = $templateHandlerClass;
 	}
 }
-?>

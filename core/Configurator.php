@@ -20,6 +20,8 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+
 abstract class Configurator
 {
 

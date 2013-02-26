@@ -16,11 +16,14 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+use Solo\Core\Web\Session\ISessionProvider;
+
 class Context
 {
 	private static $instance = null;
 
-	private function Context($name, ISessionProvider $provider)
+	private function __construct($name, ISessionProvider $provider)
 	{
 		$provider->start();
 		session_name($name);
@@ -48,7 +51,7 @@ class Context
 	public static function set($objName, $objValue)
 	{
 		if (!isset($_SESSION))
-			throw new Exception("Context not started");
+			throw new \Exception("Context not started");
 
 		$_SESSION[$objName] = $objValue;
 	}
@@ -113,7 +116,7 @@ class Context
 	 */
 	public function __clone()
 	{
-		throw new Exception("Can't clone singleton object ". __CLASS__);
+		throw new \Exception("Can't clone singleton object ". __CLASS__);
 	}
 
 	/**

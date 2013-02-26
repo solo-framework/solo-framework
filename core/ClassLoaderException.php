@@ -7,8 +7,10 @@
  * @package
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
- 
-class ClassLoaderException extends Exception
+
+namespace Solo\Core;
+
+class ClassLoaderException extends \Exception
 {
-	
+
 }

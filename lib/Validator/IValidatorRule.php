@@ -9,6 +9,8 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Lib\Validator;
+
 interface IValidatorRule
 {
 	/**

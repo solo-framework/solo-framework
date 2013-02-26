@@ -8,6 +8,8 @@
  * @author   Andrey Filippov <afi.work@gmail.com>
  */
 
+namespace Solo\Core;
+
 abstract class BaseApplication
 {
 	/**
@@ -34,7 +36,7 @@ abstract class BaseApplication
 	/**
 	 * Экземпляр приложения
 	 *
-	 * @var Application
+	 * @var \Application
 	 */
 	protected static $instance = null;
 
@@ -83,9 +85,18 @@ abstract class BaseApplication
 	protected $prevErrorHandler = null;
 
 	/**
+	 * Правила роутинга
+	 *
+	 * @var \Route
+	 */
+	protected $route = null;
+
+	/**
 	 * Приватный коструктор для реализации Singleton
 	 *
-	 * @return void
+	 * @param $baseDir Каталог, в котором находятся файлы приложения
+	 *
+	 * @return \solo\core\BaseApplication
 	 */
 	protected function __construct($baseDir)
 	{
@@ -125,7 +136,7 @@ abstract class BaseApplication
 			return true;
 		}
 
-		throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+		throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
 	}
 
 
@@ -152,12 +163,13 @@ abstract class BaseApplication
 	/**
 	 * Клонировать тоже запретим
 	 *
+	 *
 	 * @throws RuntimeException
 	 * @return void
 	 */
 	public function __clone()
 	{
-		throw new RuntimeException("Can't clone singleton object");
+		throw new \RuntimeException("Can't clone singleton object");
 	}
 
 	/**
@@ -179,7 +191,7 @@ abstract class BaseApplication
 
 		$config = Configurator::get("components:{$componentName}");
 		if (!isset($config["@class"]))
-			throw new RuntimeException("Component configuration must have a 'class' option");
+			throw new \RuntimeException("Component configuration must have a 'class' option");
 
 		// имя класса создаваемого компонента
 		$className = $config["@class"];
@@ -191,7 +203,7 @@ abstract class BaseApplication
 
 		if ($ctor !== null)
 		{
-			$object = new ReflectionClass($className);
+			$object = new \ReflectionClass($className);
 			$component = $object->newInstanceArgs($ctor);
 		}
 		else
@@ -201,7 +213,7 @@ abstract class BaseApplication
 			{
 				$args = func_get_args();
 				unset($args[0]);
-				$object = new ReflectionClass($className);
+				$object = new \ReflectionClass($className);
 				$component = $object->newInstanceArgs($args);
 			}
 			else
@@ -214,7 +226,7 @@ abstract class BaseApplication
 		foreach($config as $key => $value)
 		{
 			if (!property_exists($component, $key))
-				throw new RuntimeException("Undefined class property `{$key}` in {$className}");
+				throw new \RuntimeException("Undefined class property `{$key}` in {$className}");
 			$component->$key = $value;
 		}
 
@@ -232,13 +244,12 @@ abstract class BaseApplication
 	 *
 	 * @param string $baseDir Базовый каталог, в котором находятся все файлы приложения
 	 * @param string $configFile Путь к файлу с конфигурацией
-	 * @param string $className Имя класса, наследуемого от BaseApplication (только для PHP < 5.3.x)
 	 *
-	 * @throws RuntimeException
+	 * @internal param string $className Имя класса, наследуемого от BaseApplication (только для PHP < 5.3.x)
 	 *
 	 * @return Application
 	 */
-	public static function createApplication($baseDir, $configFile, $className = "Application")
+	public static function createApplication($baseDir, $configFile)
 	{
 		self::$start = microtime(true);
 		$baseDir = realpath($baseDir);
@@ -247,25 +258,14 @@ abstract class BaseApplication
 		// путь к базовому каталогу
 		define("BASE_DIRECTORY", $baseDir);
 
-		// хак для возможности наследования от singleton
-		// в разных версиях PHP
-		if (version_compare(phpversion(), "5.3.0", ">="))
-		{
-			$className = get_called_class();
-		}
-		else
-		{
-			if ($className == null)
-				throw new RuntimeException("If you have installed PHP version less
-					then 5.3.x you need to set name of inheritable class as createApplication() function parameter.");
-		}
+		$className = get_called_class();
 
 		if (self::$instance == null)
 		{
-			if ($className !== null)
+		//	if ($className !== null)
 				self::$instance = new $className($baseDir);
-			else
-				self::$instance = new self($baseDir);
+//			else
+//				self::$instance = new self($baseDir);
 
 			// установим обработчик ошибок, генерируемых интерпретатором PHP
 			// все ошибки преобразуются в исключения
@@ -285,7 +285,7 @@ abstract class BaseApplication
 				// Инициализация  всех необходимых объектов: контекста и пр.
 				self::$instance->init();
 			}
-			catch (Exception $e)
+			catch (\Exception $e)
 			{
 				self::$instance->handleException($e);
 			}
@@ -299,7 +299,7 @@ abstract class BaseApplication
 	 *
 	 * @static
 	 *
-	 * @return Application
+	 * @return BaseApplication
 	 */
 	public static function getInstance()
 	{
@@ -351,6 +351,7 @@ abstract class BaseApplication
 	protected function init()
 	{
 		$session = self::getComponent(Configurator::get("application:session.provider"));
+
 		// Старт контекста приложения (сессии)
 		Context::start(Configurator::get("application:sessionname"), $session);
 	}
@@ -366,59 +367,22 @@ abstract class BaseApplication
 	 */
 	protected function loadConfiguration($configFile)
 	{
-		// путь к файлам ядра фреймворка
-		$frameworkDirectory = realpath(dirname(__FILE__) . "/..");
-
-		// подключение конфигуратора
-		require_once $frameworkDirectory . "/core/IConfiguratorParser.php";
-		require_once $frameworkDirectory . "/core/Configurator.php";
-		require_once $frameworkDirectory . "/core/PHPConfiguratorParser.php";
 		Configurator::init(new PHPConfiguratorParser($configFile));
 
-		// подключаем загрузчик классов
-		require_once $frameworkDirectory . "/core/ClassLoader.php";
-		ClassLoader::init($this->baseDir, $this->baseDir . DIRECTORY_SEPARATOR . "var/class.map");
-
-		// Установка псевдонимов из конфигуратора
-		$aliases = Configurator::get("import:alias");
-
-		if ($aliases != null)
-		{
-			foreach ($aliases as $name => $value)
-				ClassLoader::setPathByAlias($name, $value);
-		}
-
-		// импортируем все каталоги, которые были указаны в настройках
-		$directory = Configurator::getArray("import:directory");
-		if ($directory != null)
-		{
-			foreach ($directory as $item)
-				ClassLoader::import($item);
-		}
-
-		// импортируем все Файлы, которые были указаны в настройках
-		$files = Configurator::getArray("import:file");
-		if ($files != null)
-		{
-			foreach ($files as $path => $className)
-			{
-				if (is_int($path))
-					ClassLoader::import($className);
-				else
-					ClassLoader::import($path, $className);
-			}
-		}
+		// загрузка правил роутинга
+		$this->route = require_once dirname($configFile) . "/routing.php";
 	}
 
 	/**
 	 * Обработка исключений, возникших при выполнении метода handleRequest
 	 * В наследуемом классе можно переопределить обработку ошибок
 	 *
-	 * @param Exception $e Экземпляр исключения
+	 * @param \Exception $e Экземпляр исключения
 	 *
+	 * @throws \Exception
 	 * @return void
 	 */
-	protected function handleException(Exception $e)
+	protected function handleException(\Exception $e)
 	{
 		if (self::$isDebug)
 		{
@@ -435,7 +399,7 @@ abstract class BaseApplication
 				header("HTTP/1.1 404 Not Found");
 				Request::redirect("{$host}/404.html");
 			}
-			if ($e instanceof Exception)
+			if ($e instanceof \Exception)
 			{
 				Logger::error($e);
 				Request::redirect("{$host}/error.html");
@@ -481,14 +445,16 @@ abstract class BaseApplication
 			$controller = Controller::getInstance(self::$isDebug);
 
 			// узнаем, какое действие запрашивается
-			$actionName = Request::get("action");
+//			$actionName = Request::get("action");
 
 			// или какое представление: если ничего не задано - показываем IndexView
-			$viewName = Request::get("view", $this->defaultView);
+//			$viewName = Request::get("view", $this->defaultView);
+
+
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML
-			$html = $controller->execute($actionName, $viewName);
+			$html = $controller->execute($_SERVER["REQUEST_URI"], $this->route);
 
 			// вывод в браузер
 			self::$instance->display($html);
@@ -496,7 +462,7 @@ abstract class BaseApplication
 			// Завершение обработки запроса
 			self::$instance->onEndHandleRequest();
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
 			self::$instance->handleException($e);
 		}
@@ -510,6 +476,8 @@ abstract class BaseApplication
 	 *
 	 * @param string $url URL
 	 * @param string $message Текст сообщения
+	 *
+	 * @param null $flashMessageId
 	 *
 	 * @return void
 	 */
@@ -528,6 +496,8 @@ abstract class BaseApplication
 	 * для дальнейшего использования, например, при отображении ошибок.
 	 *
 	 * @param string|Exception $message Текст сообщения
+	 *
+	 * @param string $flashMessageId
 	 *
 	 * @return void
 	 */

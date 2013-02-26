@@ -12,6 +12,8 @@
  * @link     nolink
  */
 
+namespace Solo\Core;
+
 abstract class Entity
 {
 	/**
@@ -107,7 +109,7 @@ abstract class Entity
 	public function setId($id)
 	{
 		if (!is_int($id))
-			throw new Exception("Entity id must be integer. You trying set '{$id}'");
+			throw new \Exception("Entity id must be integer. You trying set '{$id}'");
 		$field = $this->primaryKey;
 		$this->$field = $id;
 	}
@@ -166,7 +168,7 @@ abstract class Entity
 		{
 			$list = join(", ", array_keys($diff));
 			$mess = "Entity Self Test " . "'" . get_class($this) . "'. Unknown fields : {$list}";
-			throw new Exception($mess);
+			throw new \Exception($mess);
 		}
 	}
 }

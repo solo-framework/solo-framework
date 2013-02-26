@@ -17,7 +17,9 @@
  * @link     nolink
  */
 
-class XDateTime extends DateTime
+namespace Solo\Core;
+
+class XDateTime extends \DateTime
 {
 	/**
 	 * Переменная для хранения свойств объекта

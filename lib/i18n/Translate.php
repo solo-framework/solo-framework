@@ -21,6 +21,8 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
+namespace Solo\Lib\I18n;
+
 class Translate
 {
 	/**
@@ -54,7 +56,7 @@ class Translate
 			return true;
 
 		if (!file_exists($localePath))
-			throw new RuntimeException("Не найден каталог с переводами {$localePath}");
+			throw new \RuntimeException("Не найден каталог с переводами {$localePath}");
 
 		// Задаем нужный язык с помощью магии
 		putenv("LC_ALL={$localeName}");
@@ -69,18 +71,18 @@ class Translate
 			// установим en_US.utf8, т.к. она есть везде
 			$set = setlocale(LC_ALL, "{$localeName}.utf8");
 			if ($set === false)
-				throw new RuntimeException("Указана неправильная локаль для словаря {$localeName}.utf8");
+				throw new \RuntimeException("Указана неправильная локаль для словаря {$localeName}.utf8");
 		}
 
 		// Задаем каталог домена, где содержатся переводы
 		$bind = bindtextdomain($domain, $localePath);
 		if (!$bind)
-			throw new RuntimeException("Ошибка установки пути для домена");
+			throw new \RuntimeException("Ошибка установки пути для домена");
 
 		// Выбираем домен для работы
 		$td = textdomain($domain);
 		if (!$td)
-			throw new RuntimeException("Ошибка установки домена по умолчанию");
+			throw new \RuntimeException("Ошибка установки домена по умолчанию");
 
 		// Если необходимо, принудительно указываем кодировку
 		bind_textdomain_codeset($domain, $encoding);

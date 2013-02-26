@@ -8,7 +8,9 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
-class ApplicationException extends Exception
+namespace Solo\Core;
+
+class ApplicationException extends \Exception
 {
 	/**
 	 * Конструктор
@@ -16,7 +18,7 @@ class ApplicationException extends Exception
 	 * @param string $message
 	 * @param Exception $previous
 	 */
-	public function __construct($message, Exception $previous = null)
+	public function __construct($message, \Exception $previous = null)
 	{
 		parent::__construct($message, 0, $previous);
 	}
