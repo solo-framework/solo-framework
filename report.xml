@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Framework tests" tests="112" assertions="195" failures="0" errors="0" time="2.378151">
+    <testsuite name="PHPSettingsTest" file="C:\work\server\framework.reload\phpunit\PHPSettingsTest.php" fullPackage="Core" category="Framework" package="Core" tests="1" assertions="10" failures="0" errors="0" time="0.019824">
+      <testcase name="testSettings" class="PHPSettingsTest" file="C:\work\server\framework.reload\phpunit\PHPSettingsTest.php" line="52" assertions="10" time="0.019824"/>
+    </testsuite>
+    <testsuite name="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" fullPackage="Core" category="Framework" package="Core" tests="12" assertions="6" failures="0" errors="0" time="0.045946">
+      <testcase name="test_fail_construct" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="58" assertions="0" time="0.002756"/>
+      <testcase name="test_get" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="73" assertions="1" time="0.002517"/>
+      <testcase name="test_fail_get" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="82" assertions="0" time="0.002504"/>
+      <testcase name="test_extends_getAll" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="96" assertions="1" time="0.010136"/>
+      <testcase name="test_getOptions" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="142" assertions="1" time="0.004114"/>
+      <testcase name="test_getSection" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="160" assertions="1" time="0.003740"/>
+      <testcase name="test_fail_getSection" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="175" assertions="0" time="0.002553"/>
+      <testcase name="test_getArray" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="189" assertions="1" time="0.003648"/>
+      <testcase name="test_fail_getArray" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="199" assertions="0" time="0.002531"/>
+      <testcase name="test_extends_fail" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="216" assertions="0" time="0.003644"/>
+      <testcase name="test_exdends_get" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="232" assertions="1" time="0.004389"/>
+      <testcase name="test_exdends_get_fail" class="ConfiguratorTest" file="C:\work\server\framework.reload\phpunit\ConfiguratorTest.php" line="244" assertions="0" time="0.003414"/>
+    </testsuite>
+    <testsuite name="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" tests="10" assertions="2" failures="0" errors="0" time="0.048248">
+      <testcase name="test_init" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="50" assertions="0" time="0.002032"/>
+      <testcase name="test_import_one_class" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="60" assertions="1" time="0.005945"/>
+      <testcase name="test_import_one_class_by_name" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="70" assertions="1" time="0.004553"/>
+      <testcase name="test_import_autoload" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="82" assertions="0" time="0.004301"/>
+      <testcase name="test_import_autoload_2" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="91" assertions="0" time="0.005448"/>
+      <testcase name="test_exception_import_not_once" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="107" assertions="0" time="0.002688"/>
+      <testcase name="test_exception_import_wrong_file" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="128" assertions="0" time="0.002072"/>
+      <testcase name="test_import_directory" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="148" assertions="0" time="0.011565"/>
+      <testcase name="test_import_by_alias" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="165" assertions="0" time="0.005997"/>
+      <testcase name="test_exception_undefined_alias" class="ClassLoaderTest" file="C:\work\server\framework.reload\phpunit\ClassLoaderTest.php" line="180" assertions="0" time="0.003647"/>
+    </testsuite>
+    <testsuite name="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" tests="18" assertions="58" failures="0" errors="0" time="0.037717">
+      <testcase name="test_required" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="47" assertions="1" time="0.002968"/>
+      <testcase name="test_inArray" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="56" assertions="4" time="0.002667"/>
+      <testcase name="test_isNumeric" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="82" assertions="10" time="0.002279"/>
+      <testcase name="test_isArray" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="126" assertions="3" time="0.001899"/>
+      <testcase name="test_matchRegex" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="142" assertions="2" time="0.002206"/>
+      <testcase name="test_matchRegex_fail" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="151" assertions="2" time="0.001948"/>
+      <testcase name="test_addMessage" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="162" assertions="1" time="0.001570"/>
+      <testcase name="test_lessThen" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="169" assertions="2" time="0.002018"/>
+      <testcase name="test_greateThen" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="181" assertions="2" time="0.001607"/>
+      <testcase name="test_equalTo" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="193" assertions="3" time="0.001748"/>
+      <testcase name="test_minLength" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="207" assertions="5" time="0.002106"/>
+      <testcase name="test_maxLength" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="229" assertions="5" time="0.001952"/>
+      <testcase name="test_range" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="251" assertions="3" time="0.001836"/>
+      <testcase name="test_rangeLenght" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="265" assertions="4" time="0.001938"/>
+      <testcase name="test_DateTimeValidator" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="288" assertions="2" time="0.002115"/>
+      <testcase name="test_get_default_value" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="310" assertions="3" time="0.002346"/>
+      <testcase name="test_matchLenght" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="331" assertions="3" time="0.002171"/>
+      <testcase name="test_id_validator" class="ValidatorTest" file="C:\work\server\framework.reload\phpunit\ValidatorTest.php" line="346" assertions="3" time="0.002343"/>
+    </testsuite>
+    <testsuite name="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" tests="19" assertions="31" failures="0" errors="0" time="2.086732">
+      <testcase name="test_sqlcondition_without_setParams" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="132" assertions="0" time="0.426430"/>
+      <testcase name="test_insert_empty_entity" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="138" assertions="1" time="0.061376"/>
+      <testcase name="test_defineClass" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="152" assertions="1" time="0.063688"/>
+      <testcase name="test_FormatDateTimeIn" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="161" assertions="4" time="0.061090"/>
+      <testcase name="test_Save" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="174" assertions="2" time="0.110413"/>
+      <testcase name="testSaveWithUndefinedProperty" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="191" assertions="0" time="0.054683"/>
+      <testcase name="test_Update" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="208" assertions="5" time="0.106231"/>
+      <testcase name="test_getOneByAnySQL" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="244" assertions="1" time="0.113878"/>
+      <testcase name="test_get" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="279" assertions="3" time="0.096789"/>
+      <testcase name="test_getBySQL" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="312" assertions="3" time="0.101072"/>
+      <testcase name="test_removeByCondition" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="341" assertions="1" time="0.114789"/>
+      <testcase name="test_getOne" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="367" assertions="1" time="0.112664"/>
+      <testcase name="test_getOne_fail" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="389" assertions="1" time="0.096119"/>
+      <testcase name="test_executeNonQuery" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="408" assertions="1" time="0.082449"/>
+      <testcase name="test_getColumn" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="426" assertions="1" time="0.094900"/>
+      <testcase name="test_get_empty_Column" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="444" assertions="1" time="0.068740"/>
+      <testcase name="test_call_stored_procedure" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="460" assertions="1" time="0.096134"/>
+      <testcase name="test_test_by_stored_procedure" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="483" assertions="2" time="0.145673"/>
+      <testcase name="test_empty_entity_list" class="EntityManagerTest" file="C:\work\server\framework.reload\phpunit\EntityManagerTest.php" line="503" assertions="2" time="0.079613"/>
+    </testsuite>
+    <testsuite name="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" tests="9" assertions="25" failures="0" errors="0" time="0.021466">
+      <testcase name="testGetMethod" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="20" assertions="2" time="0.001814"/>
+      <testcase name="testGetVar" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="33" assertions="10" time="0.003413"/>
+      <testcase name="testGetInt" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="91" assertions="2" time="0.002029"/>
+      <testcase name="testGetFloat" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="102" assertions="2" time="0.001920"/>
+      <testcase name="testGetArray" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="113" assertions="3" time="0.004985"/>
+      <testcase name="test_clearInput" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="153" assertions="1" time="0.001599"/>
+      <testcase name="test_getIp" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="158" assertions="1" time="0.001654"/>
+      <testcase name="test_prevUri" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="164" assertions="2" time="0.002048"/>
+      <testcase name="test_HTTPMethods" class="RequestTest" file="C:\work\server\framework.reload\phpunit\RequestTest.php" line="172" assertions="2" time="0.002004"/>
+    </testsuite>
+    <testsuite name="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" tests="8" assertions="13" failures="0" errors="0" time="0.019480">
+      <testcase name="test_construct_with_params" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="27" assertions="1" time="0.001750"/>
+      <testcase name="test_construct_no_params" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="34" assertions="3" time="0.002373"/>
+      <testcase name="test_incorrect_formatTime" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="54" assertions="1" time="0.002412"/>
+      <testcase name="test_incorrect_formatDateTime" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="62" assertions="1" time="0.002531"/>
+      <testcase name="test_exception" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="70" assertions="0" time="0.001968"/>
+      <testcase name="test_formatTime" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="84" assertions="2" time="0.001815"/>
+      <testcase name="test_formatDateTime" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="90" assertions="1" time="0.001609"/>
+      <testcase name="test_serialize" class="XDateTimeTest" file="C:\work\server\framework.reload\phpunit\XDateTimeTest.php" line="95" assertions="4" time="0.005022"/>
+    </testsuite>
+    <testsuite name="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" fullPackage="Core" category="Framework" package="Core" tests="11" assertions="10" failures="0" errors="0" time="0.020165">
+      <testcase name="testStartSession" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="35" assertions="1" time="0.004241"/>
+      <testcase name="testCloseSession" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="41" assertions="1" time="0.001650"/>
+      <testcase name="test_getId" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="48" assertions="1" time="0.001479"/>
+      <testcase name="test_clone" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="57" assertions="0" time="0.001623"/>
+      <testcase name="test_setId" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="73" assertions="1" time="0.001610"/>
+      <testcase name="test_clear" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="80" assertions="1" time="0.001471"/>
+      <testcase name="testSet" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="88" assertions="1" time="0.001620"/>
+      <testcase name="testGet" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="95" assertions="1" time="0.001592"/>
+      <testcase name="test_no_started" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="103" assertions="0" time="0.001591"/>
+      <testcase name="testSetAlreadyExists_Force" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="119" assertions="1" time="0.001621"/>
+      <testcase name="testPush" class="SessionTest" file="C:\work\server\framework.reload\phpunit\SessionTest.php" line="130" assertions="2" time="0.001667"/>
+    </testsuite>
+    <testsuite name="MySQLConditionTest" file="C:\work\server\framework.reload\phpunit\MySQLConditionTest.php" tests="2" assertions="2" failures="0" errors="0" time="0.003840">
+      <testcase name="test_buildSQL" class="MySQLConditionTest" file="C:\work\server\framework.reload\phpunit\MySQLConditionTest.php" line="33" assertions="1" time="0.001620"/>
+      <testcase name="test_getParams" class="MySQLConditionTest" file="C:\work\server\framework.reload\phpunit\MySQLConditionTest.php" line="47" assertions="1" time="0.002220"/>
+    </testsuite>
+    <testsuite name="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" fullPackage="Core" category="Framework" package="Core" tests="9" assertions="5" failures="0" errors="0" time="0.027424">
+      <testcase name="test_extends" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="44" assertions="1" time="0.007293"/>
+      <testcase name="test_fail_construct" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="90" assertions="0" time="0.002051"/>
+      <testcase name="test_get" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="104" assertions="1" time="0.002104"/>
+      <testcase name="test_fail_get" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="115" assertions="0" time="0.002173"/>
+      <testcase name="test_getOptions" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="130" assertions="1" time="0.003549"/>
+      <testcase name="test_getSection" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="149" assertions="1" time="0.002736"/>
+      <testcase name="test_fail_getSection" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="165" assertions="0" time="0.002157"/>
+      <testcase name="test_getArray" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="180" assertions="1" time="0.003131"/>
+      <testcase name="test_fail_getArray" class="IniConfiguratorTest" file="C:\work\server\framework.reload\phpunit\IniConfiguratorTest.php" line="191" assertions="0" time="0.002230"/>
+    </testsuite>
+    <testsuite name="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" tests="10" assertions="5" failures="0" errors="0" time="0.031639">
+      <testcase name="test_fail_construct" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="32" assertions="0" time="0.001710"/>
+      <testcase name="test_get" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="46" assertions="1" time="0.002071"/>
+      <testcase name="test_fail_get" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="57" assertions="0" time="0.002003"/>
+      <testcase name="test_inherited_options" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="75" assertions="0" time="0.002523"/>
+      <testcase name="test_extends" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="95" assertions="1" time="0.007905"/>
+      <testcase name="test_getOptions" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="138" assertions="1" time="0.004646"/>
+      <testcase name="test_getSection" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="157" assertions="1" time="0.003913"/>
+      <testcase name="test_fail_getSection" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="174" assertions="0" time="0.001947"/>
+      <testcase name="test_getArray" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="189" assertions="1" time="0.003041"/>
+      <testcase name="test_fail_getArray" class="PHPConfiguratorParserTest" file="C:\work\server\framework.reload\phpunit\PHPConfiguratorParserTest.php" line="200" assertions="0" time="0.001881"/>
+    </testsuite>
+    <testsuite name="URLManagerTest" file="C:\work\server\framework.reload\phpunit\URLManagerTest.php" tests="2" assertions="25" failures="0" errors="0" time="0.014114">
+      <testcase name="test_Parse_View" class="URLManagerTest" file="C:\work\server\framework.reload\phpunit\URLManagerTest.php" line="44" assertions="15" time="0.009889"/>
+      <testcase name="test_Parse_Action" class="URLManagerTest" file="C:\work\server\framework.reload\phpunit\URLManagerTest.php" line="84" assertions="10" time="0.004225"/>
+    </testsuite>
+    <testsuite name="ClientScriptTest" file="C:\work\server\framework.reload\phpunit\ClientScriptTest.php" tests="1" assertions="3" failures="0" errors="0" time="0.001556">
+      <testcase name="test_load" class="ClientScriptTest" file="C:\work\server\framework.reload\phpunit\ClientScriptTest.php" line="45" assertions="3" time="0.001556"/>
+    </testsuite>
+  </testsuite>
+</testsuites>
