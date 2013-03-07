@@ -6,26 +6,185 @@ class Route
 {
 	private $rules = array();
 
+	private $wildcards = array(
+		'{any}' => '[a-zA-Z0-9\.\-_%=]+',
+		'{num}' => '[0-9]+'
+	);
+
+//	public $class = null;
+
 	public function __construct()
 	{
 
 	}
 
-	public function get($pattern)
+	/**
+	 *
+	 *
+	 * @param string $uri содержимое $SERVER['QUERY_STRING']
+	 *
+	 * @return string|null
+	 */
+	public function get($uri)
 	{
-		if (array_key_exists($pattern, $this->rules))
-			return $this->rules[$pattern];
-		else
-			throw new ClassLoaderException("Can't find class for pattern '{$pattern}'");
+		$uri = "/" . trim($uri, "/");
+		$className = null;
+
+		// самый простой поиск
+		foreach ($this->rules as $rule => $class)
+		{
+			// более точно определенные правила ищем в первую очередь?
+			$res = strpos($uri, $rule);
+			if ($res !== false)
+			{
+				$this->parsePathInfo(str_replace($rule, "", $uri));
+				$className = $class;
+				break; // нашли правило - остальные не проверяем
+			}
+
+			// проверка регулярных выражений и placeholder'ов
+			$isMatch = $this->parseWildcards($rule, $uri);
+			if ($isMatch)
+			{
+				$className = $class;
+				break;
+			}
+		}
+
+		return $className;
+
+//		var_dump($_GET);
+
+//		if (array_key_exists($uri, $this->rules))
+//			return $this->rules[$uri];
+//		else
+//			throw new ClassLoaderException("Can't find class for route '{$uri}'");
 	}
+
+	/**
+	 * Поиск, замена wildcards и проверка на соответствие
+	 *
+	 * @param string $rule Маршрут
+	 * @param string $uri Строка запроса
+	 *
+	 * @return bool
+	 */
+	public function parseWildcards($rule, $uri)
+	{
+		// маршруты могут описываться строками типа /:id:{num}/:name:{any}
+		// ,где :id: - имя_переменной, {num} - имя wildcard
+		// Например, маршрут "/user/:username:{any}" будет соответствовать
+		// шаблону '/user/[a-zA-Z0-9\.\-_%=]+' (напр. /user/some_username),
+		// и при совпадении правила в $_REQUEST
+		// появится переменная 'username' со значением 'some_username'
+
+		$rule = preg_replace('%:([\w]+):(\{[\w]+\})%', '(?P<$1>$2)', $rule);
+		$rule = "~" . trim($rule, '/') . "~";
+
+		// заменить wildcards на регулярные выражения
+		$rule = str_replace(array_keys($this->wildcards), array_values($this->wildcards), $rule);
+
+		// проверяем соответствие uri маршруту
+		$isMatch = preg_match($rule, $uri, $matches);
+
+		$res = array();
+		if (Request::isGet())
+			$res = &$_GET;
+		if (Request::isPost())
+			$res = &$_POST;
+
+		if ($isMatch)
+		{
+			foreach ($matches as $k => $v)
+			{
+				if (is_numeric($k))
+					continue;
+				else
+					$res[$k] = $v;
+			}
+
+			// убираем из строки запроса совпавшую часть маршрута.
+			// осталвшуюся часть преобразуем в переменные и их значения
+			$additional = "/" . trim(str_replace($matches[0], "", $uri), '/');
+			$this->parsePathInfo($additional);
+		}
+
+		return (bool)$isMatch;
+	}
+
 
 	public function add($pattern, $className)
 	{
+		$pattern = $uri = "/" . trim($pattern, "/");
 		$this->rules[$pattern] = $className;
+	}
+
+	/**
+	 * Adds new wildcard
+	 *
+	 * @param string $name Имя подстановки
+	 * @param string $pattern Регулярное выражение, на которое заменяется wildcard
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function addWildCard($name, $pattern)
+	{
+		if (array_key_exists($name, $this->wildcards))
+			throw new \RuntimeException("The wildcard '{$name}' has already exists");
+
+		$this->wildcards[$name] = $pattern;
 	}
 
 	public function debug()
 	{
 		throw new \Exception("Not implemented yet");
+	}
+
+	/**
+	 * Делает разбор строки запроса и
+	 * помещает результаты в $_GET или $_POST
+	 *
+	 * @param string $pathInfo Строка запроса типа param1/value1/param2/value2/
+	 *
+	 * @return void
+	 */
+	public function parsePathInfo($pathInfo)
+	{
+		if ($pathInfo === '')
+			return;
+
+		$pathInfo = trim($pathInfo, "/");
+		$segs = explode('/', $pathInfo . '/');
+
+		$list = null;
+		if (Request::isGet())
+			$list = &$_GET;
+		if (Request::isPost())
+			$list = &$_POST;
+
+		$n = count($segs);
+		for ($i = 0; $i < $n - 1; $i += 2)
+		{
+			$key = $segs[$i];
+			if ($key === '')
+				continue;
+			$value = $segs[$i + 1];
+			if (($pos = strpos($key, '[')) !== false && ($m = preg_match_all('/\[(.*?)\]/', $key, $matches)) > 0)
+			{
+				$name = substr($key, 0, $pos);
+				for ($j = $m - 1; $j >= 0; --$j)
+				{
+					if ($matches[1][$j] === '')
+						$value = array($value);
+					else
+						$value = array($matches[1][$j] => $value);
+				}
+				if (isset($list[$name]) && is_array($list[$name]))
+					$value = array_merge_recursive($list[$name], $value);
+				$list[$name] = $value;
+			}
+			else
+				$list[$key] = $value;
+		}
 	}
 }
