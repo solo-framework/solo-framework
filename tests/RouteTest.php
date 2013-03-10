@@ -13,15 +13,82 @@ require_once "../Solo/Core/ClassLoaderException.php";
 require_once "../Solo/Core/Request.php";
 
 use Solo\Core\Request;
+use Solo\Core\Route;
 
 class RouteTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{
 		$_SERVER["REQUEST_METHOD"] = "GET";
+		$_GET = array();
 	}
 
 	public function test_wildcards_routing()
+	{
+		$route = new \Solo\Core\Route();
+		$class = '\App\Views\HomeView';
+
+		$route->add("/:param:{any}", $class);
+		$this->assertEquals($class, $route->get("/some_string"));
+
+		$route->clear();
+		$route->add("/:param:{any}/", $class);
+		$this->assertEquals($class, $route->get("/some_string"));
+
+		$route->clear();
+		$route->add("/:param1:{any}/:intParam2:{num}", $class);
+		$this->assertEquals($class, $route->get("/some_param/10002"));
+		$this->assertEquals($class, $route->get("/some_param/10002/"));
+		$this->assertEquals($class, $route->get("/some_param/10002/param1/value2"));
+
+		$route->clear();
+		$route->add("/:param1:{any}/:intParam2:{num}", $class);
+		$this->assertEquals(null, $route->get("/some_param/10002and_some_text"));
+		$this->assertEquals(null, $route->get("/some_param/10002and_some_text/"));
+		$this->assertEquals(null, $route->get("/some_param/10002and_some_text/param1/value1"));
+
+	}
+
+	public function test_simple_routing()
+	{
+
+		$route = new \Solo\Core\Route();
+
+		$class = '\App\Views\EditUserView';
+		// самые распространенные маршруты будут выглядеть как
+		$route->add("/view/edituser", $class);
+
+		$this->assertEquals($class, $route->get("/view/edituser"));
+		$this->assertEquals($class, $route->get("/view/edituser/"));
+
+		$route->clear();
+		$class = '\App\Views\TaskListView';
+		$route->add("/mytasks", $class);
+
+		$this->assertEquals($class, $route->get("/mytasks/id"));
+		$this->assertEquals($class, $route->get("/mytasks/id/"));
+
+	}
+
+	public function test_simple_routing_with_variables()
+	{
+		$route = new Route();
+
+		$class = '\App\Views\EditUserView';
+		// самые распространенные маршруты будут выглядеть как
+		$route->add("/view/edituser", $class);
+
+		$this->assertEquals($class, $route->get("/view/edituser/id"));
+		$this->assertNull(Request::get("id"));
+
+		$this->assertEquals($class, $route->get("/view/edituser/id/10"));
+		$this->assertEquals(10, Request::get("id"));
+
+		$this->assertEquals($class, $route->get("/view/edituser/id/10/param1/val1"));
+		$this->assertEquals("val1", \Solo\Core\Request::get("param1"));
+	}
+
+	public function test_wildcards_routing_with_variables()
 	{
 		$route = new \Solo\Core\Route();
 		$class = '\App\Views\HomeView';
@@ -35,89 +102,41 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		// должна быть переменная id
 		$this->assertEquals($class, $route->get("/some_value/id/10"));
 		$this->assertEquals(Request::get("id"), "10");
+
+		$route->clear();
+		$route->add("/:userName:{any}/:id:{num}", $class);
+		$this->assertEquals($class, $route->get("/user_name/10002/some_param1/some_value2"));
+		$this->assertEquals("user_name", \Solo\Core\Request::get("userName"));
+		$this->assertEquals(10002, \Solo\Core\Request::get("id"));
+		$this->assertEquals("some_value2", \Solo\Core\Request::get("some_param1"));
+
 	}
 
-	public function test_simple_routing()
+	public function test_add_wildcard()
 	{
-		// строка /(userName:any) должна переписаться в /userName/(:any) и передаваться в обработчик request_uri
-		// чтобы сгенерировать пары param/value
-		//$r->add("/(userName:any)/", "className");
+		$route = new Route();
+		$class = '\App\Views\TimeTableView';
 
-		$route = new \Solo\Core\Route();
+//		Date dd/mm/yyyy
+//		01/01/1900 through 31/12/2099
+//		Matches invalid dates such as February 31st
+//		Accepts dashes, spaces, forward slashes and dots as date separators
+		$route->addWildCard("{date}", "(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)[0-9]{2}");
 
-		$class = '\App\Views\EditUserView';
-		// самые распространенные маршруты будут выглядеть как
-		$route->add("/view/edituser", $class);
+		$route->add("/:startDate:{date}/:endDate:{date}", $class);
+		$this->assertEquals($class, $route->get("/31.12.2012/07.01.2013"));
 
-		$this->assertEquals($class, $route->get("/view/edituser"));
-		$this->assertEquals($class, $route->get("/view/edituser/"));
-		$this->assertEquals($class, $route->get("/view/edituser/id"));
-		$this->assertEquals($class, $route->get("/view/edituser/id/10"));
-		$this->assertEquals($class, $route->get("/view/edituser/id/10/param1/val1"));
+		$this->assertEquals("31.12.2012", \Solo\Core\Request::get("startDate"));
+		$this->assertEquals("07.01.2013", \Solo\Core\Request::get("endDate"));
+	}
 
-
-		$class = '\App\Views\TaskListView';
-		$route->add("/mytasks", $class);
-
-		$this->assertEquals($class, $route->get("/mytasks/id"));
-		$this->assertEquals($class, $route->get("/mytasks/id/"));
-		$this->assertEquals($class, $route->get("/mytasks/id/10"));
-		$this->assertEquals($class, $route->get("/mytasks/id/10/"));
-
-
-
-//		$this->assertEquals($class, $r->get("/view/edituser/"));
-//		$this->assertEquals($class, $r->get("/view/edituser/id"));
-//		$this->assertEquals($class, $r->get("/view/edituser/id/10"));
-
-		// и так
-		//$r->add("/action/saveuser", '\App\Actions\SaveUserAction');
-
-		// соответствует запросам типа http://site.ru/blablabla
-		// placeholder 'username' будет преобразован в переменную запроса
-		// и будет доступен как Request::get("username")
-		// если placeholder задан, то эта часть URI всегда должна быть в запросе
-		//$r->add("/:username", '\App\Views\HomeView');
-
-		// можно указывать непосредственно
-		// при этом, если URI будет выглядеть как
-		// http://site.ru/mytasks/date/2012-12-12/status/new, то
-		// часть 'date/2012-12-12/status/new' будет преобразована в
-		// переменные запроса 'date' и 'status' со значениями
-		// '2012-12-12' и 'new', соответственно
-		//$r->add("/mytasks", '\App\Views\TaskListView');
-
-		// самые распространенные маршруты будут выгладеть как
-		//$r->add("/view/edituser", '\App\Views\EditUserView');
-
-		// и так
-		//$r->add("/action/saveuser", '\App\Actions\SaveUserAction');
-
-		// можно усложнить, добавив гибкости, указывая паттерн
-		// где, :any - это wildcard, соответствующий '([a-zA-Z0-9\.\-_%=]+)'
-		// :num => '([0-9]+)'
-		//$r->add("/:username:any", '\App\Views\HomeView');
-
-		// т.о. можно будет различать запросы
-		// пример: http://site.ru/blablabla
-		//$r->add("/:username:any", '\App\Views\HomeView');
-
-		// и
-		// пример: http://site.ru/122332
-	//	$r->add("/:id:num", '\App\Views\ArticleView');
-		// но нужно ли это реально?
-
-		// http://site.ru/blog/my_tag/2011-12-12
-		//$r->add("/blog/:tag/:date", '\App\Views\ArticleView');
-
-
-//		$r->add("/userName(:any)/time(:num-:num)/", "className");
-//		$r->add("/userName(:any)/time(:num)", "className");
-
-		//$r->add("/:username{:any}", '\App\Views\HomeView');
-		// ==>
-		//$r->add("/(?<username>:([a-zA-Z0-9\.\-_%=]+))", '\App\Views\HomeView');
-
+	/**
+	 * @expectedException RuntimeException
+	 */
+	public function test_add_wildcard_fail()
+	{
+		$route = new Route();
+		$route->addWildCard("{any}", "some_regex");
 	}
 
 }

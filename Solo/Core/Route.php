@@ -4,8 +4,18 @@ namespace Solo\Core;
 
 class Route
 {
+	/**
+	 * Список правил для распознавания маршрутов
+	 *
+	 * @var array
+	 */
 	private $rules = array();
 
+	/**
+	 * Список подстановок (wildcards)
+	 *
+	 * @var array
+	 */
 	private $wildcards = array(
 		'{any}' => '[a-zA-Z0-9\.\-_%=]+',
 		'{num}' => '[0-9]+'
@@ -27,7 +37,7 @@ class Route
 	 */
 	public function get($uri)
 	{
-		$uri = "/" . trim($uri, "/");
+		$uri = "/" . trim($uri, "/") . "/";
 		$className = null;
 
 		// самый простой поиск
@@ -52,13 +62,6 @@ class Route
 		}
 
 		return $className;
-
-//		var_dump($_GET);
-
-//		if (array_key_exists($uri, $this->rules))
-//			return $this->rules[$uri];
-//		else
-//			throw new ClassLoaderException("Can't find class for route '{$uri}'");
 	}
 
 	/**
@@ -79,7 +82,8 @@ class Route
 		// появится переменная 'username' со значением 'some_username'
 
 		$rule = preg_replace('%:([\w]+):(\{[\w]+\})%', '(?P<$1>$2)', $rule);
-		$rule = "~" . trim($rule, '/') . "~";
+
+		$rule = "~" . trim($rule, '/') . "/~";
 
 		// заменить wildcards на регулярные выражения
 		$rule = str_replace(array_keys($this->wildcards), array_values($this->wildcards), $rule);
@@ -113,10 +117,28 @@ class Route
 	}
 
 
+	/**
+	 * Добавляет правило для распознавания маршрута
+	 *
+	 * @param string $pattern Описание маршрута
+	 * @param string $className Имя класса, соответсвующего маршруту
+	 *
+	 * @return void
+	 */
 	public function add($pattern, $className)
 	{
-		$pattern = $uri = "/" . trim($pattern, "/");
+		$pattern = $uri = "/" . trim($pattern, "/") . "/";
 		$this->rules[$pattern] = $className;
+	}
+
+	/**
+	 * Очистка правил маршрутизации
+	 *
+	 * @return void
+	 */
+	public function clear()
+	{
+		$this->rules = array();
 	}
 
 	/**
@@ -129,15 +151,27 @@ class Route
 	 */
 	public function addWildCard($name, $pattern)
 	{
+		$name = trim($name, "{}");
+		$name = "{{$name}}";
+
 		if (array_key_exists($name, $this->wildcards))
-			throw new \RuntimeException("The wildcard '{$name}' has already exists");
+			throw new \RuntimeException("The wildcard '{$name}' already exists");
 
 		$this->wildcards[$name] = $pattern;
 	}
 
-	public function debug()
+	/**
+	 * @param $uri
+	 *
+	 * @return null|string
+	 */
+	public function debug($uri)
 	{
-		throw new \Exception("Not implemented yet");
+		$res = $this->get($uri);
+		if (!$res)
+			return "There is no rule for this URI: {$uri}";
+		else
+			return $res;
 	}
 
 	/**
