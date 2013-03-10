@@ -21,8 +21,12 @@ class Route
 		'{num}' => '[0-9]+'
 	);
 
-//	public $class = null;
 
+	/**
+	 * Конструктор
+	 *
+	 * @return Route
+	 */
 	public function __construct()
 	{
 
@@ -35,14 +39,25 @@ class Route
 	 *
 	 * @return string|null
 	 */
-	public function get($uri)
+	public function getClass($uri)
 	{
+		if ("/" == $uri)
+		{
+			if (array_key_exists("/", $this->rules))
+				return $this->rules["/"];
+			else
+				return null;
+		}
+
 		$uri = "/" . trim($uri, "/") . "/";
+		//var_dump($uri);
 		$className = null;
 
 		// самый простой поиск
 		foreach ($this->rules as $rule => $class)
 		{
+			if ("/" == $rule)
+				continue;
 			// более точно определенные правила ищем в первую очередь?
 			$res = strpos($uri, $rule);
 			if ($res !== false)
@@ -127,7 +142,9 @@ class Route
 	 */
 	public function add($pattern, $className)
 	{
-		$pattern = $uri = "/" . trim($pattern, "/") . "/";
+		if ("/" !== $pattern)
+			$pattern = "/" . trim($pattern, "/") . "/";
+
 		$this->rules[$pattern] = $className;
 	}
 
@@ -161,13 +178,15 @@ class Route
 	}
 
 	/**
+	 *
+	 *
 	 * @param $uri
 	 *
 	 * @return null|string
 	 */
 	public function debug($uri)
 	{
-		$res = $this->get($uri);
+		$res = $this->getClass($uri);
 		if (!$res)
 			return "There is no rule for this URI: {$uri}";
 		else

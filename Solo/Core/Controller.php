@@ -71,45 +71,26 @@ class Controller
 	/**
 	 * Отрисовывает текущее преставление или выполняет текущее действие
 	 *
-	 * @param string $actionName
-	 * @param string $viewName
+	 * @param $requestUri Строка запроса query string
+	 * @param Route $route Экземпляр маршрутизатора
 	 *
 	 * @throws HTTP404Exception
 	 * @return string
 	 */
 	public function execute($requestUri, Route $route)
 	{
-		try
-		{
-			$classname = $route->get($requestUri);
+		$classname = $route->getClass($requestUri);
+		if (is_null($classname))
+			throw new HTTP404Exception("Can't find routing for '{$requestUri}'");
 
-			// Создание экземпляра действия
-			$rc = new \ReflectionClass($classname);
+		// Создание экземпляра действия
+		$rc = new \ReflectionClass($classname);
 
-			if ($rc->isSubclassOf("Solo\\Core\\View"))
-				return $this->handleView($rc);
+		if ($rc->isSubclassOf("Solo\\Core\\View"))
+			return $this->handleView($rc);
 
-			if ($rc->isSubclassOf("Solo\\Core\\Action"))
-				$this->executeAction($rc);
-
-			//$action = $rc->newInstance();
-
-
-
-			//var_dump($action);
-
-//			// обрабатываем действие
-//			if (null !== $actionName)
-//				$this->executeAction($actionName);
-//
-//			// отрисовка представления
-//			if ($viewName)
-//				return $this->handleView($viewName);
-		}
-		catch (ClassLoaderException $cle)
-		{
-			throw new HTTP404Exception($cle);
-		}
+		if ($rc->isSubclassOf("Solo\\Core\\Action"))
+			$this->executeAction($rc);
 	}
 
 	/**
@@ -233,7 +214,7 @@ class Controller
 	/**
 	 * Отрисовка представления, имплементирующего IAjaxView
 	 *
-	 * @param View $view Экземпляр представления
+	 * @param \ReflectionClass $view Экземпляр представления
 	 *
 	 * @return string
 	 */
@@ -328,20 +309,20 @@ class Controller
 	/**
 	 * Выполнение действия
 	 *
-	 * @param string $className
+	 * @param \ReflectionClass $rc Экземпляр класса Action
 	 *
 	 * @throws \RuntimeException
+	 *
 	 * @return void
 	 */
-	public function executeAction($rc)
+	public function executeAction(\ReflectionClass $rc)
 	{
 		$requestMethod = $_SERVER["REQUEST_METHOD"];
-
 		$action = $rc->newInstance();
 
 		// проверим, совпадают ли HTTP методы у запроса и Действия
 		if ($action->requestMethod !== $requestMethod)
-			throw new \RuntimeException("Can't execute action '{$className}': current HTTP request
+			throw new \RuntimeException("Can't execute action '{$rc->getName()}': current HTTP request
 				method is '{$action->requestMethod}' against required '{$requestMethod}'");
 
 		// выполнение цепочки методов Действия
@@ -350,7 +331,7 @@ class Controller
 		$action->postExecute();
 
 		// Действие должно заканчиваться редиректом - иначе ошибка
-		throw new \RuntimeException("Action '{$className}' has been executed. Redirect?");
+		throw new \RuntimeException("Action '{$rc->getName()}' has been executed. Redirect?");
 	}
 
 	/**
