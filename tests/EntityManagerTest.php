@@ -33,6 +33,9 @@ require_once "./resources/FamilyManager.php";
 use \Solo\Core\DB\MySQLCondition;
 use Solo\Core\EntityManager;
 
+use tests\Managers\TestManager;
+use tests\Entity\Test;
+
 class EntityManagerTest extends PHPUnit_Framework_TestCase
 {
 	/**

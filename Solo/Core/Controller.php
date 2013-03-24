@@ -201,7 +201,7 @@ class Controller
 
 			return $html;
 		}
-		catch (ClassLoaderException $cle)
+		catch (\Exception $cle)
 		{
 			throw new HTTP404Exception($cle->getMessage());
 		}

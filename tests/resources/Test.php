@@ -1,4 +1,7 @@
 <?php
+
+namespace tests\Entity;
+
 use \Solo\Core\Entity;
 
 /**

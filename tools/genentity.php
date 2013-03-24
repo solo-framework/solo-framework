@@ -124,6 +124,7 @@ function recognizeType($type, $asPHPTypes = false)
         case "timestamp":
         	return !$asPHPTypes ? "self::ENTITY_FIELD_TIMESTAMP": "DateTime";
         case "datetime":
+        case "time":
         	return !$asPHPTypes ? "self::ENTITY_FIELD_DATETIME" : "DateTime";
 
         default:
