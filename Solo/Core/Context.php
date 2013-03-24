@@ -21,8 +21,19 @@ use Solo\Core\Web\Session\ISessionProvider;
 
 class Context
 {
+	/**
+	 * Экземпляр класса
+	 *
+	 * @var Context
+	 */
 	private static $instance = null;
 
+	/**
+	 * Приватный конструктор
+	 *
+	 * @param string $name Имя сессии
+	 * @param ISessionProvider $provider Экземпляр провайдера данных сессии
+	 */
 	private function __construct($name, ISessionProvider $provider)
 	{
 		$provider->start();
@@ -30,6 +41,12 @@ class Context
 		session_start();
 	}
 
+	/**
+	 * @param string $name Имя сессии
+	 * @param ISessionProvider $provider Экземпляр провайдера данных сессии
+	 *
+	 * @return null|Context
+	 */
 	public static function start($name, ISessionProvider $provider)
 	{
 		if (!isset(self::$instance))
@@ -46,12 +63,13 @@ class Context
 	 * @param string $objName Имя объекта
 	 * @param mixed $objValue Объект
 	 *
+	 * @throws \RuntimeException
 	 * @return void
 	 */
 	public static function set($objName, $objValue)
 	{
 		if (!isset($_SESSION))
-			throw new \Exception("Context not started");
+			throw new \RuntimeException("Context not started");
 
 		$_SESSION[$objName] = $objValue;
 	}
@@ -101,7 +119,7 @@ class Context
 	/**
 	 * Уничтожает все данные контекста
 	 *
-	 * @return session
+	 * @return void
 	 */
 	public static function destroy()
 	{
@@ -112,11 +130,13 @@ class Context
 	/**
 	 * Нельзя клонировать
 	 *
+	 *
+	 * @throws \RuntimeException
 	 * @return void
 	 */
 	public function __clone()
 	{
-		throw new \Exception("Can't clone singleton object ". __CLASS__);
+		throw new \RuntimeException("Can't clone singleton object ". __CLASS__);
 	}
 
 	/**
@@ -144,7 +164,7 @@ class Context
 	/**
 	 * Установка flash-сообщения в контекст
 	 *
-	 * @param mixed|Exception $message Сообщение (текст, массив или исключение)
+	 * @param string $message Сообщение (текст, массив или исключение)
 	 * @param string $flashMessageId Идентификатор сообщения.
 	 * 			Например: error, если нужно отобразить как ошибку.
 	 * 			Отображение настраивается в представлении.

@@ -32,7 +32,7 @@ class SoloPDO extends \PDO
 	 *
 	 * @var string
 	 */
-	public $statementClass = "SoloPDOStatement";
+	public $statementClass = "Solo\Core\DB\SoloPDOStatement";
 
 	/**
 	 * Конструктор
@@ -43,7 +43,7 @@ class SoloPDO extends \PDO
 	 * @param array $driverOptions Список настроек драйвера
 	 * @param bool $isDebug Режим отладки
 	 *
-	 * @return void
+	 * @return \Solo\Core\DB\SoloPDO
 	 */
 	public function __construct($dsn, $username = null, $password = null, $driverOptions = array(), $isDebug = false)
 	{
@@ -65,29 +65,11 @@ class SoloPDO extends \PDO
 	 * @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
 	 *
 	 * @see PDO::prepare()
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	public function prepare($sql, $driverOptions = array())
 	{
 		return parent::prepare($sql, $driverOptions);
 	}
-
-//	/**
-//	 *
-//	 *
-//	 * @return
-//	 */
-//	public function escape($str)
-//	{
-//		$replace = array("\\\\","\\0","\\n","\\r","\Z","\'",'\"');
-//		$search = array("\\","\0","\n","\r","\x1a","'",'"');
-//		return str_replace($search,$replace,$str);
-//	}
-//	public function unescape($str)
-//	{
-//		$search = array("\\\\","\\0","\\n","\\r","\Z","\'",'\"');
-//		$replace = array("\\","\0","\n","\r","\x1a","'",'"');
-//		return str_replace($search,$replace,$str);
-//	}
 }
 ?>

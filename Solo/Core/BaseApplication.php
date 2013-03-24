@@ -36,7 +36,7 @@ abstract class BaseApplication
 	/**
 	 * Экземпляр приложения
 	 *
-	 * @var \Application
+	 * @var Application
 	 */
 	protected static $instance = null;
 
@@ -80,14 +80,14 @@ abstract class BaseApplication
 	/**
 	 *
 	 *
-	 * @var unknown_type
+	 * @var callable
 	 */
 	protected $prevErrorHandler = null;
 
 	/**
 	 * Правила роутинга
 	 *
-	 * @var \Route
+	 * @var Route
 	 */
 	protected $route = null;
 
@@ -112,7 +112,7 @@ abstract class BaseApplication
 	 * @param string $errfile Файл, в котором обнаружена ошибка
 	 * @param string $errline Номер строки файла, в котором обнаружена ошибка
 	 *
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 * @return boolean
 	 */
 	public function throwErrorException($errno, $errstr, $errfile, $errline)
@@ -163,8 +163,7 @@ abstract class BaseApplication
 	/**
 	 * Клонировать тоже запретим
 	 *
-	 *
-	 * @throws RuntimeException
+	 * @throws \RuntimeException
 	 * @return void
 	 */
 	public function __clone()
@@ -180,8 +179,7 @@ abstract class BaseApplication
 	 *
 	 * @param string $componentName Имя компонента, соотвествующее записи в конфигураторе
 	 *
-	 * @throws RuntimeException
-	 *
+	 * @throws \RuntimeException
 	 * @return object
 	 */
 	public function getComponent($componentName)
@@ -262,10 +260,7 @@ abstract class BaseApplication
 
 		if (self::$instance == null)
 		{
-		//	if ($className !== null)
-				self::$instance = new $className($baseDir);
-//			else
-//				self::$instance = new self($baseDir);
+			self::$instance = new $className($baseDir);
 
 			// установим обработчик ошибок, генерируемых интерпретатором PHP
 			// все ошибки преобразуются в исключения

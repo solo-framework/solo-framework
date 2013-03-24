@@ -1,4 +1,6 @@
 <?php
+namespace Solo\Core;
+
 /**
  * Класс расширяющий встроенный DateTime
  *
@@ -16,8 +18,6 @@
  * @version  SVN: $Id: Entity.php 9 2007-12-25 11:26:03Z afi $
  * @link     nolink
  */
-
-namespace Solo\Core;
 
 class XDateTime extends \DateTime
 {
@@ -84,9 +84,10 @@ class XDateTime extends \DateTime
 	 * Приводит значение времени к определенному формату
 	 *
 	 * @param string $time Значение времени. Может принимать значения,
-	 * 					   определенные для функции strtotime()
+	 *                       определенные для функции strtotime()
 	 * @param string $format Выходной формат времени (как для функции date())
 	 *
+	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
 	public static function formatTime($time, $format = "H:i:s")
@@ -94,7 +95,7 @@ class XDateTime extends \DateTime
 		$tm = strtotime($time);
 
 		if ($tm === false)
-			throw new InvalidArgumentException("Incorrect time value: '{$time}'");
+			throw new \InvalidArgumentException("Incorrect time value: '{$time}'");
 		else
 			return date($format, $tm);
 	}
@@ -103,9 +104,10 @@ class XDateTime extends \DateTime
 	 * Приводит строку со значением даты к нужному формату. По умолчанию ISO 8601.
 	 *
 	 * @param string $dateTime Значение времени. Может принимать значения,
-	 * 					   определенные для функции strtotime(), а также timestamp
+	 *                       определенные для функции strtotime(), а также timestamp
 	 * @param string $format Выходной формат времени (как для функции date())
 	 *
+	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
 	public static function formatDateTime($dateTime, $format = "c")
@@ -113,7 +115,7 @@ class XDateTime extends \DateTime
 		$tm = strtotime($dateTime);
 
 		if ($tm === false)
-			throw new InvalidArgumentException("Incorrect datetime value: '{$dateTime}'");
+			throw new \InvalidArgumentException("Incorrect datetime value: '{$dateTime}'");
 		else
 			return date($format, $tm);
 	}

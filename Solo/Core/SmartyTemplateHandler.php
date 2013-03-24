@@ -1,29 +1,19 @@
 <?php
+namespace Solo\Core;
+
 /**
  * Класс обрабатывает шаблоны Smarty
  *
  * PHP version 5
  *
- * @package
+ * @package Solo\Core
  * @author   Andrey Filippov <afi.work@gmail.com>
  */
-
-//ClassLoader::import("@solo/lib/Smarty/Smarty.class.php", "Smarty");
-//ClassLoader::import("@solo/lib/Smarty/sysplugins/smarty_internal_data.php", "Smarty_Internal_Data");
-namespace Solo\Core;
-
-
-//\solo\core\NSClassLoader::import("Smarty", "../solo/lib/Smarty/Smarty.class.php");
-//\solo\core\NSClassLoader::import("Smarty_Internal_Data", "../solo/lib/Smarty/sysplugins/smarty_internal_data.php");
 
 class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 {
 	public function __construct()
 	{
-		// регистрируем метод загрузки классов Smarty
-		//ClassLoader::registerAutoloader("smartyAutoload");
-		//\solo\core\NSClassLoader::registerAutoloader("smartyAutoload");
-
 		parent::__construct();
 
 		// Включение безопасного режима
@@ -36,17 +26,6 @@ class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 		$this->left_delimiter = Configurator::get("smarty:leftDelimiter");
 		$this->right_delimiter = Configurator::get("smarty:rightDelimiter");
 
-		// template_dir указываем, чтобы система безопасности Smarty
-		// позволяла читать файлы
-// 		$this->template_dir = ".";
-// 		$this->compile_dir = Configurator::get("smarty:compile.dir");
-// 		$this->config_dir = Configurator::get("smarty:config.dir");
-// 		$this->cache_dir = Configurator::get("smarty:cache.dir");
-// 		$this->compile_check = Configurator::get("smarty:compile.check");
-// 		$this->debugging = (bool)Configurator::get("smarty:debugging");
-// 		$this->error_reporting = Configurator::get("smarty:error.reporting");
-// 		$this->compile_check = Configurator::get("smarty:compile.check");
-
 		$this->compile_check = Configurator::get("smarty:compile.check");
 		$this->debugging = (bool)Configurator::get("smarty:debugging");
 		$this->error_reporting = Configurator::get("smarty:error.reporting");
@@ -58,8 +37,6 @@ class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 
 		//Загрузка пользовательских плагинов и функций
 		$this->addPluginsDir(Configurator::get("smarty:user.plugins"));
-		//$this->plugins_dir[] = Configurator::get("smarty:user.plugins");
 	}
-
 }
 ?>

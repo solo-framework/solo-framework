@@ -1,35 +1,19 @@
 <?php
 /**
- *
- *
- * PHP version 5
- *
- * @package
- * @author  Andrey Filippov <afi.work@gmail.com>
+ * Created by JetBrains PhpStorm.
+ * User: afi
+ * Date: 23.03.13
+ * Time: 17:01
+ * To change this template use File | Settings | File Templates.
  */
-require_once 'PHPUnit/Framework/TestCase.php';
 
-require_once 'core/db/ISQLCondition.php';
-require_once 'core/db/MySQLCondition.php';
+require_once "../Solo/Core/DB/ISQLCondition.php";
+require_once "../Solo/Core/DB/MySQLCondition.php";
+
+use \Solo\Core\DB\MySQLCondition;
 
 class MySQLConditionTest extends PHPUnit_Framework_TestCase
 {
-	/**
-	 * Prepares the environment before running a test.
-	 */
-	protected function setUp ()
-	{
-
-	}
-
-	/**
-	 * Cleans up the environment after running a test.
-	 */
-	protected function tearDown ()
-	{
-
-	}
-
 	public function test_buildSQL()
 	{
 		$c = MySQLCondition::create()
@@ -41,7 +25,7 @@ class MySQLConditionTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(
 			trim(" WHERE id < ? AND name = ? AND age IN (1, 2, 3, 4) ORDER BY name DESC LIMIT 100, 50"),
 			trim($c->buildSQL())
-			);
+		);
 	}
 
 	public function test_getParams()
@@ -56,4 +40,3 @@ class MySQLConditionTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(array(45, "name"), $c->getParams());
 	}
 }
-?>

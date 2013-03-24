@@ -1,34 +1,37 @@
 <?php
 /**
- *
- *
- * PHP version 5
- *
- * @package
- * @author  Andrey Filippov <afi.work@gmail.com>
+ * Created by JetBrains PhpStorm.
+ * User: afi
+ * Date: 23.03.13
+ * Time: 17:27
+ * To change this template use File | Settings | File Templates.
  */
 
 error_reporting(E_ALL);
 
-require_once 'PHPUnit/Framework/TestCase.php';
+require_once "../Solo/Core/IApplicationComponent.php";
+require_once "../Solo/Core/Entity.php";
+require_once "../Solo/Core/EntityManager.php";
+require_once "../Solo/Core/DB/IDBAdapter.php";
+require_once "../Solo/Core/DB/PDOAdapter.php";
+require_once "../Solo/Core/DB/SoloPDOStatement.php";
+require_once "../Solo/Core/DB/SoloPDO.php";
+require_once "../Solo/Core/DB/ISQLCondition.php";
+require_once "../Solo/Core/DB/MySQLCondition.php";
 
-require_once 'core/IApplicationComponent.php';
-require_once 'core/db/IDBAdapter.php';
-require_once 'core/db/PDOAdapter.php';
-require_once 'core/db/SoloPDOStatement.php';
-require_once 'core/db/SoloPDO.php';
-require_once 'core/db/ISQLCondition.php';
-require_once 'core/db/MySQLCondition.php';
-require_once 'core/EntityManager.php';
 
 
-require_once 'phpunit/resources/Test.php';
-require_once 'phpunit/resources/Family.php';
+require_once "./resources/BaseTestEntityManager.php";
+require_once "./resources/TestManager.php";
+require_once "./resources/Test.php";
 
-require_once 'phpunit/resources/BaseTestEntityManager.php';
-require_once 'phpunit/resources/FamilyManager.php';
-require_once 'phpunit/resources/TestManager.php';
+require_once "./resources/Family.php";
+require_once "./resources/FamilyManager.php";
 
+
+
+use \Solo\Core\DB\MySQLCondition;
+use Solo\Core\EntityManager;
 
 class EntityManagerTest extends PHPUnit_Framework_TestCase
 {
@@ -37,6 +40,8 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp ()
 	{
+		date_default_timezone_set("Europe/Moscow");
+
 		parent::setUp();
 		$tm = new TestManager();
 
@@ -162,7 +167,7 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_FormatDateTimeIn()
 	{
-		$stub = $this->getMockForAbstractClass("EntityManager");
+		$stub = $this->getMockForAbstractClass("Solo\Core\EntityManager");
 
 		// В формате дд.мм.гггг
 		$this->assertEquals("2009-12-25 00:00:00", $stub->formatDateTimeIn("25.12.2009"));
@@ -513,16 +518,16 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		{}
 
 		$res = $tm->get(
-				MySQLCondition::create()
-					->where("username = ?")
-					->setParams("undefined_username")
-				);
+			MySQLCondition::create()
+				->where("username = ?")
+				->setParams("undefined_username")
+		);
 
 
 		$this->assertEmpty($res, "must be empty");
+
+		// try to foreach empty list
 		foreach ($res as $item)
 		{}
 	}
-
 }
-?>

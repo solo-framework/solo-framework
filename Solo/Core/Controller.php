@@ -105,9 +105,6 @@ class Controller
 	 */
 	public function handleView(\ReflectionClass $view)
 	{
-		//$rc = new \ReflectionClass($viewName . "View");
-		//$view = $rc->newInstance();
-
 		// Нельзя напрямую отображать Компоненты
 		if($view->implementsInterface("Solo\\Core\\IViewComponent"))
 			throw new \RuntimeException("Can't display component {$view->name}");
@@ -119,7 +116,7 @@ class Controller
 		$view = $view->newInstance();
 
 		if ($view->layout == null)
-			throw new \RuntimeException("Undefined 'layout' property for {$view->__toString()}");
+			throw new \RuntimeException("Undefined 'layout' property for " . get_class($view));
 
 		// Получение данных в Представлении
 		$view->preRender();
@@ -159,7 +156,7 @@ class Controller
 	 */
 	private function addDebugInfo($viewName, $html, $info = "")
 	{
-		return "<!-- begin of '{$viewName}View' {$info} -->\n{$html}\n<!-- end of '{$viewName}View' {$info} -->\n";
+		return "<!-- begin of '{$viewName}' {$info} -->\n{$html}\n<!-- end of '{$viewName}' {$info} -->\n";
 	}
 
 	/**
@@ -175,7 +172,6 @@ class Controller
 	{
 		try
 		{
-			//$rc = new \ReflectionClass($className . "View");
 			$rc = new \ReflectionClass($className);
 			if (count($args) !== 0)
 				$view = $rc->newInstanceArgs($args);
@@ -278,9 +274,10 @@ class Controller
 
 		$file = null;
 
-		//$fileId = str_replace('\\', "_", get_class($view));
+		// TODO: здесь убираем неймспейсы, чтобы не получилось такого пути
+		// TODO: www/src/App/templates/App/Views/IndexView.html
+		// TODO: возможно, что это будет даже удобнее. Подумать.
 		$fileId = str_replace('App\\Views\\', "", get_class($view));
-		//$fileId = str_replace('\\', ".", $fileId);
 
 		if ($view->templateFile)
 			$file = $folder . $view->templateFile;

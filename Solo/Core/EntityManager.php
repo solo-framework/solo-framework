@@ -10,6 +10,11 @@
 
 namespace Solo\Core;
 
+use \Solo\Core\DB\IDBAdapter;
+use RuntimeException;
+use DateTime;
+use Solo\Core\DB\ISQLCondition;
+
 
 abstract class EntityManager
 {
@@ -239,14 +244,14 @@ abstract class EntityManager
 	* Возвращает соединение к Master серверу
 	*
 	* @return IDBAdapter object
-	* @throws RuntimeException
+	* @throws \RuntimeException
 	*/
 	public function getWriteConnection()
 	{
 		if ($this->writeConnection != null)
 			return $this->writeConnection;
 		else
-			throw new RuntimeException("Write connection is NULL");
+			throw new \RuntimeException("Write connection is NULL");
 	}
 
 	/**

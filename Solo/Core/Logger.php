@@ -170,12 +170,13 @@ class Logger
 	/**
 	 * Проверяет , был ли инициализирован логгер
 	 *
+	 * @throws \RuntimeException
 	 * @return void
 	 */
 	private static function checkInit()
 	{
 		if (self::$logger == null)
-			throw new \Exception("Logger not initialized.");
+			throw new \RuntimeException("Logger not initialized.");
 	}
 
 	/**
