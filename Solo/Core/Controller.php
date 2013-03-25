@@ -273,11 +273,7 @@ class Controller
 			$folder = $view->templateFolder . DIRECTORY_SEPARATOR;
 
 		$file = null;
-
-		// TODO: здесь убираем неймспейсы, чтобы не получилось такого пути
-		// TODO: www/src/App/templates/App/Views/IndexView.html
-		// TODO: возможно, что это будет даже удобнее. Подумать.
-		$fileId = str_replace('App\\Views\\', "", get_class($view));
+		$fileId = get_class($view);
 
 		if ($view->templateFile)
 			$file = $folder . $view->templateFile;

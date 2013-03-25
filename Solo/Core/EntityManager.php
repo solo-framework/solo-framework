@@ -56,6 +56,20 @@ abstract class EntityManager
 	public $timeFormat = "H:i:s";
 
 	/**
+	 * Пустая сущность. Для вспомогательных целей.
+	 *
+	 * @var Entity
+	 */
+	//private $dummyEntity = null;
+
+	/**
+	 * Таблица БД, в которой хранятся сущности этого менеджера
+	 *
+	 * @var string
+	 */
+	//public $table = null;
+
+	/**
 	 * Создает новый экземпляр сущности
 	 *
 	 * @param string $className Имя класса сущности
@@ -64,9 +78,7 @@ abstract class EntityManager
 	 **/
 	public static function newEntity($className)
 	{
-		$name = ucfirst(strtolower($className));
-		// from autoload
-		$entity = new $name();
+		$entity = new $className();
 		return $entity;
 	}
 
@@ -78,7 +90,12 @@ abstract class EntityManager
 	protected function defineClass()
 	{
 		if ($this->class == null)
-			$this->class = str_replace("Manager", "", get_class($this));
+		{
+			$className = get_class($this);
+			$len = 7; // lenth of "Manager"
+			$this->class = substr($className, 0, -$len);
+		}
+
 		return $this->class;
 	}
 
@@ -342,7 +359,7 @@ abstract class EntityManager
 	 * Выполняет произвольный запрос и возвращает список строк из БД
 	 *
 	 * @param string $sql Параметризованный SQL запрос
-	 * @param array Значения параметризованного запроса
+	 * @param array $params Значения параметризованного запроса
 	 * @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
 	 *
 	 * @return array
@@ -357,6 +374,8 @@ abstract class EntityManager
 	 * только одну запись из результирующего набора
 	 *
 	 * @param string $sql Текст SQL запроса
+	 * @param array $params Значения параметризованного запроса
+	 * @param array $driverOptions
 	 *
 	 * @return mixed
 	 */
@@ -366,12 +385,12 @@ abstract class EntityManager
 	}
 
 	/**
-	* Возвращает список сущностей по условию
-	*
-	* @param SQLCondition $condition Объект класса SQLCondition
-	*
-	* @return null or array
-	*/
+	 * Возвращает список сущностей по условию
+	 *
+	 * @param \Solo\Core\DB\ISQLCondition $condition Объект класса SQLCondition
+	 *
+	 * @return null or array
+	 */
 	public function get(ISQLCondition $condition = null)
 	{
 		$object = self::newEntity($this->defineClass());
@@ -405,25 +424,27 @@ abstract class EntityManager
 	/**
 	 * Удаляет записи, определенные в SqlCondition
 	 *
-	 * @param SQLCondition $condition object of SQLCondition class
+	 * @param \Solo\Core\DB\ISQLCondition $condition object of SQLCondition class
 	 *
 	 * @return int Количество удаленных строк
 	 */
 	public function removeByCondition(ISQLCondition $condition)
 	{
-		$table = strtolower($this->defineClass());
+		$object = self::newEntity($this->defineClass());
+		$table = $object->entityTable;//strtolower($this->defineClass());
 		$sql = "DELETE FROM `{$table}` " . $condition->buildSQL();
 		$res = $this->getWriteConnection()->executeNonQuery($sql, $condition->getParams());
 		return $res;
 	}
 
 	/**
-	* Возвращает только одну запись из результирующего набора
-	*
-	* @param SQLCondition $condition Объект класса SQLCondition
-	*
-	* @return entity or null
-	*/
+	 * Возвращает только одну запись из результирующего набора
+	 *
+	 * @param \Solo\Core\DB\ISQLCondition $condition Объект класса SQLCondition
+	 *
+	 * @throws \RuntimeException
+	 * @return entity or null
+	 */
 	public function getOne(ISQLCondition $condition)
 	{
 		$res = $this->get($condition);
@@ -457,9 +478,9 @@ abstract class EntityManager
 	/**
 	 * Возвращает столбец значений
 	 *
-	 * @param string $sqlQuery Параметризованный SQL запрос
-	 * @param int    $colNum   Номер столбца в результирующем наборе данных, который будет возвращен
-	 * @param array Значения параметризованного запроса
+	 * @param $sql Параметризованный SQL запрос
+	 * @param array $params Значения параметризованного запроса
+	 * @param int $colNum   Номер столбца в результирующем наборе данных, который будет возвращен
 	 * @param array $driverOptions Специальные настройки драйвера для выполняемого запроса
 	 *
 	 * @return array

@@ -33,8 +33,11 @@ require_once "./resources/FamilyManager.php";
 use \Solo\Core\DB\MySQLCondition;
 use Solo\Core\EntityManager;
 
-use tests\Managers\TestManager;
-use tests\Entity\Test;
+use tests\Model\TestManager; // \TestManager;
+use tests\Model\Test;
+
+use tests\Model\Family;
+use tests\Model\FamilyManager;
 
 class EntityManagerTest extends PHPUnit_Framework_TestCase
 {
@@ -162,7 +165,7 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 	public function test_defineClass()
 	{
 		$tm = new TestManager();
-		$this->assertEquals("Test", $tm->getDefineClass());
+		$this->assertEquals('tests\Model\Test', $tm->getDefineClass());
 	}
 
 	/**
@@ -307,7 +310,7 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 
 		$res = $tm->get($cond);
 		$this->assertEquals(1, count($res));
-		$this->assertEquals("Test", get_class($res[0]));
+		$this->assertEquals('tests\Model\Test', get_class($res[0]));
 
 		// все записи
 		$res = $tm->get();
@@ -339,7 +342,7 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$res = $tm->getBySQL($sql, array(20, "get"));
 
 		$this->assertEquals(1, count($res));
-		$this->assertEquals("Test", get_class($res[0]));
+		$this->assertEquals('tests\Model\Test', get_class($res[0]));
 		$this->assertEquals("get", $res[0]->username);
 	}
 
@@ -507,7 +510,7 @@ class EntityManagerTest extends PHPUnit_Framework_TestCase
 		$res = $tm->getByStoredProcedure("call getTest()", array());
 
 		$this->assertEquals(2, count($res));
-		$this->assertEquals("Test", get_class($res[0]));
+		$this->assertEquals('tests\Model\Test', get_class($res[0]));
 	}
 
 	public function test_empty_entity_list()

@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\Managers;
+namespace tests\Model;
 
 class FamilyManager extends BaseTestEntityManager
 {

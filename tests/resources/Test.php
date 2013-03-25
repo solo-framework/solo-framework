@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\Entity;
+namespace tests\Model;
 
 use \Solo\Core\Entity;
 

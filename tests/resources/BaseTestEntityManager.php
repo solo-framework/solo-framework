@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\Managers;
+namespace tests\Model;
 
 use \Solo\Core\EntityManager;
 use \Solo\Core\DB\PDOAdapter;

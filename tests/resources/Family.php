@@ -22,6 +22,8 @@
  * @link     nolink
  */
 
+namespace tests\Model;
+
 use Solo\Core\Entity;
 
 class Family extends Entity
