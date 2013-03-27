@@ -11,27 +11,22 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	 *
 	 * @var array
 	 */
-	private $config = null;
+	private $config = array();
 
 	/**
 	 * Конструктор
 	 *
 	 * @param string $configFile Путь к файлу конфигурации
 	 *
-	 * @return void
+	 * @throws \Exception
+	 * @return \Solo\Core\PHPConfiguratorParser
 	 */
 	public function __construct($configFile)
 	{
 		if (!file_exists($configFile))
 			throw new \Exception("Config file '{$configFile}' does not exist.");
 
-		$this->config = require $configFile;
-
-		// Обрабатываем директиву @exdends
-		if (isset($this->config["@extends"]))
-		{
-			$this->extend($this->config["@extends"]);
-		}
+		$this->extend($configFile);
 	}
 
 	/**
@@ -41,29 +36,28 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	 * Настройки файла, поключенного непосредственно, должны перезаписать
 	 * настройки, определенные в main
 	 *
-	 * @param string $baseFile Путь к файлу, указанному в директиве @exdends
+	 * @param string $file Путь к файлу, указанному в директиве @exdends
+	 *
+	 * @throws \RuntimeException
+	 * @return void
 	 */
-	public function extend($baseFile)
+	public function extend($file)
 	{
-		if (!file_exists($baseFile))
-			throw new \RuntimeException("Can't load parent config file '{$baseFile}'");
+		if (!is_file($file))
+			throw new \RuntimeException("Can't load config file '{$file}'");
 
-		// директива больше не нужна
-		unset($this->config["@extends"]);
+		$parentFile = null;
+		$config = require $file;
 
-		$main = require $baseFile;
-
-		$res = null;
-		foreach ($main as $k => $v)
+		if (isset($config["@extends"]))
 		{
-			// если есть такая секция - перезаписываем значения
-			// или просто добавляем такую секцию
-			if (isset($this->config[$k]))
-				$res[$k] = array_merge( $main[$k], $this->config[$k]);
-			else
-				$res[$k] = $v;
+			$parentFile = $config["@extends"];
+			// директива больше не нужна
+			unset($config["@extends"]);
+
+			$this->extend($parentFile);
 		}
-		$this->config = $res;
+		$this->config = array_replace_recursive($this->config, $config);
 	}
 
 	/**
@@ -71,6 +65,7 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	 *
 	 * @param string $param Имя параметра в формате section:option
 	 *
+	 * @throws \Exception
 	 * @example $dbPassword = Configurator::get("first_connection:password");
 	 *
 	 * @return mixed
@@ -85,7 +80,11 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	}
 
 	/**
-	 * @param unknown_type $paramName
+	 * Возвращает массив значений
+	 *
+	 * @param string $paramName Имя параметра в формате section:parameter
+	 *
+	 * @return array
 	 */
 	public function getArray($paramName)
 	{
@@ -107,7 +106,12 @@ class PHPConfiguratorParser implements IConfiguratorParser
 	}
 
 	/**
-	 * @param unknown_type $sectionName
+	 * Возвращает массив значений из секции
+	 *
+	 * @param string $sectionName Имя секции конфигуратора
+	 *
+	 * @throws \Exception
+	 * @return array
 	 */
 	public function getSection($sectionName)
 	{

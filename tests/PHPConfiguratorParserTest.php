@@ -61,28 +61,6 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 		$this->fail("An expected exception has not been raised.");
 	}
 
-	/**
-	 *
-	 */
-	public function test_inherited_options()
-	{
-		// Настройки определенные в наследуемом файле
-		// конфигурации, но не определенные в основном
-		// недоступны
-
-		try
-		{
-			$ini = new PHPConfiguratorParser($this->second);
-			$res = $ini->get("second:secondVal");
-		}
-		catch (Exception $e)
-		{
-			return ;
-		}
-
-		$this->fail("An expected exception has not been raised.");
-	}
-
 
 	public function test_extends()
 	{
@@ -120,7 +98,17 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 				),
 
 				"lalala" => "sdsd"
-			)
+			),
+
+			"second" => array
+			(
+				"secondVal" => "secondVal"
+			),
+
+			"second2" => array
+			(
+				"secondVal" => "secondVal"
+			),
 
 		);
 
@@ -202,5 +190,25 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 		}
 
 		$this->fail("An expected exception has not been raised.");
+	}
+
+	//public function test_
+
+	public function test_multi_inheritance()
+	{
+		// тестирование множественного наследования конфигов
+		$base = "./resources/config_base.php";
+		$base1 = "./resources/config_base_1.php";
+		$base2 = "./resources/config_base_2.php";
+
+		$parser = new PHPConfiguratorParser($base2);
+
+		// значение переопределяется в последнем подключенном конфиге
+		$res = $parser->get("section:param");
+		$this->assertEquals("value_from_base_2", $res);
+
+		// т.к. мы не хотим переопределять все настройки, должено быть доступно
+		// и значение из самого базового конфига
+		$this->assertEquals("value2", $parser->get("section:param2"));
 	}
 }
