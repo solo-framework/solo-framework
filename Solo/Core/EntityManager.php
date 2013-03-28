@@ -91,8 +91,8 @@ abstract class EntityManager
 	{
 		if ($this->class == null)
 		{
-			$className = get_class($this);
 			$len = 7; // lenth of "Manager"
+			$className = str_replace("\\Manager", "\\Entity", get_called_class());
 			$this->class = substr($className, 0, -$len);
 		}
 
