@@ -383,7 +383,9 @@ abstract class BaseApplication
 		{
 			header("HTTP/1.1 500 Internal Server Error");
 			Logger::error($e);
-			throw $e;
+
+			$ev = new ErrorViz($e);
+			$ev->show();
 		}
 		else
 		{
@@ -438,14 +440,6 @@ abstract class BaseApplication
 
 			// создание объекта обработчика запросов
 			$controller = Controller::getInstance(self::$isDebug);
-
-			// узнаем, какое действие запрашивается
-//			$actionName = Request::get("action");
-
-			// или какое представление: если ничего не задано - показываем IndexView
-//			$viewName = Request::get("view", $this->defaultView);
-
-
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML
