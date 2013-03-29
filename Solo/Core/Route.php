@@ -21,6 +21,14 @@ class Route
 		'{num}' => '[0-9]+'
 	);
 
+	/**
+	 * Список подстрок в начале URI,
+	 * которые будут игнорироваться при поиске
+	 *
+	 * @var array
+	 */
+	private $prefixList = array();
+
 
 	/**
 	 * Конструктор
@@ -41,6 +49,18 @@ class Route
 	 */
 	public function getClass($uri)
 	{
+		foreach ($this->prefixList as $prefix)
+		{
+			$res = strpos($uri, $prefix);
+			if ($res !== false)
+			{
+				$uri = substr($uri, strlen($prefix) , 0);
+				if (!$uri)
+					$uri = "/";
+				break;
+			}
+		}
+
 		if ("/" == $uri)
 		{
 			if (array_key_exists("/", $this->rules))
@@ -123,7 +143,7 @@ class Route
 			}
 
 			// убираем из строки запроса совпавшую часть маршрута.
-			// осталвшуюся часть преобразуем в переменные и их значения
+			// оставшуюся часть преобразуем в переменные и их значения
 			$additional = "/" . trim(str_replace($matches[0], "", $uri), '/');
 			$this->parsePathInfo($additional);
 		}
@@ -146,6 +166,19 @@ class Route
 			$pattern = "/" . trim($pattern, "/") . "/";
 
 		$this->rules[$pattern] = $className;
+	}
+
+	/**
+	 * Добавляет подстроку, которая будет игнорироваться при поиске
+	 * маршрута (в начале URI)
+	 *
+	 * @param $prefix
+	 *
+	 * @return void
+	 */
+	public function addPrefix($prefix)
+	{
+		$this->prefixList[] = $prefix;
 	}
 
 	/**

@@ -149,4 +149,23 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$route->addWildCard("{any}", "some_regex");
 	}
 
+	public function test_prifix()
+	{
+		$class = '\App\Views\HomeView';
+
+		$route = new Route();
+		$route->addPrefix("index.php");
+		$route->addPrefix("/bo");
+
+		$route->add("/", $class);
+
+		// игнорируем index.php
+		$this->assertEquals($class, $route->getClass("/index.php"));
+		$this->assertEquals($class, $route->getClass("/index.php/"));
+
+		// игнорируем /bo - например,если приложение находится в каталоге http://site.ru/bo
+		$this->assertEquals($class, $route->getClass("/bo"));
+		$this->assertEquals($class, $route->getClass("/bo/"));
+	}
+
 }
