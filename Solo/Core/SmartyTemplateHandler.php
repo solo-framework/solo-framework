@@ -28,6 +28,8 @@ class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 
 		$this->compile_check = Configurator::get("smarty:compile.check");
 		$this->debugging = (bool)Configurator::get("smarty:debugging");
+		$this->caching = Configurator::get("smarty:caching");
+		$this->force_compile = (bool)Configurator::get("smarty:forceCompile");
 		$this->error_reporting = Configurator::get("smarty:error.reporting");
 		$this->compile_check = Configurator::get("smarty:compile.check");
 
