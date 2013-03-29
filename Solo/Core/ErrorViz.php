@@ -41,7 +41,7 @@ class ErrorViz
 	/**
 	 * Исключение
 	 *
-	 * @var Exception|null
+	 * @var \Exception|null
 	 */
 	private $e = null;
 
@@ -50,13 +50,13 @@ class ErrorViz
 	/**
 	 * Ctor
 	 *
-	 * @param Exception $e
+	 * @param \Exception $e
 	 *
-	 * @return \ErrorViz
+	 * @return ErrorViz
 	 */
 	public function __construct(\Exception $e = null)
 	{
-		error_reporting($this->errorLevel ^ E_ERROR);
+		//error_reporting($this->errorLevel ^ E_ERROR);
 		$this->e = $e;
 		$this->style = <<<EOT
 pre code{display:block;padding:.5em;background:#000;color:#f8f8f8}pre .shebang,pre .comment,pre .template_comment,pre .javadoc{color:#7c7c7c}pre .keyword,pre .tag,pre .tex .command,pre .request,pre .status,pre .clojure .attribute{color:#96cbfe}pre .sub .keyword,pre .method,pre .list .title,pre .nginx .title{color:#ffffb6}pre .string,pre .tag .value,pre .cdata,pre .filter .argument,pre .attr_selector,pre .apache .cbracket,pre .date{color:#a8ff60}pre .subst{color:#daefa3}pre .regexp{color:#e9c062}pre .title,pre .sub .identifier,pre .pi,pre .decorator,pre .tex .special,pre .haskell .type,pre .constant,pre .smalltalk .class,pre .javadoctag,pre .yardoctag,pre .phpdoc,pre .nginx .built_in{color:#ffffb6}pre .symbol,pre .ruby .symbol .string,pre .number,pre .variable,pre .vbscript,pre .literal{color:#c6c5fe}pre .css .tag{color:#96cbfe}pre .css .rules .property,pre .css .id{color:#ffffb6}pre .css .class{color:#FFF}pre .hexcolor{color:#c6c5fe}pre .number{color:#ff73fd}pre .coffeescript .javascript,pre .javascript .xml,pre .tex .formula,pre .xml .javascript,pre .xml .vbscript,pre .xml .css,pre .xml .cdata{opacity:.7}
@@ -100,9 +100,9 @@ HIGH;
 
 			try
 			{
-				throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+				throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
 			}
-			catch (Exception $e)
+			catch (\Exception $e)
 			{
 				$this->show($e);
 			}
@@ -141,7 +141,7 @@ HIGH;
 	 * @param string $errfile Файл, в котором обнаружена ошибка
 	 * @param string $errline Номер строки файла, в котором обнаружена ошибка
 	 *
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 * @return boolean
 	 */
 	public function throwErrorException($errno, $errstr, $errfile, $errline)
@@ -167,9 +167,9 @@ HIGH;
 
 		try
 		{
-			throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+			throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
 			$this->show($e);
 		}
@@ -198,11 +198,11 @@ HIGH;
 
 	/**
 	 *
-	 * @param Exception $e
+	 * @param \Exception $e
 	 *
 	 * @return string
 	 */
-	public function show(Exception $e = null)
+	public function show(\Exception $e = null)
 	{
 		if ($e)
 			$this->e = $e;
@@ -253,8 +253,8 @@ HIGH;
 			if ($class == "ErrorViz")
 				continue;
 
-			$line = $item["line"];
-			$file = $item["file"];
+			$line = @$item["line"];
+			$file = @$item["file"];
 
 			// развернуть аргументы вызываемых методов
 			$args = $this->parseArgs($item["args"]);
@@ -282,8 +282,8 @@ HIGH;
 
 			$out .= "<pre style='display: none;' id='block_{$id}'><code>{$code}</code></pre>";
 			$out .= "</div>";
-		}
 
+		}
 
 		$out .= "<h1>Вот в этих условиях приходится работать:</h1>";
 
@@ -425,7 +425,7 @@ HIGH;
 			$res = array_slice($lines, $startLine, $wide, true);
 			return $res;
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
 			throw $e;
 		}
