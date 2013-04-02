@@ -51,10 +51,9 @@ class Route
 	{
 		foreach ($this->prefixList as $prefix)
 		{
-			$res = strpos($uri, $prefix);
-			if ($res !== false)
+			if ($this->startsWith($uri, $prefix))
 			{
-				$uri = substr($uri, strlen($prefix) , 0);
+				$uri = substr($uri, strlen($prefix), strlen($uri));
 				if (!$uri)
 					$uri = "/";
 				break;
@@ -178,7 +177,7 @@ class Route
 	 */
 	public function addPrefix($prefix)
 	{
-		$this->prefixList[] = $prefix;
+		$this->prefixList[] = "/" . trim($prefix, "/");
 	}
 
 	/**
@@ -272,5 +271,15 @@ class Route
 			else
 				$list[$key] = $value;
 		}
+	}
+	
+	/**
+	 * Возвращает true, если строка $haystack начинается с $needle
+	 * 
+	 * @return bool
+	 */
+	private function startsWith($haystack, $needle)
+	{
+		return !strncmp($haystack, $needle, strlen($needle));
 	}
 }
