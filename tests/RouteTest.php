@@ -154,8 +154,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$class = '\App\Views\HomeView';
 
 		$route = new Route();
-		$route->addPrefix("index.php");
-		$route->addPrefix("/bo");
+		$route->addPrefix("/index.php");
+		$route->addPrefix("bo");
 
 		$route->add("/", $class);
 
@@ -166,6 +166,16 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		// игнорируем /bo - например,если приложение находится в каталоге http://site.ru/bo
 		$this->assertEquals($class, $route->getClass("/bo"));
 		$this->assertEquals($class, $route->getClass("/bo/"));
+
+		$route = new Route();
+		$route->addPrefix("/bo");
+
+		$route->add("/", "BO\\View\\OperatorIndexView");
+		$route->add("/action/operatorlogin", "BO\\Action\\OperatorLoginAction");
+
+		// игнорируем /bo - например,если приложение находится в каталоге http://site.ru/bo
+		$this->assertEquals("BO\\View\\OperatorIndexView", $route->getClass("/bo"));
+		$this->assertEquals("BO\\Action\\OperatorLoginAction", $route->getClass("/bo/action/operatorlogin/"));
 	}
 
 }
