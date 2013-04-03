@@ -42,6 +42,20 @@ class Controller
 	private static $instance = null;
 
 	/**
+	 * Представление, обрабатываемое в текущем запросе
+	 *
+	 * @var View
+	 */
+	private $currentView = null;
+
+	/**
+	 * Имя класса текущего предствления
+	 *
+	 * @var string
+	 */
+	private $currentViewName = null;
+
+	/**
 	 * Приватный конструктор
 	 *
 	 * @param boolean $isDebug Режим отладки
@@ -69,6 +83,29 @@ class Controller
 
 
 	/**
+	 * Возвращает имя класса текущего Представления
+	 *
+	 * @return string
+	 */
+	public function getCurrentViewName()
+	{
+		if (!$this->currentViewName)
+			$this->currentViewName = get_class($this->currentView);
+		
+		return $this->currentViewName;
+	}
+
+	/**
+	 * Возвращает экземпляр текущего Представления
+	 *
+	 * @return null|View
+	 */
+	public function getCurrentView()
+	{
+		return $this->currentView;
+	}
+
+	/**
 	 * Отрисовывает текущее преставление или выполняет текущее действие
 	 *
 	 * @param $requestUri Строка запроса query string
@@ -86,10 +123,11 @@ class Controller
 		// Создание экземпляра действия
 		$rc = new \ReflectionClass($classname);
 
-		if ($rc->isSubclassOf("Solo\\Core\\View"))
+		$ns = __NAMESPACE__;
+		if ($rc->isSubclassOf("{$ns}\\View"))
 			return $this->handleView($rc);
 
-		if ($rc->isSubclassOf("Solo\\Core\\Action"))
+		if ($rc->isSubclassOf("{$ns}\\Action"))
 			$this->executeAction($rc);
 	}
 
@@ -113,30 +151,30 @@ class Controller
 		if ($view->implementsInterface("Solo\\Core\\IAjaxView"))
 			return $this->handleAjaxView($view);
 
-		$view = $view->newInstance();
+		$this->currentView = $view->newInstance();
 
-		if ($view->layout == null)
+		if ($this->currentView->layout == null)
 			throw new \RuntimeException("Undefined 'layout' property for " . get_class($view));
 
 		// Получение данных в Представлении
-		$view->preRender();
-		$view->render();
-		$view->postRender();
+		$this->currentView->preRender();
+		$this->currentView->render();
+		$this->currentView->postRender();
 
 		// экземпляр обработчика шаблонов
 		$rcTh = new \ReflectionClass($this->getTemplateHandlerClass());
 		$tplHandler = $rcTh->newInstance();
 
-		$view->templateFile = $this->getViewTemplate($view);
+		$this->currentView->templateFile = $this->getViewTemplate($this->currentView);
 
 		// Магическая переменная шаблона - имя файла запрашиваемого представления
-		$tplHandler->assign("CURRENT_VIEW_TEMPLATE", $view->templateFile);
+		$tplHandler->assign("CURRENT_VIEW_TEMPLATE", $this->currentView->templateFile);
 
 		// назначим шаблону переменные Представления
-		$tplHandler = $this->assignToHandler($view, $tplHandler);
+		$tplHandler = $this->assignToHandler($this->currentView, $tplHandler);
 
 		// Вывод HTML
-		$html = $tplHandler->fetch($this->getViewLayout($view), $view->cacheId, $view->compileId);
+		$html = $tplHandler->fetch($this->getViewLayout($this->currentView), $this->currentView->cacheId, $this->currentView->compileId);
 
 
 		//if ($this->isDebug)

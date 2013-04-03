@@ -26,7 +26,7 @@ if (!$uri)
 $_SERVER["REQUEST_METHOD"] = "GET";
 
 echo "\n\n" . str_repeat("-", 40) . "\n";
-echo "Begin debugging routing for URI: {$uri}\n";
+echo "Routing for URI: {$uri}\n";
 echo str_repeat("-", 40) . "\n";
 
 /** @var $route Route*/
