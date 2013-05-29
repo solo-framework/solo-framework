@@ -103,6 +103,7 @@ function recognizeType($type, $asPHPTypes = false)
         case "int":
         case "int unsigned":
         case "tinyint":
+        case "tinyint unsigned":
         case "bit":
         case "float":
             return !$asPHPTypes ? "self::ENTITY_FIELD_INT" : "integer";
@@ -119,6 +120,7 @@ function recognizeType($type, $asPHPTypes = false)
         case "varchar":
         case "text":
         case "tinytext":
+	    case "enum":
             return !$asPHPTypes ? "self::ENTITY_FIELD_STRING" : "string";
             break;
         case "timestamp":

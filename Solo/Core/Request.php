@@ -325,7 +325,11 @@ EOT;
 	 */
 	public static function getBaseURL()
 	{
+		$host = null;
+		if (array_key_exists("HTTP_HOST", $_SERVER))
 		$host = $_SERVER["HTTP_HOST"];
+		else
+			return null;
 
 		if (self::isHTTPS())
 			$host = "https://{$host}";

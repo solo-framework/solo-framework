@@ -13,6 +13,13 @@ namespace Solo\Core;
 abstract class BaseApplication
 {
 	/**
+	 * Консольный режим работы приложения.
+	 * Сессия не стартует, не отправляются HTTP-заголовки
+	 *
+	 * @var bool
+	 */
+	public static $isConsoleApp = false;
+	/**
 	 * Режим работы приложения
 	 *
 	 * @var bool
@@ -90,6 +97,7 @@ abstract class BaseApplication
 	 * @var Route
 	 */
 	protected $route = null;
+
 
 	/**
 	 * Приватный коструктор для реализации Singleton
@@ -345,10 +353,13 @@ abstract class BaseApplication
 	 */
 	protected function init()
 	{
+		if (!self::$isConsoleApp)
+		{
 		$session = self::getComponent(Configurator::get("application:session.provider"));
 
 		// Старт контекста приложения (сессии)
 		Context::start(Configurator::get("application:sessionname"), $session);
+	}
 	}
 
 	/**
@@ -362,10 +373,11 @@ abstract class BaseApplication
 	 */
 	protected function loadConfiguration($configFile)
 	{
+		// загрузка конфигурационного файла
 		Configurator::init(new PHPConfiguratorParser($configFile));
 
-		// загрузка правил роутинга
-		$this->route = require_once dirname($configFile) . "/routing.php";
+		// загрузка файла с правилами маршрутизации
+		$this->route = require_once Configurator::get("application:routing");
 	}
 
 	/**
@@ -377,8 +389,15 @@ abstract class BaseApplication
 	 * @throws \Exception
 	 * @return void
 	 */
-	protected function handleException(\Exception $e)
+	public function handleException(\Exception $e)
 	{
+		if (self::$isConsoleApp)
+		{
+			Logger::error($e);
+			echo $e->getMessage();
+			exit();
+		}
+
 		if (self::$isDebug)
 		{
 			header("HTTP/1.1 500 Internal Server Error");
@@ -389,17 +408,27 @@ abstract class BaseApplication
 		}
 		else
 		{
-			$host = Request::getBaseURL();
-
 			if ($e instanceof HTTP404Exception)
 			{
 				header("HTTP/1.1 404 Not Found");
-				Request::redirect("{$host}/404.html");
+
+				$this->display(
+					Controller::getInstance()->renderView(
+						Configurator::get("application:error404class"), $e
+					)
+				);
+				exit();
 			}
 			if ($e instanceof \Exception)
 			{
 				Logger::error($e);
-				Request::redirect("{$host}/error.html");
+
+				$this->display(
+					Controller::getInstance()->renderView(
+						Configurator::get("application:errorClass"), $e
+					)
+				);
+				exit();
 			}
 		}
 	}
@@ -414,9 +443,10 @@ abstract class BaseApplication
 	 */
 	protected function display($result)
 	{
+		// TODO: добавить класс Response для управления заголовками и пр.
 		// отправляем заголовки, запрещающие кэширование
-		if (Configurator::get("application:nocache"))
-			Request::sendNoCacheHeaders();
+		//if (Configurator::get("application:nocache"))
+		//	Request::sendNoCacheHeaders();
 
 		echo $result;
 	}

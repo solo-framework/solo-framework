@@ -29,6 +29,13 @@ class Route
 	 */
 	private $prefixList = array();
 
+	/**
+	 * Список правил обработки некорректных запросов
+	 *
+	 * @var array
+	 */
+	private $defaults = array();
+
 
 	/**
 	 * Конструктор
@@ -41,6 +48,26 @@ class Route
 	}
 
 	/**
+	 * Добавляет правила обработки некорректных запросов,
+	 * например, если не указано имя Представления, то будем
+	 * отображать представление App\View\IndexView
+	 *
+	 * $route->addDefault("/view", 'App\View\IndexView');
+	 *
+	 * @param string $pattern Шаблон поиска некорректного запроса
+	 * @param string $className Имя класса представления
+	 *
+	 * @return void
+	 */
+	public function addDefault($pattern, $className)
+	{
+		if ("/" !== $pattern)
+			$pattern = "/" . trim($pattern, "/") . "/";
+
+		$this->defaults[$pattern] = $className;
+	}
+
+	/**
 	 *
 	 *
 	 * @param string $uri содержимое $SERVER['QUERY_STRING']
@@ -49,6 +76,12 @@ class Route
 	 */
 	public function getClass($uri)
 	{
+		foreach ($this->defaults as $p => $cn)
+		{
+			if ($uri == $p)
+				return $cn;
+		}
+
 		foreach ($this->prefixList as $prefix)
 		{
 			if ($this->startsWith($uri, $prefix))
@@ -69,7 +102,6 @@ class Route
 		}
 
 		$uri = "/" . trim($uri, "/") . "/";
-		//var_dump($uri);
 		$className = null;
 
 		// самый простой поиск
@@ -77,7 +109,7 @@ class Route
 		{
 			if ("/" == $rule)
 				continue;
-			// более точно определенные правила ищем в первую очередь?
+			// более точно определенные правила ищем в первую очередь
 			$res = strpos($uri, $rule);
 			if ($res !== false)
 			{
@@ -276,6 +308,9 @@ class Route
 	/**
 	 * Возвращает true, если строка $haystack начинается с $needle
 	 * 
+	 * @param $haystack
+	 * @param $needle
+	 *
 	 * @return bool
 	 */
 	private function startsWith($haystack, $needle)

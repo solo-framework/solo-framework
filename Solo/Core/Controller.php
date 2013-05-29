@@ -141,7 +141,7 @@ class Controller
 	 *
 	 * @return string
 	 */
-	public function handleView(\ReflectionClass $view)
+	public function handleView(\ReflectionClass $view, $args = null)
 	{
 		// Нельзя напрямую отображать Компоненты
 		if($view->implementsInterface("Solo\\Core\\IViewComponent"))
@@ -151,6 +151,9 @@ class Controller
 		if ($view->implementsInterface("Solo\\Core\\IAjaxView"))
 			return $this->handleAjaxView($view);
 
+		if (count($args) !== 0)
+			$this->currentView = $view->newInstanceArgs($args);
+		else
 		$this->currentView = $view->newInstance();
 
 		if ($this->currentView->layout == null)
@@ -195,6 +198,24 @@ class Controller
 	private function addDebugInfo($viewName, $html, $info = "")
 	{
 		return "<!-- begin of '{$viewName}' {$info} -->\n{$html}\n<!-- end of '{$viewName}' {$info} -->\n";
+	}
+
+	/**
+	 * Возвращает HTML-код представления
+	 *
+	 * @param string $className  Имя класса Представления
+	 * @param array $args Список значений, передаваемых в конструктор компонента
+	 *
+	 * @return string
+	 */
+	public function renderView($className, $args = null)
+	{
+		$rc = new \ReflectionClass($className);
+
+		if (!is_array($args))
+			$args = array($args);
+
+		return $this->handleView($rc, $args);
 	}
 
 	/**
