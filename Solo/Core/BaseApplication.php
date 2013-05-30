@@ -366,9 +366,10 @@ abstract class BaseApplication
 
 		try
 		{
-			foreach ($preHandlers as $class)
+			foreach ($preHandlers as $class => $params)
 			{
 				$inst = new $class();
+				$inst->init($params);
 				$inst->onBegin();
 				$this->handlers[] = $inst;
 			}
@@ -377,14 +378,6 @@ abstract class BaseApplication
 		{
 			$this->handleException($e);
 		}
-
-//		if (!self::$isConsoleApp)
-//		{
-//			$session = self::getComponent(Configurator::get("application:session.provider"));
-//
-//			// Старт контекста приложения (сессии)
-//			Context::start(Configurator::get("application:sessionname"), $session);
-//		}
 	}
 
 	/**
@@ -436,7 +429,7 @@ abstract class BaseApplication
 		{
 			if ($e instanceof HTTP404Exception)
 			{
-				header("HTTP/1.1 404 Not Found");
+				Response::addHeader("HTTP/1.1 404 Not Found");
 
 				$this->display(
 					Controller::getInstance()->renderView(
@@ -460,7 +453,7 @@ abstract class BaseApplication
 	}
 
 	/**
-	 * Вывод в браузер.
+	 * Отправка заголовков и вывод в браузер.
 	 * В наследуемом классе можно переопределить поведение
 	 *
 	 * @param string $result Строка, выводимая в браузер
@@ -469,11 +462,7 @@ abstract class BaseApplication
 	 */
 	protected function display($result)
 	{
-		// TODO: добавить класс Response для управления заголовками и пр.
-		// отправляем заголовки, запрещающие кэширование
-		//if (Configurator::get("application:nocache"))
-		//	Request::sendNoCacheHeaders();
-
+		Response::sendHeaders();
 		echo $result;
 	}
 
@@ -534,7 +523,7 @@ abstract class BaseApplication
 		if($message != null)
 			Context::setFlashMessage($message, $flashMessageId);
 
-		Request::redirect($url);
+		Response::redirect($url);
 	}
 
 
@@ -554,7 +543,7 @@ abstract class BaseApplication
 		if($message != null)
 			Context::setFlashMessage($message, $flashMessageId);
 
-		Request::redirect(Request::prevUri());
+		Response::redirect(Request::prevUri());
 	}
 }
 
