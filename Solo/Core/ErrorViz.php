@@ -266,6 +266,7 @@ HIGH;
 
 			$out .= "<div class='indent'>";
 
+			$args = htmlspecialchars($args);
 			if ($class)
 				$out .= "<sup>{$class}{$item['type']}{$item['function']}({$args})</sup>";
 			else

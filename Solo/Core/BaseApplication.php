@@ -10,6 +10,8 @@
 
 namespace Solo\Core;
 
+use Solo\Core\Handler\Handler;
+
 abstract class BaseApplication
 {
 	/**
@@ -97,6 +99,13 @@ abstract class BaseApplication
 	 * @var Route
 	 */
 	protected $route = null;
+
+	/**
+	 * Список объектов IHandler
+	 *
+	 * @var Handler[]
+	 */
+	protected $handlers = array();
 
 
 	/**
@@ -353,13 +362,29 @@ abstract class BaseApplication
 	 */
 	protected function init()
 	{
-		if (!self::$isConsoleApp)
-		{
-		$session = self::getComponent(Configurator::get("application:session.provider"));
+		$preHandlers = Configurator::getArray("application:preHandlers");
 
-		// Старт контекста приложения (сессии)
-		Context::start(Configurator::get("application:sessionname"), $session);
-	}
+		try
+		{
+			foreach ($preHandlers as $class)
+			{
+				$inst = new $class();
+				$inst->onBegin();
+				$this->handlers[] = $inst;
+			}
+		}
+		catch (\Exception $e)
+		{
+			$this->handleException($e);
+		}
+
+//		if (!self::$isConsoleApp)
+//		{
+//			$session = self::getComponent(Configurator::get("application:session.provider"));
+//
+//			// Старт контекста приложения (сессии)
+//			Context::start(Configurator::get("application:sessionname"), $session);
+//		}
 	}
 
 	/**
@@ -405,6 +430,7 @@ abstract class BaseApplication
 
 			$ev = new ErrorViz($e);
 			$ev->show();
+			exit();
 		}
 		else
 		{
@@ -455,9 +481,6 @@ abstract class BaseApplication
 	/**
 	 * Обработка HTTP-запроса.
 	 *
-	 * Запрос имеет вид index.php?view=viewname для отображения Представления
-	 * и index.php?action=actionName для выполнения Действия
-	 *
 	 * @return void
 	 */
 	public function handleRequest()
@@ -474,6 +497,12 @@ abstract class BaseApplication
 			// обработка запроса
 			// если было запрошено представление - получим HTML
 			$html = $controller->execute($_SERVER["REQUEST_URI"], $this->route);
+
+			// завершаем работу обработчиков
+			foreach ($this->handlers as $handler)
+			{
+				$html = $handler->onFinish($html);
+			}
 
 			// вывод в браузер
 			self::$instance->display($html);
