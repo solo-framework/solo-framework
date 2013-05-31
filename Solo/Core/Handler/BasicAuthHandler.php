@@ -1,10 +1,16 @@
 <?php
 /**
- *
+ * Basic-авторизация в приложении
  *
  * PHP version 5
  *
- * @package
+ * @example
+ *			"Solo\\Core\\Handler\\BasicAuthHandler" => array(
+ *				"cridentials" => array("user:password", "user2:passw2"),
+ *				"realmName" => "Secret zone!",
+ *				"failText" => "You are not valid user!"
+ *			),
+ * @package Handler
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
