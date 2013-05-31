@@ -1,30 +1,29 @@
 <?php
 /**
- * Created by JetBrains PhpStorm.
- * User: afi
- * Date: 29.05.13
- * Time: 22:34
- * To change this template use File | Settings | File Templates.
+ * Выводит в браузер лог SQL запросов
+ *
+ * PHP version 5
+ *
+ * @package
+ * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 namespace Solo\Core\Handler;
 
+use App\Application;
+use Solo\Core\HTTP404Exception;
 
-abstract class Handler
+class SQLLoggerHandler extends Handler
 {
+
 	/**
 	 * Выполнение действия перед обработкой представления
 	 *
 	 * @return void
 	 */
-	public abstract function onBegin();
-
-	public function init($params = array())
+	public function onBegin()
 	{
-		foreach ($params as $k => $v)
-		{
-			$this->$k = $v;
-		}
+
 	}
 
 	/**
@@ -38,6 +37,12 @@ abstract class Handler
 	 */
 	public function onFinish($response)
 	{
-		return $response;
+		/** @var $db PDOAdapter*/
+		$db = Application::getInstance()->getComponent("db");
+		$log = $db->getLog();
+
+		$log = implode("<br/>", $log);
+		return $response . $log;
 	}
 }
+
