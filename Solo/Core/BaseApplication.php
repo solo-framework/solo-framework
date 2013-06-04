@@ -363,15 +363,17 @@ abstract class BaseApplication
 	protected function init()
 	{
 		$handlers = Configurator::getArray("application:handlers");
-
 		try
 		{
 			foreach ($handlers as $class => $params)
 			{
 				$inst = new $class();
 				$inst->init($params);
-				$inst->onBegin();
-				$this->handlers[] = $inst;
+				if ($inst->isEnabled)
+				{
+					$inst->onBegin();
+					$this->handlers[] = $inst;
+				}
 			}
 		}
 		catch (\Exception $e)
@@ -453,7 +455,7 @@ abstract class BaseApplication
 	}
 
 	/**
-	 * Вывод в браузер.
+	 * Отправка заголовков и вывод в браузер.
 	 * В наследуемом классе можно переопределить поведение
 	 *
 	 * @param string $result Строка, выводимая в браузер
