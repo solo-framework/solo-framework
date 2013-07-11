@@ -127,9 +127,12 @@ abstract class EntityManager
 	 *
 	 * @param Entity $object Экземпляр сущности
 	 *
+	 * @param callable $sqlFn Анонимная функция, которая получает на вход
+	 *          сформированный SQL запрос для его модификации.
+	 *
 	 * @return void
 	 */
-	protected function insert(Entity $object)
+	protected function insert(Entity $object, callable $sqlFn = null)
 	{
 		$object->selfTest();
 		$types = $object->getFields();
@@ -170,6 +173,9 @@ abstract class EntityManager
 			$holders = implode(", ", array_fill(0, $count, "?"));
 			$sql = "INSERT INTO `{$table}` ({$fields}) VALUES({$holders})";
 		}
+
+		$sql = $sqlFn($sql);
+
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
 
@@ -179,9 +185,12 @@ abstract class EntityManager
 	 *
 	 * @param Entity $object Экземпляр сущности
 	 *
+	 * @param callable $sqlFn Анонимная функция, которая получает на вход
+	 *          сформированный SQL запрос для его модификации.
+	 *
 	 * @return void
 	 */
-	protected function update(Entity $object)
+	protected function update(Entity $object, callable $sqlFn = null)
 	{
 		$object->selfTest();
 		$types = $object->getFields();
@@ -217,6 +226,8 @@ abstract class EntityManager
 		$table = $object->entityTable;
 
 		$sql = "UPDATE `{$table}` SET {$fields} WHERE {$object->primaryKey} = ?";
+
+		$sql = $sqlFn($sql);
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
 

@@ -177,6 +177,8 @@ HIGH;
 
 	private function parseArgs($args)
 	{
+		if (count($args) == 0)
+			return "";
 		// TODO: попробовать брать эту инфу из $this->e->getTraceAsString()
 		$res = array();
 		foreach ($args as $arg)
@@ -257,7 +259,7 @@ HIGH;
 			$file = @$item["file"];
 
 			// развернуть аргументы вызываемых методов
-			$args = $this->parseArgs($item["args"]);
+			$args = $this->parseArgs(@$item["args"]);
 			$codeLines = $this->readCodeFile($file, $line);
 			$code = "";
 
