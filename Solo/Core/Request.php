@@ -151,7 +151,6 @@ class Request
 			$input = stripslashes($input);
 		}
 		return $input;
-		//return addslashes($input);
 	}
 
 	/**
@@ -219,23 +218,6 @@ class Request
 
 
 	/**
-	 * Отправляет заголовки, приводящие к редиректу на
-	 * указанный URL
-	 *
-	 * @param string $uri URL для редиректа
-	 *
-	 * @return void
-	 */
-	public static function redirect($uri)
-	{
-		if (null == $uri)
-			$uri = "/";
-		header("Location: " . $uri, true, 302);
-		exit();
-	}
-
-
-	/**
 	 * Проверяет, был ли выполнен запрос с применением AJAX
 	 *
 	 * @return bool
@@ -248,63 +230,37 @@ class Request
 			return false;
 	}
 
-	/**
-	 * Отправляет заголовки, запрещающие кеширование на клиенте
-	 *
-	 * @return void
-	 */
-	public static function sendNoCacheHeaders()
-	{
-		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-		header("Cache-Control: no-store, no-cache, must-revalidate");
-		header("Cache-Control: post-check=0, pre-check=0", false);
-		header("Pragma: no-cache");
-	}
 
-	/**
-	 * Отправляет HTTP заголовок Content-Type
-	 *
-	 * @param string $encoding Кодировка. Напр. windows-1251, utf-8 etc. By default: utf-8
-	 * @param string $type Значение Content-Type. По умолчанию: text/html
-	 *
-	 * @return void
-	 * */
-	public static function sendHeaderContentType($encoding = "utf-8", $type = "text/html")
-	{
-		header("content-type: {$type};charset={$encoding} \r\n");
-	}
-
-	/**
-	 * Отправляет HTTP заголовок 404
-	 * и выводит содержимое страницы 404 в браузер
-	 *
-	 * @param string $info Дополнительная информация
-	 *
-	 * @return void
-	 */
-	public static function send404($info = null)
-	{
-		header("HTTP/1.1 404 Not Found");
-
-		$message = <<<EOT
-
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html>
-<head>
-	<title>404 Not Found</title>
-</head>
-<body>
-<h1>Not Found</h1>
-<p>The requested URL {$_SERVER['REQUEST_URI']} was not found on this server.</p>
-<p>{$info}</p>
-</body>
-</html>
-EOT;
-		echo $message;
-
-		exit();
-	}
+//	/**
+//	 * Отправляет HTTP заголовок 404
+//	 * и выводит содержимое страницы 404 в браузер
+//	 *
+//	 * @param string $info Дополнительная информация
+//	 *
+//	 * @return void
+//	 */
+//	public static function send404($info = null)
+//	{
+//		header("HTTP/1.1 404 Not Found");
+//
+//		$message = <<<EOT
+//
+//<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+//<html>
+//<head>
+//	<title>404 Not Found</title>
+//</head>
+//<body>
+//<h1>Not Found</h1>
+//<p>The requested URL {$_SERVER['REQUEST_URI']} was not found on this server.</p>
+//<p>{$info}</p>
+//</body>
+//</html>
+//EOT;
+//		echo $message;
+//
+//		exit();
+//	}
 
 	/**
 	 * Возвращает true, если запрос был послан через https

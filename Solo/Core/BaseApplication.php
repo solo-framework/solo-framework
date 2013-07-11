@@ -362,11 +362,10 @@ abstract class BaseApplication
 	 */
 	protected function init()
 	{
-		$preHandlers = Configurator::getArray("application:handlers");
-
+		$handlers = Configurator::getArray("application:handlers");
 		try
 		{
-			foreach ($preHandlers as $class => $params)
+			foreach ($handlers as $class => $params)
 			{
 				$inst = new $class();
 				$inst->init($params);
@@ -378,14 +377,6 @@ abstract class BaseApplication
 		{
 			$this->handleException($e);
 		}
-
-//		if (!self::$isConsoleApp)
-//		{
-//			$session = self::getComponent(Configurator::get("application:session.provider"));
-//
-//			// Старт контекста приложения (сессии)
-//			Context::start(Configurator::get("application:sessionname"), $session);
-//		}
 	}
 
 	/**
