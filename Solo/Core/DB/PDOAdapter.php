@@ -361,6 +361,7 @@ class PDOAdapter implements IDBAdapter, IApplicationComponent
 	 */
 	public function getLog()
 	{
+		$this->checkConnection();
 		return $this->pdo->log;
 	}
 
