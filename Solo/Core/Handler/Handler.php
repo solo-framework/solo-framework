@@ -26,14 +26,6 @@ abstract class Handler
 	 */
 	public abstract function onBegin();
 
-	public function init($params = array())
-	{
-		foreach ($params as $k => $v)
-		{
-			$this->$k = $v;
-		}
-	}
-
 	/**
 	 * Создает атрибуты обработчика, описанные в конфигурации
 	 *
