@@ -174,6 +174,7 @@ abstract class EntityManager
 			$sql = "INSERT INTO `{$table}` ({$fields}) VALUES({$holders})";
 		}
 
+		if (null !== $sqlFn)
 		$sql = $sqlFn($sql);
 
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
@@ -227,6 +228,7 @@ abstract class EntityManager
 
 		$sql = "UPDATE `{$table}` SET {$fields} WHERE {$object->primaryKey} = ?";
 
+		if (null !== $sqlFn)
 		$sql = $sqlFn($sql);
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
