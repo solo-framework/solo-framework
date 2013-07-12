@@ -110,7 +110,8 @@ class Route
 			if ("/" == $rule)
 				continue;
 			// более точно определенные правила ищем в первую очередь
-			$res = strpos($uri, $rule);
+			$res = stripos($uri, $rule);
+
 			if ($res !== false)
 			{
 				$this->parsePathInfo(str_replace($rule, "", $uri));
@@ -304,10 +305,10 @@ class Route
 				$list[$key] = $value;
 		}
 	}
-	
+
 	/**
 	 * Возвращает true, если строка $haystack начинается с $needle
-	 * 
+	 *
 	 * @param $haystack
 	 * @param $needle
 	 *
