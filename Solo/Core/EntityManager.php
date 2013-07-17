@@ -175,7 +175,7 @@ abstract class EntityManager
 		}
 
 		if (null !== $sqlFn)
-		$sql = $sqlFn($sql);
+			$sql = $sqlFn($sql);
 
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
@@ -229,7 +229,7 @@ abstract class EntityManager
 		$sql = "UPDATE `{$table}` SET {$fields} WHERE {$object->primaryKey} = ?";
 
 		if (null !== $sqlFn)
-		$sql = $sqlFn($sql);
+			$sql = $sqlFn($sql);
 		$this->getWriteConnection()->executeNonQuery($sql, $values);
 	}
 
