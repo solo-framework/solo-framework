@@ -230,38 +230,6 @@ class Request
 			return false;
 	}
 
-
-//	/**
-//	 * Отправляет HTTP заголовок 404
-//	 * и выводит содержимое страницы 404 в браузер
-//	 *
-//	 * @param string $info Дополнительная информация
-//	 *
-//	 * @return void
-//	 */
-//	public static function send404($info = null)
-//	{
-//		header("HTTP/1.1 404 Not Found");
-//
-//		$message = <<<EOT
-//
-//<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-//<html>
-//<head>
-//	<title>404 Not Found</title>
-//</head>
-//<body>
-//<h1>Not Found</h1>
-//<p>The requested URL {$_SERVER['REQUEST_URI']} was not found on this server.</p>
-//<p>{$info}</p>
-//</body>
-//</html>
-//EOT;
-//		echo $message;
-//
-//		exit();
-//	}
-
 	/**
 	 * Возвращает true, если запрос был послан через https
 	 * Иначе - false
@@ -270,7 +238,14 @@ class Request
 	 */
 	public static function isHTTPS()
 	{
-		return isset($_SERVER['HTTPS']) && !strcasecmp($_SERVER['HTTPS'], 'on');
+		return
+				isset
+				($_SERVER['HTTPS']) &&
+				($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1)
+					||
+				isset
+				($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+				$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
 	}
 
 	/**
@@ -283,7 +258,7 @@ class Request
 	{
 		$host = null;
 		if (array_key_exists("HTTP_HOST", $_SERVER))
-		$host = $_SERVER["HTTP_HOST"];
+			$host = $_SERVER["HTTP_HOST"];
 		else
 			return null;
 
