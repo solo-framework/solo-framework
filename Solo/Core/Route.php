@@ -68,7 +68,7 @@ class Route
 	}
 
 	/**
-	 *
+	 * возвращает имя класса по заданному URI
 	 *
 	 * @param string $uri содержимое $SERVER['QUERY_STRING']
 	 *
@@ -76,6 +76,12 @@ class Route
 	 */
 	public function getClass($uri)
 	{
+		// если запрос в виде /search?q=search_string
+		// то убираем ?q=search_string
+		if ($q = strpos($uri, "?"))
+			$uri = substr($uri, 0, $q);
+
+
 		foreach ($this->defaults as $p => $cn)
 		{
 			if ($uri == $p)
