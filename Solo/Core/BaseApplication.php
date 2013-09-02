@@ -369,6 +369,8 @@ abstract class BaseApplication
 			{
 				$inst = new $class();
 				$inst->init($params);
+				if (!$inst->isEnabled)
+					continue;
 				$inst->onBegin();
 				$this->handlers[] = $inst;
 			}
