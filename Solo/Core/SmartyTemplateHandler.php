@@ -19,8 +19,20 @@ class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 		// Включение безопасного режима
 		if (Configurator::get("smarty:security"))
 		{
-			$this->enableSecurity();
-			$this->security_policy->secure_dir = Configurator::getArray("smarty:secureDirs");
+			// если задано имя класса для конфигурации безопасности
+			$securityClass = Configurator::get("smarty:securityClass");
+			if ($securityClass)
+			{
+				$this->enableSecurity($securityClass);
+			}
+			else
+			{
+				// иначе, заполняем дефолтный класс значениями
+				$this->enableSecurity();
+				$options = Configurator::getArray("smarty:securityOptions");
+				foreach ($options as $k => $v)
+					$this->security_policy->{$k} = $v;
+			}
 		}
 
 		$this->left_delimiter = Configurator::get("smarty:leftDelimiter");
