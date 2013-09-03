@@ -361,6 +361,17 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
 		$this->val->reset();
 	}
 
+	public function test_contains()
+	{
+		$this->val->check("some_string")->contains("_", "Doesn't contain a string!");
+		$this->assertTrue($this->val->isValid());
+		$this->val->reset();
+
+		$this->val->check("somestring")->contains("_", "Doesn't contain a string!");
+		$this->assertFalse($this->val->isValid());
+		$this->val->reset();
+	}
+
 	public function test_post()
 	{
 		$_POST["subId"] = 1;

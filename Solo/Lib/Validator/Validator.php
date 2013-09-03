@@ -393,6 +393,25 @@ class Validator
 	}
 
 	/**
+	 * Значение должно содержать указанную подстроку
+	 *
+	 * @param string $search Искомая подстрока
+	 * @param string $comment Комментарий, отображаемый если Условие не выполнено
+	 *
+	 * @return Validator
+	 */
+	public function contains($search, $comment = "")
+	{
+		if ($this->isValid)
+		{
+			$res = strpos($this->val, $search);
+			if ($res === false)
+				self::addMessage($comment);
+		}
+		return $this;
+	}
+
+	/**
 	 * Результат проверки
 	 *
 	 * @return boolean
