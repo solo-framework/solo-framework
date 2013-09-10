@@ -7,7 +7,8 @@ Installation
 ==============
 
 It is recommended to use "revolution" branch.
-To init a new application you should run the command
+To init a new application into current directory you should run the command
 
-composer create-project solo/app
-
+```
+composer create-project solo/app ./
+```
