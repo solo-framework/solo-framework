@@ -9,5 +9,5 @@ Installation
 It is recommended to use "revolution" branch.
 To init a new application you should run the command
 
-composer create-project solo/app --dev
+composer create-project solo/app
 
