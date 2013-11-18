@@ -18,10 +18,25 @@ namespace Solo\Core\Handler;
 
 class BasicAuthHandler extends Handler
 {
+	/**
+	 * Список логинов и паролей для аутентификации
+	 * @var array
+	 */
 	public $cridentials = array();
 
+	/**
+	 * realm сообщение
+	 *
+	 * @var string
+	 */
 	public $realmName = "Default realm name";
 
+	/**
+	 * Текст, отображаемый при неудачной попытке
+	 * аутентификации
+	 *
+	 * @var string
+	 */
 	public $failText = "";
 
 	/**
@@ -59,6 +74,8 @@ class BasicAuthHandler extends Handler
 
 			if (!$isValid)
 			{
+				header("WWW-Authenticate: Basic realm=\"{$this->realmName}\"");
+				header('HTTP/1.0 401 Unauthorized');
 				echo $this->failText;
 				exit();
 			}
