@@ -187,4 +187,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($class, $route->getClass("/search?q=search_string"), "Class not Found");
 	}
 
+	public function test_with_action()
+	{
+		$route = new \Solo\Core\Route();
+		$class = '\App\Views\SearchView';
+
+		$route->add("/test", $class);
+
+		// правило должно быть "/action/test"
+		$this->assertNotEquals($class, $route->getClass("/action/test"));
+		$this->assertNotEquals($class, $route->getClass("/action/test/id/100"));
+	}
 }

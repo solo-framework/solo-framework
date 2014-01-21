@@ -116,9 +116,9 @@ class Route
 			if ("/" == $rule)
 				continue;
 			// более точно определенные правила ищем в первую очередь
-			$res = stripos($uri, $rule);
+			$res = $this->startsWith($uri, $rule);
 
-			if ($res !== false)
+			if ($res)
 			{
 				$this->parsePathInfo(str_replace($rule, "", $uri));
 				$className = $class;
@@ -154,12 +154,19 @@ class Route
 		// и при совпадении правила в $_REQUEST
 		// появится переменная 'username' со значением 'some_username'
 
+		$tmp = $rule;
+
 		$rule = preg_replace('%:([\w]+):(\{[\w]+\})%', '(?P<$1>$2)', $rule);
 
 		$rule = "~" . trim($rule, '/') . "/~";
 
 		// заменить wildcards на регулярные выражения
 		$rule = str_replace(array_keys($this->wildcards), array_values($this->wildcards), $rule);
+
+		// проверим, содержало ли правило какие-нибудь подстановки, если нет,
+		// то дальше можно не проверять
+		if (trim($tmp, "/") == trim($rule, "~/"))
+			return false;
 
 		// проверяем соответствие uri маршруту
 		$isMatch = preg_match($rule, $uri, $matches);
