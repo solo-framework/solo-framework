@@ -48,6 +48,7 @@ class SmartyTemplateHandler extends \Smarty implements ITemplateHandler
 		$this->setCompileDir(Configurator::get("smarty:compile.dir"));
 		$this->setConfigDir(Configurator::get("smarty:config.dir"));
 		$this->setCacheDir(Configurator::get("smarty:cache.dir"));
+		$this->setAutoloadFilters(Configurator::get("smarty:filters"));
 
 		//Загрузка пользовательских плагинов и функций
 		$this->addPluginsDir(Configurator::get("smarty:user.plugins"));

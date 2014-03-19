@@ -91,7 +91,7 @@ class Controller
 	{
 		if (!$this->currentViewName)
 			$this->currentViewName = get_class($this->currentView);
-		
+
 		return $this->currentViewName;
 	}
 
@@ -108,7 +108,7 @@ class Controller
 	/**
 	 * Отрисовывает текущее преставление или выполняет текущее действие
 	 *
-	 * @param $requestUri Строка запроса query string
+	 * @param string $requestUri Строка запроса query string
 	 * @param Route $route Экземпляр маршрутизатора
 	 *
 	 * @throws HTTP404Exception
@@ -135,6 +135,8 @@ class Controller
 	 * Обработка и отрисовка запрашиваемого представления
 	 *
 	 * @param \ReflectionClass $view
+	 *
+	 * @param array $args Аргументы, передаваемые в конструктор View
 	 *
 	 * @throws \RuntimeException
 	 * @internal param object $viewName
@@ -375,7 +377,7 @@ class Controller
 		// проверим, совпадают ли HTTP методы у запроса и Действия
 		if ($action->requestMethod !== $requestMethod)
 			throw new \RuntimeException("Can't execute action '{$rc->getName()}': current HTTP request
-				method is '{$action->requestMethod}' against required '{$requestMethod}'");
+				method is '{$action->requestMethod}'. You have to use '{$requestMethod}'.");
 
 		// выполнение цепочки методов Действия
 		$action->preExecute();
@@ -383,7 +385,7 @@ class Controller
 		$action->postExecute();
 
 		// Действие должно заканчиваться редиректом - иначе ошибка
-		throw new \RuntimeException("Action '{$rc->getName()}' has been executed. Redirect?");
+		throw new \RuntimeException("Action '{$rc->getName()}' has been executed. Have you forgotten to do a redirect?");
 	}
 
 	/**
