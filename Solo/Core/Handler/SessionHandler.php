@@ -16,6 +16,21 @@ use Solo\Core\Context;
 
 class SessionHandler extends Handler
 {
+
+	/**
+	 * Имя класса обработчика сессий
+	 *
+	 * @var string
+	 */
+	public $providerClass = "";
+
+	/**
+	 * Имя сессии
+	 *
+	 * @var string
+	 */
+	public $sessionName = "";
+
 	/**
 	 * Выполнение действия в начале
 	 *
@@ -24,9 +39,9 @@ class SessionHandler extends Handler
 	public function onBegin()
 	{
 		// Старт контекста приложения (сессии)
-		$provider = Application::getInstance()->getComponent(Configurator::get("application:session.provider"));
-		Context::start(Configurator::get("application:sessionname"), $provider);
+//		$provider = Application::getInstance()->getComponent(Configurator::get("application:session.provider"));
+		$provider = new $this->providerClass();
+		Context::start($this->sessionName, $provider);
 	}
-
 }
 

@@ -1,31 +1,31 @@
 <?php
 /**
- * Класс для отрисовки представлений и выполнения действий
- * Связующий копмонент
+ * Класс для обработки Действий и отрисовки Представлений
  *
  * PHP version 5
  *
- * @package Framework
- * @author  Andrey Filippov <afi.work@gmail.com>
+ * @package
+ * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
 namespace Solo\Core;
 
-class Controller
+use Solo\Core\UI\ITemplateHandler;
+use Solo\Core\UI\View;
+
+class Controller implements IApplicationComponent
 {
 	/**
-	 * Режим отладки
-	 *
-	 * @var boolean
-	 */
-	public $isDebug = false;
-
-	/**
-	 * Имя класса обработчика шаблонов
+	 * Полное название класса, выполняющего обработку шаблона
 	 *
 	 * @var string
 	 */
-	private $templateHandlerClass = "Solo\\Core\\SmartyTemplateHandler";
+	public $rendererClass = null;
+
+	/**
+	 * @var array
+	 */
+	public $options = array();
 
 	/**
 	 * Расширение файлов, содержащих шаблоны
@@ -35,11 +35,11 @@ class Controller
 	public $templateExtension = ".html";
 
 	/**
-	 * Ссылка на текущий экземпляр Controller
+	 * Режим отладки
 	 *
-	 * @var Controller
+	 * @var bool
 	 */
-	private static $instance = null;
+	public $isDebug = false;
 
 	/**
 	 * Представление, обрабатываемое в текущем запросе
@@ -55,32 +55,11 @@ class Controller
 	 */
 	private $currentViewName = null;
 
-	/**
-	 * Приватный конструктор
-	 *
-	 * @param boolean $isDebug Режим отладки
-	 *
-	 * @return \solo\core\Controller
-	 */
-	private function __construct($isDebug)
-	{
-		$this->isDebug = $isDebug;
-	}
 
-	/**
-	* Возвращает экземпляр класса
-	*
-	* @param boolean $isDebug Режим отладки
-	*
-	* @return Controller
-	*/
-	public static function getInstance($isDebug = false)
+	public function initComponent()
 	{
-		if (!isset(self::$instance))
-			self::$instance = new self($isDebug);
-		return self::$instance;
-	}
 
+	}
 
 	/**
 	 * Возвращает имя класса текущего Представления
@@ -109,12 +88,12 @@ class Controller
 	 * Отрисовывает текущее преставление или выполняет текущее действие
 	 *
 	 * @param string $requestUri Строка запроса query string
-	 * @param Route $route Экземпляр маршрутизатора
+	 * @param Router $route Экземпляр маршрутизатора
 	 *
 	 * @throws HTTP404Exception
 	 * @return string
 	 */
-	public function execute($requestUri, Route $route)
+	public function execute($requestUri, Router $route)
 	{
 		$classname = $route->getClass($requestUri);
 		if (is_null($classname))
@@ -124,7 +103,7 @@ class Controller
 		$rc = new \ReflectionClass($classname);
 
 		$ns = __NAMESPACE__;
-		if ($rc->isSubclassOf("{$ns}\\View"))
+		if ($rc->isSubclassOf("{$ns}\\UI\\View"))
 			return $this->handleView($rc);
 
 		if ($rc->isSubclassOf("{$ns}\\Action"))
@@ -146,17 +125,17 @@ class Controller
 	public function handleView(\ReflectionClass $view, $args = null)
 	{
 		// Нельзя напрямую отображать Компоненты
-		if($view->implementsInterface("Solo\\Core\\IViewComponent"))
+		if($view->implementsInterface("Solo\\Core\\UI\\IComponent"))
 			throw new \RuntimeException("Can't display component {$view->name}");
 
 		// значит, не нужно будет рисовать макет (layout)
-		if ($view->implementsInterface("Solo\\Core\\IAjaxView"))
+		if ($view->implementsInterface("Solo\\Core\\UI\\IAjaxView"))
 			return $this->handleAjaxView($view);
 
 		if (count($args) !== 0)
 			$this->currentView = $view->newInstanceArgs($args);
 		else
-		$this->currentView = $view->newInstance();
+			$this->currentView = $view->newInstance();
 
 		if ($this->currentView->layout == null)
 			throw new \RuntimeException("Undefined 'layout' property for " . get_class($view));
@@ -167,8 +146,8 @@ class Controller
 		$this->currentView->postRender();
 
 		// экземпляр обработчика шаблонов
-		$rcTh = new \ReflectionClass($this->getTemplateHandlerClass());
-		$tplHandler = $rcTh->newInstance();
+		$rcTh = new \ReflectionClass($this->getRenderClass());
+		$tplHandler = $rcTh->newInstanceArgs(array($this->options, $this->currentView->getExtraData()));
 
 		$this->currentView->templateFile = $this->getViewTemplate($this->currentView);
 
@@ -179,12 +158,7 @@ class Controller
 		$tplHandler = $this->assignToHandler($this->currentView, $tplHandler);
 
 		// Вывод HTML
-		$html = $tplHandler->fetch($this->getViewLayout($this->currentView), $this->currentView->cacheId, $this->currentView->compileId);
-
-
-		//if ($this->isDebug)
-		//	$html = $this->addDebugInfo($view->name, $html, $view->templateFile);
-
+		$html = $tplHandler->fetch($this->getViewLayout($this->currentView));
 		return $html;
 	}
 
@@ -197,7 +171,7 @@ class Controller
 	 *
 	 * @return string
 	 */
-	private function addDebugInfo($viewName, $html, $info = "")
+	protected function addDebugInfo($viewName, $html, $info = "")
 	{
 		return "<!-- begin of '{$viewName}' {$info} -->\n{$html}\n<!-- end of '{$viewName}' {$info} -->\n";
 	}
@@ -244,18 +218,17 @@ class Controller
 			$view->render();
 			$view->postRender();
 
-			$templateHandlerClass = $this->getTemplateHandlerClass();
+			$templateHandlerClass = $this->getRenderClass();
 			// экземпляр обработчика шаблонов
 			$rcTh = new \ReflectionClass($templateHandlerClass);
-			$tplHandler = $rcTh->newInstance();
+			$tplHandler = $rcTh->newInstanceArgs(array($this->options, $view->getExtraData()));
 
 			// переменные Представления отправим в шаблон
 			$tplHandler = $this->assignToHandler($view, $tplHandler);
-
 			$view->templateFile = $this->getViewTemplate($view);
 
 			// Вывод HTML
-			$html = $tplHandler->fetch($view->templateFile, $view->cacheId, $view->compileId);
+			$html = $tplHandler->fetch($view->templateFile);
 
 			if ($this->isDebug)
 				$html = $this->addDebugInfo($className, $html, $view->templateFile);
@@ -285,14 +258,14 @@ class Controller
 		$view->postRender();
 
 		// экземпляр обработчика шаблонов
-		$rcTh = new \ReflectionClass($this->getTemplateHandlerClass());
-		$tplHandler = $rcTh->newInstance();
+		$rcTh = new \ReflectionClass($this->getRenderClass());
+		$tplHandler = $rcTh->newInstance($this->options, $view->getExtraData());
 
 		// назначим шаблону переменные Представления
 		$tplHandler = $this->assignToHandler($view, $tplHandler);
 
 		// Вывод HTML
-		return $tplHandler->fetch($this->getViewTemplate($view), $view->cacheId, $view->compileId);
+		return $tplHandler->fetch($this->getViewTemplate($view));
 	}
 
 	/**
@@ -300,7 +273,7 @@ class Controller
 	 *
 	 * @param View $view Экземпляр шаблонизатора
 	 *
-	 * @param ITemplateHandler $th
+	 * @param ITemplateHandler $th Экземпляр обработчика шаблонов
 	 *
 	 * @return ITemplateHandler
 	 */
@@ -342,8 +315,7 @@ class Controller
 			$file = $folder . $fileId . $this->templateExtension;
 
 		$file = str_replace("\\", DIRECTORY_SEPARATOR, $file);
-
-		return Configurator::get("application:directory.templates") . DIRECTORY_SEPARATOR . $file;
+		return $file;
 	}
 
 	/**
@@ -353,11 +325,9 @@ class Controller
 	 *
 	 * @return string
 	 */
-	private function getViewLayout(View $view)
+	protected function getViewLayout(View $view)
 	{
-		$layoutDir = Configurator::get("application:directory.layouts");
-		$file = $layoutDir . DIRECTORY_SEPARATOR . $view->layout;
-		return $file;
+		return $view->layout;
 	}
 
 	/**
@@ -393,20 +363,9 @@ class Controller
 	 *
 	 * @return string
 	 */
-	public function getTemplateHandlerClass()
+	public function getRenderClass()
 	{
-		return $this->templateHandlerClass;
-	}
-
-	/**
-	 * Устанавливает имя класса обработчика шаблонов
-	 *
-	 * @param string $templateHandlerClass
-	 *
-	 * @return void
-	 */
-	public function setTemplateHandlerClass($templateHandlerClass)
-	{
-		$this->templateHandlerClass = $templateHandlerClass;
+		return $this->rendererClass;
 	}
 }
+

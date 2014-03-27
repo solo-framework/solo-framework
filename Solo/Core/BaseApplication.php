@@ -420,10 +420,10 @@ abstract class BaseApplication
 		if (self::$isDebug)
 		{
 			header("HTTP/1.1 500 Internal Server Error");
-			Logger::error($e);
 
 			$ev = new ErrorViz($e);
 			$ev->show();
+			Logger::error($e);
 			exit();
 		}
 		else
@@ -441,13 +441,13 @@ abstract class BaseApplication
 			}
 			if ($e instanceof \Exception)
 			{
-				Logger::error($e);
-
 				$this->display(
 					Controller::getInstance()->renderView(
 						Configurator::get("application:errorClass"), $e
 					)
 				);
+
+				Logger::error($e);
 				exit();
 			}
 		}
@@ -482,7 +482,8 @@ abstract class BaseApplication
 			self::$instance->onBeginHandleRequest();
 
 			// создание объекта обработчика запросов
-			$controller = Controller::getInstance(self::$isDebug);
+//			$controller = Controller::getInstance(array("1" => "dsds", "2" => 'dsdsd'));
+			$controller = self::getComponent("controller");
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML

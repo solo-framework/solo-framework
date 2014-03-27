@@ -13,10 +13,9 @@
  * @link     nolink
  */
 
-namespace Solo\Core;
+namespace Solo\Core\UI;
 
-interface IViewComponent
+interface IComponent
 {
 
 }
-?>

@@ -11,10 +11,9 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
-namespace Solo\Core;
+namespace Solo\Core\UI;
 
 interface IAjaxView
 {
 
 }
-?>

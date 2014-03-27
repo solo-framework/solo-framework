@@ -8,7 +8,7 @@
  * @author  Andrey Filippov <afi.work@gmail.com>
  */
 
-namespace Solo\Core;
+namespace Solo\Core\UI;
 
 abstract class View
 {
@@ -32,11 +32,6 @@ abstract class View
 	 * @var string
 	 */
 	public $templateFolder = null;
-
-
-	public $cacheId = null;
-
-	public $compileId = null;
 
 	/**
 	 * Метод вызывается перед render()
@@ -65,5 +60,13 @@ abstract class View
 	{
 
 	}
+
+	/**
+	 * Дополнительные данные для обработчика шаблонов
+	 *
+	 * @return array
+	 */
+	abstract function getExtraData();
+
 }
-?>
+

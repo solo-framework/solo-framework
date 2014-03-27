@@ -2,7 +2,7 @@
 
 namespace Solo\Core;
 
-class Route
+class Router
 {
 	/**
 	 * Список правил для распознавания маршрутов
@@ -40,7 +40,7 @@ class Route
 	/**
 	 * Конструктор
 	 *
-	 * @return Route
+	 * @return Router
 	 */
 	public function __construct()
 	{
