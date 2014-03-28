@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * Запуск сессии
  *
  * PHP version 5
  *
@@ -10,8 +10,6 @@
 
 namespace Solo\Core\Handler;
 
-use App\Application;
-use Solo\Core\Configurator;
 use Solo\Core\Context;
 
 class SessionHandler extends Handler
@@ -39,7 +37,6 @@ class SessionHandler extends Handler
 	public function onBegin()
 	{
 		// Старт контекста приложения (сессии)
-//		$provider = Application::getInstance()->getComponent(Configurator::get("application:session.provider"));
 		$provider = new $this->providerClass();
 		Context::start($this->sessionName, $provider);
 	}
