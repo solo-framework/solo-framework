@@ -53,6 +53,10 @@ class TemplateHandler extends BaseTemplateHandler implements ITemplateHandler
 		$this->render->setConfigDir($config["folders"]["config"]);
 		$this->render->setPluginsDir($config["folders"]["plugins"]);
 
+		$pluginDirs = $config["folders"]["plugins"];
+		$pluginDirs[] = SMARTY_PLUGINS_DIR;
+		$this->render->setPluginsDir($pluginDirs);
+
 		$this->render->setCaching($this->getExtra("caching"));
 		$this->render->setCacheLifetime($this->getExtra("cacheLifetime"));
 
