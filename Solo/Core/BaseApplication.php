@@ -428,12 +428,13 @@ abstract class BaseApplication
 		}
 		else
 		{
+			$controller = self::getComponent("controller");
 			if ($e instanceof HTTP404Exception)
 			{
 				Response::addHeader("HTTP/1.1 404 Not Found");
 
 				$this->display(
-					Controller::getInstance()->renderView(
+					$controller->renderView(
 						Configurator::get("application:error404class"), $e
 					)
 				);
@@ -442,7 +443,7 @@ abstract class BaseApplication
 			if ($e instanceof \Exception)
 			{
 				$this->display(
-					Controller::getInstance()->renderView(
+					$controller->renderView(
 						Configurator::get("application:errorClass"), $e
 					)
 				);

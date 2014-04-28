@@ -347,7 +347,7 @@ class Controller implements IApplicationComponent
 		// проверим, совпадают ли HTTP методы у запроса и Действия
 		if ($action->requestMethod !== $requestMethod)
 			throw new \RuntimeException("Can't execute action '{$rc->getName()}': current HTTP request
-				method is '{$action->requestMethod}'. You have to use '{$requestMethod}'.");
+				method is '{$requestMethod}'. You have to use '{$action->requestMethod}'.");
 
 		// выполнение цепочки методов Действия
 		$action->preExecute();
