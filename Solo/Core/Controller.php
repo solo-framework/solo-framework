@@ -205,40 +205,33 @@ class Controller implements IApplicationComponent
 	 */
 	public function renderViewComponent($className, $args = null)
 	{
-		try
-		{
-			$rc = new \ReflectionClass($className);
-			if (count($args) !== 0)
-				$view = $rc->newInstanceArgs($args);
-			else
-				$view = $rc->newInstance();
+		$rc = new \ReflectionClass($className);
+		if (count($args) !== 0)
+			$view = $rc->newInstanceArgs($args);
+		else
+			$view = $rc->newInstance();
 
-			// Получение данных в Представлении
-			$view->preRender();
-			$view->render();
-			$view->postRender();
+		// Получение данных в Представлении
+		$view->preRender();
+		$view->render();
+		$view->postRender();
 
-			$templateHandlerClass = $this->getRenderClass();
-			// экземпляр обработчика шаблонов
-			$rcTh = new \ReflectionClass($templateHandlerClass);
-			$tplHandler = $rcTh->newInstanceArgs(array($this->options, $view->getExtraData()));
+		$templateHandlerClass = $this->getRenderClass();
+		// экземпляр обработчика шаблонов
+		$rcTh = new \ReflectionClass($templateHandlerClass);
+		$tplHandler = $rcTh->newInstanceArgs(array($this->options, $view->getExtraData()));
 
-			// переменные Представления отправим в шаблон
-			$tplHandler = $this->assignToHandler($view, $tplHandler);
-			$view->templateFile = $this->getViewTemplate($view);
+		// переменные Представления отправим в шаблон
+		$tplHandler = $this->assignToHandler($view, $tplHandler);
+		$view->templateFile = $this->getViewTemplate($view);
 
-			// Вывод HTML
-			$html = $tplHandler->fetch($view->templateFile);
+		// Вывод HTML
+		$html = $tplHandler->fetch($view->templateFile);
 
-			if ($this->isDebug)
-				$html = $this->addDebugInfo($className, $html, $view->templateFile);
+		if ($this->isDebug)
+			$html = $this->addDebugInfo($className, $html, $view->templateFile);
 
-			return $html;
-		}
-		catch (\Exception $cle)
-		{
-			throw new HTTP404Exception($cle->getMessage());
-		}
+		return $html;
 	}
 
 	/**
