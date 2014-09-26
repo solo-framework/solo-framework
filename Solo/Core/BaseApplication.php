@@ -241,7 +241,7 @@ abstract class BaseApplication
 		foreach($config as $key => $value)
 		{
 			if (!property_exists($component, $key))
-				throw new \RuntimeException("Undefined class property `{$key}` in {$className}");
+				continue;
 			$component->$key = $value;
 		}
 
