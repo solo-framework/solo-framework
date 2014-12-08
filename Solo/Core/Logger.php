@@ -28,6 +28,69 @@ namespace Solo\Core;
 
 class Logger
 {
+	// Logging levels from syslog protocol defined in RFC 5424
+
+	/**
+	 * Detailed debug information
+	 */
+	const DEBUG = 100;
+
+	/**
+	 * Interesting events
+	 *
+	 * Examples: User logs in, SQL logs.
+	 */
+	const INFO = 200;
+
+	/**
+	 * Uncommon events
+	 */
+	const NOTICE = 250;
+
+	/**
+	 * Exceptional occurrences that are not errors
+	 *
+	 * Examples: Use of deprecated APIs, poor use of an API,
+	 * undesirable things that are not necessarily wrong.
+	 */
+	const WARNING = 300;
+
+	/**
+	 * Runtime errors
+	 */
+	const ERROR = 400;
+
+	/**
+	 * Critical conditions
+	 *
+	 * Example: Application component unavailable, unexpected exception.
+	 */
+	const CRITICAL = 500;
+
+	/**
+	 * Action must be taken immediately
+	 *
+	 * Example: Entire website down, database unavailable, etc.
+	 * This should trigger the SMS alerts and wake you up.
+	 */
+	const ALERT = 550;
+
+	/**
+	 * Urgent alert.
+	 */
+	const EMERGENCY = 600;
+
+	protected static $levels = array(
+			100 => 'DEBUG',
+			200 => 'INFO',
+			250 => 'NOTICE',
+			300 => 'WARNING',
+			400 => 'ERROR',
+			500 => 'CRITICAL',
+			550 => 'ALERT',
+			600 => 'EMERGENCY',
+	);
+
 	/**
 	 * Путь к каталогу для хранения файлов лога
 	 *
@@ -56,19 +119,34 @@ class Logger
 	 */
 	public static $filePrefix = "";
 
+	private static $level = self::DEBUG;
+
+	private static $singleFile = false;
+
 	/**
 	 * Конструктор
 	 * принимает параметры в виде массива
 	 * Параметры:
 	 * logger.dir - путь к каталогу
+	 * level - уровень логирования
 	 *
 	 * @param array $options список с настройками
 	 *
-	 * @return void
+	 * @throws \Exception
+	 * @return \Solo\Core\Logger
 	 */
 	private function __construct($options = null)
 	{
-		self::setDir(@$options['logger.dir']);
+		// настройки по-умолчанию
+		$defaults = array(
+			"logger.dir" => ".",
+			"level" => self::DEBUG,
+			"singleFile" => false
+		);
+
+		self::$options =  array_merge($defaults, $options);
+
+		self::setDir(self::$options['logger.dir']);
 		if (!is_dir(self::$dir))
 			throw new \Exception("Logger directory does not exist : " . self::$dir);
 	}
@@ -149,22 +227,33 @@ class Logger
 	 * Запись в файл
 	 *
 	 * @param object $object Данные, записываемые в файл
-	 * @param string $level Уровень логгирования
+	 * @param int $level Уровень логгирования
 	 *
 	 * @return void
 	 */
-	private static function write($object, $level = "INFO")
+	private static function write($object, $level = self::DEBUG)
 	{
-		$fileName = self::$dir . DIRECTORY_SEPARATOR . self::$filePrefix ."{$level}_" .  date("Y.m.d_H-i-s") . ".txt";
-		$str = self::getEOL() . self::getDateTime();
-		$str .= "$level: ";
-		$str .= self::parseEvent($object);
+		self::checkInit();
+		if ($level >= self::$options["level"])
+		{
+			$level = self::$levels[$level];
 
-		$fp = fopen($fileName, "a");
-		flock($fp, LOCK_EX);
-		fwrite($fp, $str);
-		flock($fp, LOCK_UN);
-		fclose($fp);
+			$fileName = "";
+			if (self::$options["singleFile"])
+				$fileName = self::$dir . DIRECTORY_SEPARATOR . self::$filePrefix ."{$level}.txt";
+			else
+				$fileName = self::$dir . DIRECTORY_SEPARATOR . self::$filePrefix ."{$level}_" .  date("Y.m.d_H-i-s") . ".txt";
+
+			$str = self::getEOL() . self::getDateTime();
+			$str .= "$level: ";
+			$str .= self::parseEvent($object);
+
+			$fp = fopen($fileName, "a");
+			flock($fp, LOCK_EX);
+			fwrite($fp, $str);
+			flock($fp, LOCK_UN);
+			fclose($fp);
+		}
 	}
 
 	/**
@@ -188,8 +277,7 @@ class Logger
 	*/
 	public static function debug($object)
 	{
-		self::checkInit();
-		self::write($object, "DEBUG");
+		self::write($object, self::DEBUG);
 	}
 
 	/**
@@ -201,8 +289,7 @@ class Logger
 	*/
 	public static function error($object)
 	{
-		self::checkInit();
-		self::write($object, "ERROR");
+		self::write($object, self::ERROR);
 	}
 
 	/**
@@ -214,8 +301,7 @@ class Logger
 	*/
 	public static function warning($object)
 	{
-		self::checkInit();
-		self::write($object, "WARNING");
+		self::write($object, self::WARNING);
 	}
 
 	/**
@@ -227,8 +313,55 @@ class Logger
 	 */
 	public static function info($object)
 	{
-		self::checkInit();
-		self::write($object, "INFO");
+		self::write($object, self::INFO);
+	}
+
+	/**
+	 * Пишет сообщение в лог с уровнем NOTICE
+	 *
+	 * @param mixed $object Данные
+	 *
+	 * @return void
+	 */
+	public static function notice($object)
+	{
+		self::write($object, self::NOTICE);
+	}
+
+	/**
+	 * Пишет сообщение в лог с уровнем CRITICAL
+	 *
+	 * @param mixed $object Данные
+	 *
+	 * @return void
+	 */
+	public static function critical($object)
+	{
+		self::write($object, self::CRITICAL);
+	}
+
+	/**
+	 * Пишет сообщение в лог с уровнем CRITICAL
+	 *
+	 * @param mixed $object Данные
+	 *
+	 * @return void
+	 */
+	public static function alert($object)
+	{
+		self::write($object, self::ALERT);
+	}
+
+	/**
+	 * Пишет сообщение в лог с уровнем CRITICAL
+	 *
+	 * @param mixed $object Данные
+	 *
+	 * @return void
+	 */
+	public static function emergency($object)
+	{
+		self::write($object, self::EMERGENCY);
 	}
 }
-?>
+
