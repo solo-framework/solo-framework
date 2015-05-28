@@ -11,6 +11,7 @@
 namespace Solo\Core;
 
 use Solo\Core\Handler\Handler;
+use Solo\Logger\Logger;
 
 abstract class BaseApplication
 {
@@ -111,7 +112,7 @@ abstract class BaseApplication
 	/**
 	 * Приватный коструктор для реализации Singleton
 	 *
-	 * @param $baseDir Каталог, в котором находятся файлы приложения
+	 * @param string $baseDir Каталог, в котором находятся файлы приложения
 	 *
 	 * @return \solo\core\BaseApplication
 	 */
@@ -260,8 +261,6 @@ abstract class BaseApplication
 	 * @param string $baseDir Базовый каталог, в котором находятся все файлы приложения
 	 * @param string $configFile Путь к файлу с конфигурацией
 	 *
-	 * @internal param string $className Имя класса, наследуемого от BaseApplication (только для PHP < 5.3.x)
-	 *
 	 * @return Application
 	 */
 	public static function createApplication($baseDir, $configFile)
@@ -290,7 +289,8 @@ abstract class BaseApplication
 			self::$isDebug = Configurator::get("application:debug");
 
 			// Инициализация логгера
-			Logger::init(Configurator::getSection("logger"));
+//			Logger::init(Configurator::getSection("logger"));
+			self::$instance->getComponent("logger");
 
 			try
 			{
@@ -412,7 +412,8 @@ abstract class BaseApplication
 	{
 		if (self::$isConsoleApp)
 		{
-			Logger::error($e);
+			//Logger::error($e);
+			Logger::get("core")->error("Catch exception in console", $e);
 			echo $e->getMessage();
 			exit();
 		}
@@ -423,7 +424,7 @@ abstract class BaseApplication
 
 			$ev = new ErrorViz($e);
 			$ev->show();
-			Logger::error($e);
+			Logger::get("core")->error("Catch exception in debug application mode", $e);
 			exit();
 		}
 		else
@@ -434,21 +435,22 @@ abstract class BaseApplication
 				Response::addHeader("HTTP/1.1 404 Not Found");
 
 				$this->display(
-					$controller->renderView(
-						Configurator::get("application:error404class"), $e
-					)
+						$controller->renderView(
+								Configurator::get("application:error404class"), $e
+						)
 				);
 				exit();
 			}
 			if ($e instanceof \Exception)
 			{
 				$this->display(
-					$controller->renderView(
-						Configurator::get("application:errorClass"), $e
-					)
+						$controller->renderView(
+								Configurator::get("application:errorClass"), $e
+						)
 				);
 
-				Logger::error($e);
+				Logger::get("core")->error("Catch exception", $e);
+				//Logger::error($e);
 				exit();
 			}
 		}
@@ -535,7 +537,7 @@ abstract class BaseApplication
 	 * Если указан текст сообщения, то он помещается в Context
 	 * для дальнейшего использования, например, при отображении ошибок.
 	 *
-	 * @param string|Exception $message Текст сообщения
+	 * @param string|\Exception $message Текст сообщения
 	 *
 	 * @param string $flashMessageId
 	 *
@@ -549,5 +551,3 @@ abstract class BaseApplication
 		Response::redirect(Request::prevUri());
 	}
 }
-
-?>

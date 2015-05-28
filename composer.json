@@ -10,9 +10,10 @@
         }
     ],
     "require": {
-		"php": ">=5.3.0"
+		"php": ">=5.3.0",
+		"afi/solo-logger": "dev-master"
     },
-	
+
 	"autoload": {
 		"psr-0":  { "Solo": "" }
 	}

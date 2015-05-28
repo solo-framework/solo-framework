@@ -125,9 +125,9 @@ class FileUpload
 	/**
 	 * Конструктор
 	 *
-	 * @param string $fieldName  имя поля в форме
+	 * @param string $fieldName имя поля в форме
 	 *
-	 * @return void
+	 * @throws \Exception
 	 */
 	public function __construct($fieldName)
 	{
@@ -135,7 +135,7 @@ class FileUpload
 		if (isset($_FILES[$this->fieldName]))
 			$this->fileData = $_FILES[$this->fieldName];
 		else
-			throw new Exception("Undefined field name '{$fieldName}'");
+			throw new \Exception("Undefined field name '{$fieldName}'");
 
 		$this->errorCode = $this->fileData['error'];
 		$this->name = $this->fileData['name'];
@@ -145,7 +145,7 @@ class FileUpload
 		$this->isError = (bool)$this->errorCode;
 
 		if ($this->isError)
-			throw new Exception($this->errorCode, $this->errorCode);
+			throw new \Exception($this->errorCode, $this->errorCode);
 
 		if (is_uploaded_file($this->tmpName))
 		{
@@ -155,7 +155,7 @@ class FileUpload
 		}
 		else
 		{
-			throw new Exception(UPLOAD_ERR_NO_FILE, UPLOAD_ERR_NO_FILE);
+			throw new \Exception(UPLOAD_ERR_NO_FILE, UPLOAD_ERR_NO_FILE);
 		}
 	}
 
@@ -225,14 +225,14 @@ class FileUpload
 	 *
 	 * @param int $size Размер в байтах
 	 * @param string $comment Комментарий, отображаемый если фильтр не пройден
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return FileUpload
 	 */
 	public function filterSizeMustBeLessThen($size, $comment)
 	{
 		if ($this->size > $size)
-			throw new Exception($comment);
+			throw new \Exception($comment);
 		else
 			return $this;
 	}
@@ -242,14 +242,14 @@ class FileUpload
 	 *
 	 * @param string $ext Расширение
 	 * @param string $comment Комментарий, отображаемый если фильтр не пройден
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return FileUpload
 	 */
 	public function filterExtensionIs($ext, $comment)
 	{
 		if ($this->extension !== $ext)
-			throw new Exception($comment);
+			throw new \Exception($comment);
 		else
 			return $this;
 	}
@@ -259,7 +259,7 @@ class FileUpload
 	 *
 	 * @param string $extList Список расширений через запятую
 	 * @param string $comment Комментарий, отображаемый если фильтр не пройден
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return FileUpload
 	 */
@@ -268,7 +268,7 @@ class FileUpload
 		$extList = explode(",", $extList);
 
 		if (!in_array($this->extension, $extList))
-			throw new Exception($comment);
+			throw new \Exception($comment);
 		else
 			return $this;
 	}
@@ -278,7 +278,7 @@ class FileUpload
 	 *
 	 * @param string $extList Список расширений через запятую
 	 * @param string $comment Комментарий, отображаемый если фильтр не пройден
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return FileUpload
 	 */
@@ -287,7 +287,7 @@ class FileUpload
 		$extList = explode(",", $extList);
 
 		if (in_array($this->extension, $extList))
-			throw new Exception($comment);
+			throw new \Exception($comment);
 		else
 			return $this;
 	}
@@ -298,14 +298,14 @@ class FileUpload
 	 *
 	 * @param string $pattern регулярное выражение
 	 * @param string $comment Комментарий, отображаемый если фильтр не пройден
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return FileUpload
 	 */
 	public function filterFileNameRegex($pattern, $comment)
 	{
 		if (!preg_match($pattern, $this->name))
-			throw new Exception($comment);
+			throw new \Exception($comment);
 		else
 			return $this;
 	}
@@ -315,16 +315,15 @@ class FileUpload
 	 *
 	 * @param string $expected Ожидаемое имя файла
 	 * @param string $comment Комментарий, отображаемый если фильтр не пройден
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @return FileUpload
 	 */
 	public function filterFileNameEqual($expected, $comment)
 	{
 		if ($expected !== $this->name)
-			throw new Exception($comment);
+			throw new \Exception($comment);
 		else
 			return $this;
 	}
 }
-?>
