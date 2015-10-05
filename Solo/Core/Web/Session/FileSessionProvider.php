@@ -25,5 +25,12 @@ class FileSessionProvider implements ISessionProvider, IApplicationComponent
 	{
 
 	}
+
+	/**
+	 * @param $opts
+	 */
+	public function __construct($opts)
+	{
+
+	}
 }
-?>

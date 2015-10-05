@@ -30,6 +30,13 @@ class SessionHandler extends Handler
 	public $sessionName = "";
 
 	/**
+	 * Настройки провайдера сессий, передаютсяв конструктор нужного класса
+	 *
+	 * @var null
+	 */
+	public $options = null;
+
+	/**
 	 * Выполнение действия в начале
 	 *
 	 * @return mixed
@@ -37,7 +44,7 @@ class SessionHandler extends Handler
 	public function onBegin()
 	{
 		// Старт контекста приложения (сессии)
-		$provider = new $this->providerClass();
+		$provider = new $this->providerClass($this->options);
 		Context::start($this->sessionName, $provider);
 	}
 }
