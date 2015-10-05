@@ -226,6 +226,17 @@ class Router
 		$this->prefixList[] = "/" . trim($prefix, "/");
 	}
 
+
+	/**
+	 * Возвращает список префиксов
+	 *
+	 * @return array
+	 */
+	public function getPrefix()
+	{
+		return $this->prefixList;
+	}
+
 	/**
 	 * Очистка правил маршрутизации
 	 *
