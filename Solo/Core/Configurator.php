@@ -81,7 +81,7 @@ abstract class Configurator
 	public static function get($param)
 	{
 		if (self::$config == null)
-			throw new Exception("Configurator not initialized.");
+			throw new \Exception("Configurator not initialized.");
 
 		return self::$object->get($param);
 	}
@@ -98,7 +98,7 @@ abstract class Configurator
 	public static function getSection($sectionName)
 	{
 		if (self::$config == null)
-			throw new Exception("Configurator not initialized.");
+			throw new \Exception("Configurator not initialized.");
 
 		return self::$object->getSection($sectionName);
 	}
@@ -134,4 +134,3 @@ abstract class Configurator
 		return self::$object->getOptions();
 	}
 }
-?>
