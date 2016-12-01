@@ -8,8 +8,8 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-require_once "../Solo/Core/Route.php";
-require_once "../Solo/Core/ClassLoaderException.php";
+require_once "../Solo/Core/Router.php";
+//require_once "../Solo/Core/ClassLoaderException.php";
 require_once "../Solo/Core/Request.php";
 
 use Solo\Core\Request;
@@ -23,9 +23,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$_GET = array();
 	}
 
-	public function test_index_route()
+	public function test_index_Router()
 	{
-		$route = new \Solo\Core\Route();
+		$route = new \Solo\Core\Router();
 		$class = '\App\Views\HomeView';
 
 		$route->add("/", $class);
@@ -37,7 +37,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_wildcards_routing()
 	{
-		$route = new \Solo\Core\Route();
+		$route = new \Solo\Core\Router();
 		$class = '\App\Views\HomeView';
 
 		$route->add("/:param:{any}", $class);
@@ -63,7 +63,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_simple_routing()
 	{
-		$route = new \Solo\Core\Route();
+		$route = new \Solo\Core\Router();
 
 		$class = '\App\Views\EditUserView';
 		// самые распространенные маршруты будут выглядеть как
@@ -82,7 +82,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_simple_routing_with_variables()
 	{
-		$route = new Route();
+		$route = new \Solo\Core\Router();
 
 		$class = '\App\Views\EditUserView';
 		// самые распространенные маршруты будут выглядеть как
@@ -100,7 +100,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_wildcards_routing_with_variables()
 	{
-		$route = new \Solo\Core\Route();
+		$route = new \Solo\Core\Router();
 		$class = '\App\Views\HomeView';
 		$route->add("/:username:{any}", $class);
 
@@ -124,7 +124,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_add_wildcard()
 	{
-		$route = new Route();
+		$route = new \Solo\Core\Router();
 		$class = '\App\Views\TimeTableView';
 
 //		Date dd/mm/yyyy
@@ -145,7 +145,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_add_wildcard_fail()
 	{
-		$route = new Route();
+		$route = new \Solo\Core\Router();
 		$route->addWildCard("{any}", "some_regex");
 	}
 
@@ -153,7 +153,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 	{
 		$class = '\App\Views\HomeView';
 
-		$route = new Route();
+		$route = new \Solo\Core\Router();
 		$route->addPrefix("/index.php");
 		$route->addPrefix("bo");
 
@@ -167,7 +167,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($class, $route->getClass("/bo"));
 		$this->assertEquals($class, $route->getClass("/bo/"));
 
-		$route = new Route();
+		$route = new \Solo\Core\Router();
 		$route->addPrefix("/bo");
 
 		$route->add("/", "BO\\View\\OperatorIndexView");
@@ -180,7 +180,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_with_get_params()
 	{
-		$route = new \Solo\Core\Route();
+		$route = new \Solo\Core\Router();
 		$class = '\App\Views\SearchView';
 
 		$route->add("/search", $class);
@@ -189,7 +189,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
 	public function test_with_action()
 	{
-		$route = new \Solo\Core\Route();
+		$route = new \Solo\Core\Router();
 		$class = '\App\Views\SearchView';
 
 		$route->add("/test", $class);
@@ -197,5 +197,23 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		// правило должно быть "/action/test"
 		$this->assertNotEquals($class, $route->getClass("/action/test"));
 		$this->assertNotEquals($class, $route->getClass("/action/test/id/100"));
+	}
+
+	public function test_similary_urls()
+	{
+		$route = new \Solo\Core\Router();
+		$class1 = '\App\Views\ParametrizedView';
+		$class2 = '\App\Views\TestView';
+
+		// специфичные правила всегда впереди
+		$route->add("/test/first_method/:myparam:{any}", $class1);
+
+		// общие правила в конце
+		$route->add("/test", $class2);
+
+		$this->assertEquals($class1, $route->getClass("/test/first_method/some_value"));
+		$this->assertEquals("some_value", Request::get("myparam"));
+
+		$this->assertEquals($class2, $route->getClass("/test"));
 	}
 }

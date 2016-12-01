@@ -115,10 +115,21 @@ class Router
 		{
 			if ("/" == $rule)
 				continue;
-			// более точно определенные правила ищем в первую очередь
-			$res = $this->startsWith($uri, $rule);
 
-			if ($res)
+			// перед проверкой удалить placeholders
+			$ruleWithoutPlaceholders = explode(":", $rule);
+
+			$hasWild = false;
+			if (count($ruleWithoutPlaceholders) > 1)
+				$hasWild = true;
+
+			$ruleWithoutPlaceholders = $ruleWithoutPlaceholders[0];
+			$res = $this->startsWith($uri, $ruleWithoutPlaceholders);
+
+			// более точно определенные правила ищем в первую очередь
+//			$res = $this->startsWith($uri, $rule);
+
+			if ($res && !$hasWild)
 			{
 				$this->parsePathInfo(str_replace($rule, "", $uri));
 				$className = $class;
