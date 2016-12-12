@@ -11,7 +11,7 @@
 
 namespace Solo\Core\UI\Smarty\Plugins;
 
-use App\Application;
+use Solo\Core\ComponentRegistry;
 
 class Component extends Base
 {
@@ -51,7 +51,7 @@ class Component extends Base
 
 		$className = str_replace(".", "\\", $className);
 
-		$ctr = Application::getInstance()->getComponent("controller");
+		$ctr = ComponentRegistry::getInstance()->getComponent("controller");
 		return $ctr->renderViewComponent($className, $params);
 	}
 

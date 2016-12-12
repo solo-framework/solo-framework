@@ -190,70 +190,6 @@ abstract class BaseApplication
 	}
 
 	/**
-	 * Возвращает экземпляр компонента
-	 * При создании компонента можно передать в его конструктор
-	 * дополнительные параметры
-	 * например: Application::getInstance()->getComponent("comp_name", $param1, $param2);
-	 *
-	 * @param string $componentName Имя компонента, соотвествующее записи в конфигураторе
-	 *
-	 * @throws \RuntimeException
-	 * @return object
-	 */
-	public function getComponent($componentName)
-	{
-		if (isset($this->components[$componentName]))
-			return $this->components[$componentName];
-
-		$config = Configurator::get("components:{$componentName}");
-		if (!isset($config["@class"]))
-			throw new \RuntimeException("Component configuration must have a 'class' option");
-
-		// имя класса создаваемого компонента
-		$className = $config["@class"];
-		unset($config["@class"]);
-
-		// параметры, передаваемые в конструктор
-		$ctor = isset($config["@constructor"]) ? $config["@constructor"] : null;
-		unset($config["@constructor"]);
-
-		if ($ctor !== null)
-		{
-			$object = new \ReflectionClass($className);
-			$component = $object->newInstanceArgs($ctor);
-		}
-		else
-		{
-			// Если переданы доп. параметры, то передаем их в конструктор
-			if (func_num_args() > 1)
-			{
-				$args = func_get_args();
-				unset($args[0]);
-				$object = new \ReflectionClass($className);
-				$component = $object->newInstanceArgs($args);
-			}
-			else
-			{
-				$component = new $className();
-			}
-		}
-
-		// теперь публичным свойствам экземпляра назначим значения из конфига
-		foreach($config as $key => $value)
-		{
-			if (!property_exists($component, $key))
-				continue;
-			$component->$key = $value;
-		}
-
-		// инициализация компонента
-		$component->initComponent();
-
-		$this->components[$componentName] = $component;
-		return $component;
-	}
-
-	/**
 	 * Создает экземпляр приложения
 	 *
 	 * @static
@@ -290,17 +226,8 @@ abstract class BaseApplication
 
 			// Инициализация логгера
 //			Logger::init(Configurator::getSection("logger"));
-			self::$instance->getComponent("logger");
 
-			try
-			{
-				// Инициализация  всех необходимых объектов: контекста и пр.
-				self::$instance->init();
-			}
-			catch (\Exception $e)
-			{
-				self::$instance->handleException($e);
-			}
+			ComponentRegistry::getInstance()->getComponent("logger");
 		}
 
 		return self::$instance;
@@ -363,22 +290,17 @@ abstract class BaseApplication
 	protected function init()
 	{
 		$handlers = Configurator::getArray("application:handlers");
-		try
+
+		foreach ($handlers as $class => $params)
 		{
-			foreach ($handlers as $class => $params)
-			{
-				$inst = new $class();
-				$inst->init($params);
-				if (!$inst->isEnabled)
-					continue;
-				$inst->onBegin();
-				$this->handlers[] = $inst;
-			}
+			$inst = new $class();
+			$inst->init($params);
+			if (!$inst->isEnabled)
+				continue;
+			$inst->onBegin();
+			$this->handlers[] = $inst;
 		}
-		catch (\Exception $e)
-		{
-			$this->handleException($e);
-		}
+
 	}
 
 	/**
@@ -429,7 +351,7 @@ abstract class BaseApplication
 		}
 		else
 		{
-			$controller = self::getComponent("controller");
+			$controller = ComponentRegistry::getInstance()->getComponent("controller");
 			if ($e instanceof HTTP404Exception)
 			{
 				Response::addHeader("HTTP/1.1 404 Not Found");
@@ -480,13 +402,15 @@ abstract class BaseApplication
 	{
 		try
 		{
+			// запуск всех обработчиков
+			self::$instance->init();
+
 			// В этом методе можно разместить код, который должен выполняться
 			// при каждом запросе.
 			self::$instance->onBeginHandleRequest();
 
 			// создание объекта обработчика запросов
-//			$controller = Controller::getInstance(array("1" => "dsds", "2" => 'dsdsd'));
-			$controller = self::getComponent("controller");
+			$controller = ComponentRegistry::getInstance()->getComponent("controller");
 
 			// обработка запроса
 			// если было запрошено представление - получим HTML

@@ -11,6 +11,8 @@
 namespace Solo\Core\Handler;
 
 use App\Application;
+use Solo\Core\ComponentRegistry;
+use Solo\Core\DB\PDOAdapter;
 use Solo\Core\HTTP404Exception;
 
 class SQLLoggerHandler extends Handler
@@ -38,7 +40,7 @@ class SQLLoggerHandler extends Handler
 	public function onFinish($response)
 	{
 		/** @var $db PDOAdapter*/
-		$db = Application::getInstance()->getComponent("db");
+		$db = ComponentRegistry::getInstance()->getComponent("db");
 		$log = $db->getLog();
 
 		$log = implode("<br/>", $log);

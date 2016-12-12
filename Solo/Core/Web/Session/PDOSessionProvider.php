@@ -10,6 +10,7 @@
 
 namespace Solo\Core\Web\Session;
 
+use Solo\Core\ComponentRegistry;
 use Solo\Core\IApplicationComponent;
 
 class PDOSessionProvider implements ISessionProvider, IApplicationComponent
@@ -20,7 +21,7 @@ class PDOSessionProvider implements ISessionProvider, IApplicationComponent
 
 	public function initComponent()
 	{
-		$this->connection = Application::getInstance()->getComponent($this->connectionName);
+		$this->connection = ComponentRegistry::getInstance()->getComponent($this->connectionName);
 
 		return true;
 	}
