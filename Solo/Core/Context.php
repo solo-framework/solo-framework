@@ -29,6 +29,12 @@ class Context
 	private static $instance = null;
 
 	/**
+	 * @var ISessionProvider
+	 */
+	protected static $provider = null;
+
+
+	/**
 	 * Приватный конструктор
 	 *
 	 * @param string $name Имя сессии
@@ -36,9 +42,18 @@ class Context
 	 */
 	private function __construct($name, ISessionProvider $provider)
 	{
+		self::$provider = $provider;
 		$provider->start();
 		session_name($name);
 		session_start();
+	}
+
+	/**
+	 * @return ISessionProvider
+	 */
+	public static function getProvider()
+	{
+		return self::$provider;
 	}
 
 	/**

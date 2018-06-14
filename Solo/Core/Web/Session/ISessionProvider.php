@@ -13,5 +13,6 @@ namespace Solo\Core\Web\Session;
 interface ISessionProvider
 {
 	public function start();
+
+	public function getSessionManager();
 }
-?>
