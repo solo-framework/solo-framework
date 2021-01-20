@@ -23,6 +23,18 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$_GET = array();
 	}
 
+
+	public function test_qr()
+	{
+		$route = new \Solo\Core\Router();
+		$class = '\App\Views\HomeView';
+		$url = '/gtk2Kgqr/84906328/blablabla';
+		$pattern = '/qr/:providerId:{any}/:account:{any}';
+
+		$route->add($pattern, $class);
+		$this->assertEquals(null, $route->getClass($url));
+	}
+
 	public function test_index_Router()
 	{
 		$route = new \Solo\Core\Router();

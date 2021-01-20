@@ -169,11 +169,10 @@ class Router
 
 		$rule = preg_replace('%:([\w]+):(\{[\w]+\})%', '(?P<$1>$2)', $rule);
 
-		$rule = "~" . trim($rule, '/') . "/~";
+		$rule = "~" . rtrim($rule, '/') . "/~";
 
 		// заменить wildcards на регулярные выражения
 		$rule = str_replace(array_keys($this->wildcards), array_values($this->wildcards), $rule);
-
 		// проверим, содержало ли правило какие-нибудь подстановки, если нет,
 		// то дальше можно не проверять
 		if (trim($tmp, "/") == trim($rule, "~/"))
