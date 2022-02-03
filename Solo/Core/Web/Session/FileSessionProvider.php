@@ -16,6 +16,12 @@ use Solo\Core\IApplicationComponent;
 
 class FileSessionProvider implements ISessionProvider, IApplicationComponent
 {
+
+	/**
+	 * @var array
+	 */
+	private $options;
+
 	public function initComponent()
 	{
 		return true;
@@ -23,7 +29,10 @@ class FileSessionProvider implements ISessionProvider, IApplicationComponent
 
 	public function start()
 	{
-
+		foreach ($this->options["handlerOptions"] as $k => $v)
+		{
+			ini_set($k, $v);
+		}
 	}
 
 	/**
@@ -31,6 +40,11 @@ class FileSessionProvider implements ISessionProvider, IApplicationComponent
 	 */
 	public function __construct($opts)
 	{
+		$this->options = $opts;
+	}
 
+	public function getSessionManager()
+	{
+		return null;
 	}
 }

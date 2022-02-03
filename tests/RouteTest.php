@@ -8,16 +8,19 @@
  * @author  Andrey Filippov <afi@i-loto.ru>
  */
 
-require_once "../Solo/Core/Router.php";
-//require_once "../Solo/Core/ClassLoaderException.php";
-require_once "../Solo/Core/Request.php";
+//require_once "../vendor/autoload.php";
 
+//require_once "../Solo/Core/Router.php";
+//require_once "../Solo/Core/ClassLoaderException.php";
+//require_once "../Solo/Core/Request.php";
+
+use PHPUnit\Framework\TestCase;
 use Solo\Core\Request;
 use Solo\Core\Route;
 
-class RouteTest extends PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
-	public function setUp()
+	public function setUp() : void
 	{
 		$_SERVER["REQUEST_METHOD"] = "GET";
 		$_GET = array();
@@ -152,11 +155,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals("07.01.2013", \Solo\Core\Request::get("endDate"));
 	}
 
-	/**
-	 * @expectedException RuntimeException
-	 */
 	public function test_add_wildcard_fail()
 	{
+		$this->expectException(RuntimeException::class);
 		$route = new \Solo\Core\Router();
 		$route->addWildCard("{any}", "some_regex");
 	}

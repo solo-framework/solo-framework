@@ -12,8 +12,9 @@ namespace Solo\Core;
 
 class ComponentRegistry
 {
-	private static $instance = null;
-	private $registry = array();
+	private static ?ComponentRegistry $instance = null;
+
+	private array $registry = [];
 
 	private function __construct()
 	{
@@ -23,11 +24,11 @@ class ComponentRegistry
 	{
 	}  // Защищаем от создания через клонирование
 
-	private function __wakeup()
+	public function __wakeup()
 	{
-	}  // Защищаем от создания через unserialize
+	}
 
-	public static function getInstance()
+	public static function getInstance(): ?ComponentRegistry
 	{
 		if (is_null(self::$instance))
 		{
@@ -57,10 +58,11 @@ class ComponentRegistry
 	 *
 	 * @param string $componentName Имя компонента, соотвествующее записи в конфигураторе
 	 *
-	 * @throws \RuntimeException
 	 * @return object
+	 * @throws \ReflectionException
+	 * @throws \RuntimeException
 	 */
-	public function getComponent($componentName)
+	public function getComponent($componentName): object
 	{
 		if (isset($this->registry[$componentName]))
 			return $this->registry[$componentName];
@@ -74,7 +76,7 @@ class ComponentRegistry
 		unset($config["@class"]);
 
 		// параметры, передаваемые в конструктор
-		$ctor = isset($config["@constructor"]) ? $config["@constructor"] : null;
+		$ctor = $config["@constructor"] ?? null;
 		unset($config["@constructor"]);
 
 		if ($ctor !== null)

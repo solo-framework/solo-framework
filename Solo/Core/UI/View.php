@@ -17,21 +17,21 @@ abstract class View
 	 *
 	 * @var string
 	 */
-	public $layout = null;
+	public ?string $layout = null;
 
 	/**
 	 * Имя файла с шаблоном для текущего Представления
 	 *
 	 * @var string
 	 */
-	public $templateFile = null;
+	public ?string $templateFile = null;
 
 	/**
 	 * Путь к каталогу, где находится шаблон представления
 	 *
 	 * @var string
 	 */
-	public $templateFolder = null;
+	public ?string $templateFolder = null;
 
 	/**
 	 * Метод вызывается перед render()
@@ -56,7 +56,7 @@ abstract class View
 	 *
 	 * @return void
 	 */
-	public function postRender()
+	public function postRender() : void
 	{
 
 	}
@@ -66,7 +66,7 @@ abstract class View
 	 *
 	 * @return array
 	 */
-	abstract function getExtraData();
+	abstract function getExtraData(): array;
 
 }
 

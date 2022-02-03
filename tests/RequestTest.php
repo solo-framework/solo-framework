@@ -7,11 +7,9 @@
  * To change this template use File | Settings | File Templates.
  */
 
-require_once "../Solo/Core/Request.php";
-
 use \Solo\Core\Request;
 
-class RequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends \PHPUnit\Framework\TestCase
 {
 	private function setPost()
 	{

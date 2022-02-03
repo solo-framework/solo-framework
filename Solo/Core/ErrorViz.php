@@ -177,6 +177,9 @@ HIGH;
 
 	private function parseArgs($args)
 	{
+		if ($args == null){
+			return "";
+		}
 		if (count($args) == 0)
 			return "";
 		// TODO: попробовать брать эту инфу из $this->e->getTraceAsString()

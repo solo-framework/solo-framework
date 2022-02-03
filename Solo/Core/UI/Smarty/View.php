@@ -25,7 +25,7 @@ abstract class View extends \Solo\Core\UI\View
 	 *
 	 * @return array
 	 */
-	public function getExtraData()
+	public function getExtraData(): array
 	{
 
 		return array(

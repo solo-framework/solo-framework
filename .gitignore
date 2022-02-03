@@ -3,3 +3,5 @@
 .settings
 .idea
 vendor
+phpunit-log
+.phpunit.result.cache

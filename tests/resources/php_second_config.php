@@ -5,7 +5,7 @@ return array
 	// Эта директива указывает, что нужно переопределить
 	// или расширить
 	// настройки, указанные в файле phpunit/resources/php_main_config.php
-	"@extends" => "./resources/php_main_config.php",
+	"@extends" => "./tests/resources/php_main_config.php",
 
 	"section" => array
 	(

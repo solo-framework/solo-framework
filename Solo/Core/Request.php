@@ -146,10 +146,7 @@ class Request
 	public static function clearInput($input)
 	{
 		$input = trim($input);
-		if (get_magic_quotes_gpc())
-		{
-			$input = stripslashes($input);
-		}
+		$input = stripslashes($input);
 		return $input;
 	}
 

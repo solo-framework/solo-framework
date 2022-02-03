@@ -122,7 +122,7 @@ class Controller implements IApplicationComponent
 	 *
 	 * @return string
 	 */
-	public function handleView(\ReflectionClass $view, $args = null)
+	public function handleView(\ReflectionClass $view, $args = [])
 	{
 		// Нельзя напрямую отображать Компоненты
 		if($view->implementsInterface("Solo\\Core\\UI\\IComponent"))

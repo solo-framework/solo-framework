@@ -7,32 +7,23 @@
  * To change this template use File | Settings | File Templates.
  */
 
-require_once "../Solo/Core/IConfiguratorParser.php";
-require_once "../Solo/Core/PHPConfiguratorParser.php";
-
 use Solo\Core\PHPConfiguratorParser;
 
-class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
+class PHPConfiguratorParserTest extends \PHPUnit\Framework\TestCase
 {
-	private $file = "./resources/php_config.php";
+	private $file = "./tests/resources/php_config.php";
 
-	private $second = "./resources/php_second_config.php";
+	private $second = "./tests/resources/php_second_config.php";
 
 	/**
 	 *
 	 */
 	public function test_fail_construct()
 	{
-		try
-		{
-			$ini = new PHPConfiguratorParser("undefined");
-		}
-		catch (Exception $e)
-		{
-			return ;
-		}
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage("Config file 'undefined' does not exist.");
 
-		$this->fail("An expected exception has not been raised.");
+		new PHPConfiguratorParser("undefined");
 	}
 
 	public function test_get()
@@ -48,17 +39,11 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_fail_get()
 	{
-		try
-		{
-			$ini = new PHPConfiguratorParser($this->file);
-			$res = $ini->get("section:undefined");
-		}
-		catch (Exception $e)
-		{
-			return ;
-		}
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage("Undefined config option : section:undefined");
 
-		$this->fail("An expected exception has not been raised.");
+		$ini = new PHPConfiguratorParser($this->file);
+		$ini->get("section:undefined");
 	}
 
 
@@ -67,31 +52,31 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 		$ini = new PHPConfiguratorParser($this->second);
 		$res = $ini->getOptions();
 
-		$expect = Array
+		$expect = array
 		(
-			"only_in_main_defined" => Array
+			"only_in_main_defined" => array
 			(
 				"main" => "main"
 			),
 
-			"section" => Array
+			"section" => array
 			(
-				"test" => "string",
-				"int" => 10,
-				"array" => array(10,12,13,14),
+				"test"  => "string",
+				"int"   => 10,
+				"array" => array(10, 12, 13, 14),
 				"again" => "dddd"
 			),
 
-			"another" => Array
+			"another" => array
 			(
 				"test" => "redeclader in second"
 			),
 
-			"main" => Array
+			"main" => array
 			(
 				"val" => "string",
 				"int" => 12,
-				"arr" => Array
+				"arr" => array
 				(
 					"0" => 3,
 					"1" => 4
@@ -122,9 +107,9 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 
 		$expect = array(
 			"section" => array(
-				"test" => "string",
-				"int" => "10",
-				"array" => array(10,12,13,14),
+				"test"  => "string",
+				"int"   => "10",
+				"array" => array(10, 12, 13, 14),
 			),
 			"another" => array(
 				"test" => "test"
@@ -140,9 +125,9 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 		$res = $ini->getSection("section");
 
 		$expect = array(
-			"test" => "string",
-			"int" => "10",
-			"array" => array (10,12,13,14)
+			"test"  => "string",
+			"int"   => "10",
+			"array" => array(10, 12, 13, 14)
 		);
 
 		$this->assertEquals($expect, $res);
@@ -153,24 +138,18 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_fail_getSection()
 	{
-		try
-		{
-			$ini = new PHPConfiguratorParser($this->file);
-			$res = $ini->getSection("undefinedsection");
-		}
-		catch (Exception $e)
-		{
-			return ;
-		}
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage("Undefined config section : undefinedsection");
 
-		$this->fail("An expected exception has not been raised.");
+		$ini = new PHPConfiguratorParser($this->file);
+		$ini->getSection("undefinedsection");
 	}
 
 	public function test_getArray()
 	{
 		$ini = new PHPConfiguratorParser($this->file);
 		$res = $ini->getArray("section:array");
-		$expect = array(10,12,13,14);
+		$expect = array(10, 12, 13, 14);
 		$this->assertEquals($expect, $res);
 	}
 
@@ -179,17 +158,11 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	 */
 	public function test_fail_getArray()
 	{
-		try
-		{
-			$ini = new PHPConfiguratorParser($this->file);
-			$res = $ini->getArray("section:undef");
-		}
-		catch (Exception $e)
-		{
-			return ;
-		}
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage("Undefined config option : section:undef");
 
-		$this->fail("An expected exception has not been raised.");
+		$ini = new PHPConfiguratorParser($this->file);
+		$ini->getArray("section:undef");
 	}
 
 	//public function test_
@@ -197,9 +170,9 @@ class PHPConfiguratorParserTest extends PHPUnit_Framework_TestCase
 	public function test_multi_inheritance()
 	{
 		// тестирование множественного наследования конфигов
-		$base = "./resources/config_base.php";
-		$base1 = "./resources/config_base_1.php";
-		$base2 = "./resources/config_base_2.php";
+		$base = "./tests/resources/config_base.php";
+		$base1 = "./tests/resources/config_base_1.php";
+		$base2 = "./tests/resources/config_base_2.php";
 
 		$parser = new PHPConfiguratorParser($base2);
 

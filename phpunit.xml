@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+	<coverage>
+
+		<include>
+			<directory>Solo</directory>
+		</include>
+		<report>
+			<html outputDirectory="./phpunit-log/codeCoverage" lowUpperBound="50" highLowerBound="80"/>
+		</report>
+	</coverage>
+<!--	<php>-->
+<!--		<var name="mongo.server" value="mongodb://192.168.1.112:27017/test_db"/>-->
+<!--		<var name="mongo.dbname" value="test_db"/>-->
+<!--	</php>-->
+	<logging>
+		<testdoxHtml outputFile="./phpunit-log/testdox.html"/>
+	</logging>
+	<testsuites>
+		<testsuite name="Test suite">
+			<directory>tests/</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
+
+
+		<!--
+		run:
+		XDEBUG_MODE=coverage ./vendor/bin/phpunit
+		-->
