@@ -114,6 +114,22 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(10.11, Request::get('float', 10.11), "must be default : 10.11");
 	}
 
+	public function testGetArray2()
+	{
+		$this->setPost();
+		$data = [
+			"part1\part2",
+			"part3",
+			"part1\part2\part3",
+        ];
+
+		$_POST = [];
+		$_GET = [];
+		$_POST["data"] = $data;
+
+		$this->assertEquals($data, Request::getArray("data"), "Data is not array");
+	}
+
 	public function testGetArray()
 	{
 		$this->setPost();

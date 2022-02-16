@@ -146,7 +146,7 @@ class Request
 	public static function clearInput($input)
 	{
 		$input = trim($input);
-		$input = stripslashes($input);
+//		$input = stripslashes($input);
 		return $input;
 	}
 
