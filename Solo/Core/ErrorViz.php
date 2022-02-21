@@ -378,6 +378,9 @@ HIGH;
 //		}
 //		else
 //		{
+			if (!$path)
+				return [];
+
 			$contents = @file_get_contents($path);
 //			if ($contents)
 //			{
