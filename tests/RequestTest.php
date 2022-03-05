@@ -168,6 +168,25 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
 		$_POST['array'] = $arrIn;
 		$this->assertEquals($arrOut, Request::getArray('array'));
+
+		$arrIn = array(
+			"t1" => 'value"1',
+			"t2" => "value'2",
+			"t3" => "<script>",
+			"t4" => "value",
+			"t5" => array("la" => 'll"ll')
+		);
+
+		$arrOut = array(
+			"t1" => 'value&quot;1',
+			"t2" => "value'2",
+			"t3" => "&lt;script&gt;",
+			"t4" => "value",
+			"t5" => array("la" => 'll&quot;ll')
+		);
+//
+		$_POST['array'] = $arrIn;
+		$this->assertEquals($arrOut, Request::getArray('array'));
 	}
 
 	public function test_clearInput()

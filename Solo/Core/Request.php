@@ -171,12 +171,12 @@ class Request
 	 *
 	 * @return array
 	 */
-	public static function getArray($name, $default = null, $allowHTML = false)
+	public static function getArray($name, $default = null, $allowHTML = false, $flags = ENT_COMPAT)
 	{
 		$res = self::getRawData($name, $default);
 		if (is_array($res))
 		{
-			Request::stripArray($res, $allowHTML);
+			Request::stripArray($res, $allowHTML, $flags);
 			return $res;
 		}
 		else
@@ -190,22 +190,23 @@ class Request
 	 *
 	 * @param array &$array Массив с данными
 	 * @param boolean $allowHTML Очищать данные в массиве или нет
+	 * @param int $flags htmlspecialchars flags
 	 *
 	 * @return array
 	 */
-	public static function stripArray(&$array, $allowHTML)
+	public static function stripArray(&$array, $allowHTML, $flags = ENT_COMPAT)
 	{
 		foreach ($array as $key => $value)
 		{
 			if (is_array($value))
 			{
-				self::stripArray($array[$key], $allowHTML);
+				self::stripArray($array[$key], $allowHTML, $flags);
 			}
 			else
 			{
 				if (!$allowHTML)
 				{
-					$value = htmlspecialchars($value);
+					$value = htmlspecialchars($value, $flags);
 					$value = self::clearInput($value);
 				}
 				$array[$key] = $value;
