@@ -28,7 +28,7 @@ class Response
 	 *
 	 * @return void
 	 */
-	public static function addHeader($header, $replace = true, $httpCode = null)
+	public static function addHeader($header, $replace = true, $httpCode = 0)
 	{
 		$obj = new \stdClass();
 		$obj->header = $header;
@@ -58,7 +58,7 @@ class Response
 	 *
 	 * @return void
 	 */
-	public static function sendHeader($header, $replace = true, $httpCode = null)
+	public static function sendHeader($header, $replace = true, $httpCode = 0)
 	{
 		header($header, $replace, $httpCode);
 	}
