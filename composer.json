@@ -11,7 +11,7 @@
     ],
     "require": {
 		"php": ">=8.0",
-		"afi/solo-logger": "dev-master"
+		"afi/solo-logger": "^1"
     },
 
 	"autoload": {
